@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # postgres:
+  #   image: postgres
+  #   container_name: face-attendance
+  #   environment:
+  #     POSTGRES_PASSWORD: aiface_123
+  #   ports:
+  #     - '5433:5432'
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: face-attendance-backend
+    # depends_on:
+    #   - postgres
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - '3001:3001'
+    command: ['npm', 'run', 'start:prod']
+
+# volumes:
+#   pgdata:
