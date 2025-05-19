@@ -27,6 +27,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
 
     // Eslint off
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     'import/extensions': 'off',
     'import/prefer-default-export': 'off',
     'class-methods-use-this': 'off',

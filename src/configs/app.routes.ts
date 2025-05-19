@@ -40,5 +40,6 @@ export const routesV1 = {
   auth: {
     root: authRoot,
     login: `/${authRoot}/login`,
+    register: `/${authRoot}/register`,
   },
 };

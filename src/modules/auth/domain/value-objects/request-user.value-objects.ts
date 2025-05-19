@@ -2,7 +2,7 @@ import { ValueObject } from '@src/libs/ddd';
 
 export interface RequestUserProps {
   id: string;
-  username: string;
+  userName: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -15,8 +15,8 @@ export class RequestUser extends ValueObject<RequestUserProps> {
     return this.props.id;
   }
 
-  get username(): string {
-    return this.props.username;
+  get userName(): string {
+    return this.props.userName;
   }
 
   get email(): string {

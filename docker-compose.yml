@@ -23,6 +23,5 @@ services:
     ports:
       - '3001:3001'
     command: ['npm', 'run', 'start:prod']
-
 # volumes:
 #   pgdata:

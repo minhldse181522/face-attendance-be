@@ -1,6 +1,6 @@
-import '@libs';
+import '@libs/utils/dotenv';
 import { get } from 'env-var';
 
 export const databaseConfig = {
-  databseUrl: get('DATABASE_URL').required().asString(),
+  databaseUrl: get('DATABASE_URL').required().asString(),
 };
