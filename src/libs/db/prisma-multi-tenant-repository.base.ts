@@ -1,6 +1,6 @@
-import { None, Option, Some } from 'oxide.ts';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { None, Option, Some } from 'oxide.ts';
 import { RequestContextService } from '../application/context/AppRequestContext';
 import {
   AggregateRoot,
@@ -214,61 +214,6 @@ export abstract class PrismaMultiTenantRepositoryBase<
     const client = await this._getClient();
 
     return client.$transaction(handler);
-  }
-
-  async countInUseValue({
-    column,
-    value,
-    excludeTables = [],
-  }: {
-    column: string;
-    value: string | number;
-    excludeTables?: string[];
-  }): Promise<number> {
-    // Get client by context
-    const client = await this._getClient();
-
-    // find all tables that have the same column name
-    const findTablesSql = Prisma.sql`
-      SELECT n.nspname AS schema ,c.relname AS table
-      FROM pg_class AS c
-      INNER JOIN pg_attribute AS a ON a.attrelid = c.oid
-      INNER JOIN pg_namespace AS n ON c.relnamespace = n.oid
-      WHERE a.attname = ${column} AND c.relkind = 'r'
-    `;
-    const foundTables =
-      await client.$queryRaw<Array<{ schema: string; table: string }>>(
-        findTablesSql,
-      );
-
-    if (!foundTables.length) return 0;
-
-    // filter out tables that are excluded
-    const filteredTables = foundTables.filter(
-      (table) => !excludeTables.includes(table.table),
-    );
-    if (!filteredTables.length) return 0;
-
-    // create a union query to find the count of the value in all tables
-    const unionQueries = filteredTables.map(
-      (table) => Prisma.sql`
-        SELECT '${Prisma.raw(table.table)}' AS table, COUNT(id) AS count
-        FROM ${Prisma.raw(table.table)}
-        WHERE ${Prisma.raw(column)} = ${value}
-    `,
-    );
-    const countSql = Prisma.sql`${Prisma.join(unionQueries, ' UNION ALL ')}`;
-    const countResults = await client.$queryRaw<
-      Array<{
-        table: string;
-        count: bigint;
-      }>
-    >(countSql);
-
-    return countResults.reduce(
-      (acc, result) => acc + +result.count.toString(),
-      0,
-    );
   }
 
   protected async _getClient(): Promise<PrismaClient> {
