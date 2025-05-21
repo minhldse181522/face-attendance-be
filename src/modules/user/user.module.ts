@@ -3,8 +3,10 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PrismaUserRepository } from './database/user.repository.prisma';
 import { UserMapper } from './mappers/user.mapper';
 import { USER_REPOSITORY } from './user.di-tokens';
+import { FindUserHttpController } from './queries/find-users/find-user.http.controller';
+import { FindUserQueryHandler } from './queries/find-users/find-user.query-handler';
 
-const httpControllers = [];
+const httpControllers = [FindUserHttpController];
 
 const messageControllers = [];
 
@@ -14,7 +16,7 @@ const graphqlResolvers: Provider[] = [];
 
 const commandHandlers: Provider[] = [];
 
-const queryHandlers: Provider[] = [];
+const queryHandlers: Provider[] = [FindUserQueryHandler];
 
 const mappers: Provider[] = [UserMapper];
 

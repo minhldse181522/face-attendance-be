@@ -1,5 +1,5 @@
 const authRoot = 'auth';
-const humanRoot = 'human';
+const humanRoot = 'user';
 
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
@@ -30,8 +30,8 @@ export const routesV1 = {
    * DELETE /human/get-salary/:id => Xóa
    */
   human: {
-    salary: {
-      ...baseRoutes(`${humanRoot}/get-salary`),
+    user: {
+      ...baseRoutes(`${humanRoot}/get-all-user`),
     },
   },
   // #endregion
