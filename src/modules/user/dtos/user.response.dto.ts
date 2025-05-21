@@ -27,6 +27,12 @@ export class UserResponseDto extends ResponseBase<any> {
   lastName: string;
 
   @ApiProperty({
+    example: '',
+    description: 'Ảnh nhân sự',
+  })
+  faceImg: string;
+
+  @ApiProperty({
     example: 'test@gmail.com',
     description: 'Mail',
   })
@@ -49,4 +55,22 @@ export class UserResponseDto extends ResponseBase<any> {
     description: 'Số điện thoại',
   })
   phone: string;
+
+  @ApiProperty({
+    example: 'xxx.pdf',
+    description: 'Hợp đồng',
+  })
+  contract: string;
+
+  @ApiProperty({
+    example: 'HAC',
+    description: 'Mã chi nhánh',
+  })
+  branchCode: string;
+
+  @ApiProperty({
+    example: 'admin',
+    description: 'Quản lý bởi',
+  })
+  managedBy: string;
 }

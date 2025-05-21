@@ -18,10 +18,14 @@ export class UserMapper
       roleCode: copy.roleCode,
       firstName: copy.firstName,
       lastName: copy.lastName,
+      faceImg: copy.faceImg,
       email: copy.email,
       bod: copy.bod,
       address: copy.address,
       phone: copy.phone,
+      contract: copy.contract,
+      branchCode: copy.branchCode,
+      managedBy: copy.managedBy,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -43,10 +47,14 @@ export class UserMapper
         roleCode: record.roleCode,
         firstName: record.firstName,
         lastName: record.lastName,
+        faceImg: record.faceImg,
         email: record.email,
         bod: record.bod,
         address: record.address,
         phone: record.phone,
+        contract: record.contract,
+        branchCode: record.branchCode,
+        managedBy: record.managedBy,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
       },
@@ -62,10 +70,14 @@ export class UserMapper
     response.roleCode = props.roleCode;
     response.firstName = props.firstName;
     response.lastName = props.lastName;
+    response.faceImg = props.faceImg;
     response.email = props.email;
     response.bod = props.bod;
     response.address = props.address;
     response.phone = props.phone;
+    response.contract = props.contract;
+    response.branchCode = props.branchCode;
+    response.managedBy = props.managedBy;
     return response;
   }
 }

@@ -47,10 +47,14 @@ export class LoginService
       userName: userProps.userName,
       fullName: `${userProps.firstName} ${userProps.lastName}`,
       role: userProps.roleCode,
+      faceImg: userProps.faceImg,
       email: userProps.email,
       bod: userProps.bod,
       address: userProps.address,
       phone: userProps.phone,
+      contract: userProps.contract,
+      branchCode: userProps.branchCode,
+      managedBy: userProps.managedBy,
     };
 
     return {

@@ -1,42 +1,93 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsDateString, IsEmail, IsOptional, MaxLength } from 'class-validator';
 
 export class UpdateUserRequestDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: 'utest',
+    description: 'TÊN TÀI KHOẢN',
+  })
   @IsOptional()
-  @IsString()
-  @Length(1, 100)
-  readonly userName?: string;
+  @MaxLength(50)
+  userName?: string | null;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  @Length(1, 100)
-  readonly firstName?: string;
+  @MaxLength(5)
+  roleCode?: string | null;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: 'Pham',
+    description: 'HỌ',
+  })
   @IsOptional()
-  @IsString()
-  @Length(1, 100)
-  readonly lastName?: string;
+  @MaxLength(50)
+  firstName?: string | null;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: 'Tu',
+    description: 'TÊN',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  lastName?: string | null;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Ảnh nhân sự',
+  })
+  @IsOptional()
+  @MaxLength(200)
+  faceImg?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'test@gmail.com',
+    description: 'Email',
+  })
   @IsOptional()
   @IsEmail()
-  readonly email?: string;
+  email?: string | null;
+
+  @ApiPropertyOptional({
+    example: new Date(),
+    description: 'Ngày tháng năm sinh',
+  })
+  @IsOptional()
+  @IsDateString()
+  bod?: Date | null;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  readonly phone?: string;
+  address?: string | null;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: '129 Las Vegas',
+    description: 'Địa chỉ',
+  })
   @IsOptional()
-  @IsString()
-  readonly address?: string;
+  @MaxLength(10)
+  phone?: string | null;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: 'xxx.pdf',
+    description: 'Hợp đồng',
+  })
   @IsOptional()
-  @IsString()
-  readonly roleCode?: string;
+  @MaxLength(200)
+  contract?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'HAC',
+    description: 'Mã chi nhánh',
+  })
+  @IsOptional()
+  @MaxLength(20)
+  branchCode?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'admin',
+    description: 'Quản lý bởi',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  managedBy?: string | null;
 }

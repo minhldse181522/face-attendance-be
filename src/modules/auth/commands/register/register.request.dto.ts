@@ -47,6 +47,14 @@ export class RegisterRequestDto {
   lastName: string;
 
   @ApiProperty({
+    example: '',
+    description: 'Ảnh nhân sự',
+  })
+  @IsNotEmpty()
+  @MaxLength(200)
+  faceImg: string;
+
+  @ApiProperty({
     example: 'test@gmail.com',
     description: 'Email',
   })
@@ -77,4 +85,28 @@ export class RegisterRequestDto {
   @IsNotEmpty()
   @MaxLength(10)
   phone: string;
+
+  @ApiProperty({
+    example: 'xxx.pdf',
+    description: 'Hợp đồng',
+  })
+  @IsNotEmpty()
+  @MaxLength(200)
+  contract: string;
+
+  @ApiProperty({
+    example: 'HAC',
+    description: 'Mã chi nhánh',
+  })
+  @IsNotEmpty()
+  @MaxLength(20)
+  branchCode: string;
+
+  @ApiProperty({
+    example: 'admin',
+    description: 'Quản lý bởi',
+  })
+  @IsNotEmpty()
+  @MaxLength(50)
+  managedBy: string;
 }
