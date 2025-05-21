@@ -1,5 +1,7 @@
-import { ICommand } from '@nestjs/cqrs';
+export class DeleteUserCommand {
+  readonly userId: bigint;
 
-export class DeleteUserCommand implements ICommand {
-  constructor(readonly userId: string) {}
+  constructor(props: DeleteUserCommand) {
+    this.userId = props.userId;
+  }
 }

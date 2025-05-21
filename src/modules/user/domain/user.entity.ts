@@ -1,5 +1,8 @@
 import { AggregateID, AggregateRoot } from '@libs/ddd';
-import { RegisterUserProps, UserProps } from './user.type';
+import { RegisterUserProps, UpdateUserProps, UserProps } from './user.type';
+import { Err, Ok, Result } from 'oxide.ts';
+import { copyNonUndefinedProps } from '@src/libs/utils';
+import { UserNotFoundError } from './user.error';
 
 export class UserEntity extends AggregateRoot<UserProps, bigint> {
   // Define more entity methods here
@@ -10,6 +13,14 @@ export class UserEntity extends AggregateRoot<UserProps, bigint> {
       id: BigInt(0),
       props,
     });
+  }
+
+  update(props: UpdateUserProps): Result<unknown, UserNotFoundError> {
+    if (this.props.inUseCount) {
+      return Err(new UserNotFoundError());
+    }
+    copyNonUndefinedProps(this.props, props);
+    return Ok(true);
   }
 
   validate(): void {

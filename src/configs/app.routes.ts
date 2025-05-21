@@ -29,10 +29,8 @@ export const routesV1 = {
    * PUT /human/get-salary/:id    => Cập nhật
    * DELETE /human/get-salary/:id => Xóa
    */
-  human: {
-    user: {
-      ...baseRoutes(`${humanRoot}/get-all-user`),
-    },
+  user: {
+    ...baseRoutes(`${humanRoot}`),
   },
   // #endregion
 

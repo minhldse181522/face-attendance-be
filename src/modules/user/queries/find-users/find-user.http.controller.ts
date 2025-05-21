@@ -32,7 +32,7 @@ export class FindUserHttpController {
   })
   @AuthPermission(resourcesV1.USER.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.human.user.root)
+  @Get(routesV1.user.root)
   async findUser(
     @Query(new DirectFilterPipe<any, Prisma.UserWhereInput>([]))
     queryParams: FindUserRequestDto,

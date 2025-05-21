@@ -6,10 +6,14 @@ export class RegisterCommand extends Command {
   readonly roleCode: string;
   readonly firstName: string;
   readonly lastName: string;
+  readonly faceImg: string;
   readonly email: string;
   readonly bod: Date;
   readonly address: string;
   readonly phone: string;
+  readonly contract: string;
+  readonly branchCode: string;
+  readonly managedBy: string;
   readonly createdBy: string;
 
   constructor(props: CommandProps<RegisterCommand>) {

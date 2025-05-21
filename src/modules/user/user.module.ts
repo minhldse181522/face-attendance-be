@@ -1,16 +1,20 @@
 import { Logger, Module, Provider } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { DeleteUserHttpController } from './commands/delete-user/delete-user.http.controller';
+import { DeleteUserService } from './commands/delete-user/delete-user.service';
+import { UpdateUserHttpController } from './commands/update-user/update-user.http.controller';
+import { UpdateUserService } from './commands/update-user/update-user.service';
 import { PrismaUserRepository } from './database/user.repository.prisma';
 import { UserMapper } from './mappers/user.mapper';
-import { USER_REPOSITORY } from './user.di-tokens';
 import { FindUserHttpController } from './queries/find-users/find-user.http.controller';
 import { FindUserQueryHandler } from './queries/find-users/find-user.query-handler';
-import { UpdateUserHttpController } from './commands/update-user/update-user.http.controller';
-import { DeleteUserHttpController } from './commands/delete-user/delete-user.http.controller';
-import { UpdateUserHandler } from './commands/update-user/update-user.handler';
-import { DeleteUserHandler } from './commands/delete-user/delete-user.handler';
+import { USER_REPOSITORY } from './user.di-tokens';
 
-const httpControllers = [FindUserHttpController ,UpdateUserHttpController, DeleteUserHttpController];
+const httpControllers = [
+  FindUserHttpController,
+  UpdateUserHttpController,
+  DeleteUserHttpController,
+];
 
 const messageControllers = [];
 
@@ -18,7 +22,7 @@ const cliControllers: Provider[] = [];
 
 const graphqlResolvers: Provider[] = [];
 
-const commandHandlers: Provider[] = [UpdateUserHandler,DeleteUserHandler];
+const commandHandlers: Provider[] = [UpdateUserService, DeleteUserService];
 
 const queryHandlers: Provider[] = [FindUserQueryHandler];
 
