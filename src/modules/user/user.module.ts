@@ -5,8 +5,12 @@ import { UserMapper } from './mappers/user.mapper';
 import { USER_REPOSITORY } from './user.di-tokens';
 import { FindUserHttpController } from './queries/find-users/find-user.http.controller';
 import { FindUserQueryHandler } from './queries/find-users/find-user.query-handler';
+import { UpdateUserHttpController } from './commands/update-user/update-user.http.controller';
+import { DeleteUserHttpController } from './commands/delete-user/delete-user.http.controller';
+import { UpdateUserHandler } from './commands/update-user/update-user.handler';
+import { DeleteUserHandler } from './commands/delete-user/delete-user.handler';
 
-const httpControllers = [FindUserHttpController];
+const httpControllers = [FindUserHttpController ,UpdateUserHttpController, DeleteUserHttpController];
 
 const messageControllers = [];
 
@@ -14,7 +18,7 @@ const cliControllers: Provider[] = [];
 
 const graphqlResolvers: Provider[] = [];
 
-const commandHandlers: Provider[] = [];
+const commandHandlers: Provider[] = [UpdateUserHandler,DeleteUserHandler];
 
 const queryHandlers: Provider[] = [FindUserQueryHandler];
 
