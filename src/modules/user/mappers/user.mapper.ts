@@ -18,14 +18,16 @@ export class UserMapper
       roleCode: copy.roleCode,
       firstName: copy.firstName,
       lastName: copy.lastName,
-      faceImg: copy.faceImg,
+      faceImg: copy.faceImg || null,
       email: copy.email,
       bod: copy.bod,
       address: copy.address,
       phone: copy.phone,
-      contract: copy.contract,
+      contract: copy.contract || null,
       branchCode: copy.branchCode,
       managedBy: copy.managedBy,
+      positionCode: copy.positionCode,
+      isActive: copy.isActive || null,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -54,7 +56,9 @@ export class UserMapper
         phone: record.phone,
         contract: record.contract,
         branchCode: record.branchCode,
+        positionCode: record.positionCode,
         managedBy: record.managedBy,
+        isActive: record.isActive,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
       },
@@ -77,7 +81,9 @@ export class UserMapper
     response.phone = props.phone;
     response.contract = props.contract;
     response.branchCode = props.branchCode;
+    response.positionCode = props.positionCode;
     response.managedBy = props.managedBy;
+    response.isActive = props.isActive;
     return response;
   }
 }

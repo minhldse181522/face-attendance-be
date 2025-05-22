@@ -84,10 +84,25 @@ export class UpdateUserRequestDto {
   branchCode?: string | null;
 
   @ApiPropertyOptional({
+    example: 'SEP',
+    description: 'Mã vị trí',
+  })
+  @IsOptional()
+  @MaxLength(20)
+  positionCode?: string | null;
+
+  @ApiPropertyOptional({
     example: 'admin',
     description: 'Quản lý bởi',
   })
   @IsOptional()
   @MaxLength(50)
   managedBy?: string | null;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Trạng thái hoạt động',
+  })
+  @IsOptional()
+  isActive?: boolean | null;
 }

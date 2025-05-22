@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsNotEmpty, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 import { RoleCode } from '../../domain/role-code.enum';
 
 export class RegisterRequestDto {
@@ -46,13 +52,13 @@ export class RegisterRequestDto {
   @MaxLength(50)
   lastName: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: '',
     description: 'Ảnh nhân sự',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(200)
-  faceImg: string;
+  faceImg?: string | null;
 
   @ApiProperty({
     example: 'test@gmail.com',
@@ -86,13 +92,13 @@ export class RegisterRequestDto {
   @MaxLength(10)
   phone: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'xxx.pdf',
     description: 'Hợp đồng',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(200)
-  contract: string;
+  contract?: string | null;
 
   @ApiProperty({
     example: 'HAC',
@@ -101,6 +107,14 @@ export class RegisterRequestDto {
   @IsNotEmpty()
   @MaxLength(20)
   branchCode: string;
+
+  @ApiProperty({
+    example: 'SEP',
+    description: 'Mã nhân viên',
+  })
+  @IsNotEmpty()
+  @MaxLength(20)
+  positionCode: string;
 
   @ApiProperty({
     example: 'admin',
