@@ -29,8 +29,12 @@ export class LoginService
 
     const payload = {
       sub: user.getProps().id.toString(),
-      username: user.getProps().userName,
-      role: user.getProps().roleCode,
+      userName: user.getProps().userName,
+      roleCode: user.getProps().roleCode,
+      firstName: user.getProps().firstName,
+      lastName: user.getProps().lastName,
+      email: user.getProps().email,
+      phone: user.getProps().phone,
     };
 
     const accessToken = this.jwtService.sign(payload, {

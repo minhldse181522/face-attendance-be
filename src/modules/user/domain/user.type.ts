@@ -15,7 +15,7 @@ export interface UserProps {
   branchCode: string;
   positionCode: string;
   managedBy: string;
-  isActive?: boolean | null;
+  isActive: boolean;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
@@ -36,6 +36,7 @@ export interface RegisterUserProps {
   contract?: string | null;
   branchCode: string;
   positionCode: string;
+  isActive: boolean;
   managedBy: string;
   createdBy: string;
 }

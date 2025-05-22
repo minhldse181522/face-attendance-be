@@ -28,6 +28,7 @@ export class RegisterService implements ICommandHandler<RegisterCommand> {
     const newUser = UserEntity.create({
       ...props,
       password: hashedPassword,
+      isActive: true,
     });
 
     try {

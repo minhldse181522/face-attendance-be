@@ -27,7 +27,7 @@ export class UserMapper
       branchCode: copy.branchCode,
       managedBy: copy.managedBy,
       positionCode: copy.positionCode,
-      isActive: copy.isActive || null,
+      isActive: copy.isActive,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,

@@ -12,6 +12,11 @@ export const resourcesV1 = {
     displayName: 'Nhân sự', // tên hiển thị trên SWAGGER
     parent: 'Nhân sự', // nhóm parent
   },
+  BRANCH: {
+    name: 'branch',
+    displayName: 'Chi nhánh',
+    parent: 'Chi nhánh',
+  },
   //#endregion
   //#region AUTH
   AUTH: {
