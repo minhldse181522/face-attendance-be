@@ -8,6 +8,7 @@ import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { Paginated } from '@src/libs/ddd';
 import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { RoleEnum } from '../domain/user.type';
+import { DropDownResult } from '@src/libs/utils/dropdown.util';
 
 @Injectable()
 export class PrismaUserRepository
@@ -96,5 +97,23 @@ export class PrismaUserRepository
       limit,
       page,
     });
+  }
+
+  async findUserDropDown(): Promise<DropDownResult[]> {
+    const client = await this._getClient();
+    const result = await client.user.findMany({
+      select: {
+        userName: true,
+        position: {
+          select: {
+            positionName: true,
+          },
+        },
+      },
+    });
+    return result.map((item) => ({
+      label: `${item.position?.positionName} - ${item.userName}`,
+      value: item.userName,
+    }));
   }
 }

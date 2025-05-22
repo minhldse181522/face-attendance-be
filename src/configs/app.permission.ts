@@ -23,6 +23,13 @@ export const resourcesV1 = {
     parent: 'Vị trí trong công ty',
   },
   //#endregion
+  //#region DROPDOWN
+  DROP_DOWN_DATA: {
+    name: 'drop-down',
+    displayName: 'Drop down',
+    parent: 'Lựa chọn',
+  },
+  //#endregion
   //#region AUTH
   AUTH: {
     name: 'authentication',

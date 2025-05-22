@@ -2,6 +2,7 @@ const authRoot = 'auth';
 const humanRoot = 'user';
 const branchRoot = 'branch';
 const positionRoot = 'position';
+const dropdown = 'dropdown';
 
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
@@ -41,7 +42,19 @@ export const routesV1 = {
     ...baseRoutes(`${positionRoot}`),
   },
   // #endregion
-
+  // #region Dropdown
+  dropdown: {
+    user: {
+      ...baseRoutes(`${dropdown}/dropdown-user`),
+    },
+    position: {
+      ...baseRoutes(`${dropdown}/dropdown-position`),
+    },
+    branch: {
+      ...baseRoutes(`${dropdown}/dropdown-branch`),
+    },
+  },
+  // #endregion
   // Specific
   auth: {
     root: authRoot,

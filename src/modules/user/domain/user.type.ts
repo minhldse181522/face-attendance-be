@@ -1,3 +1,6 @@
+import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
+
 export enum RoleEnum {
   STAFF = 'STAFF',
   MANAGER = 'MANAGER',
@@ -26,6 +29,9 @@ export interface UserProps {
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
+
+  branch?: BranchEntity;
+  position?: PositionEntity;
 }
 
 export interface RegisterUserProps {

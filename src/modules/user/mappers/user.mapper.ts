@@ -1,8 +1,14 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { User as UserModel } from '@prisma/client';
+import {
+  Branch as BranchModel,
+  Position as PositionModel,
+  User as UserModel,
+} from '@prisma/client';
 import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
+import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
 
 @Injectable()
 export class UserMapper
@@ -37,7 +43,12 @@ export class UserMapper
     return record;
   }
 
-  toDomain(record: UserModel): UserEntity {
+  toDomain(
+    record: UserModel & {
+      branch: BranchModel;
+      position: PositionModel;
+    },
+  ): UserEntity {
     return new UserEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -61,6 +72,28 @@ export class UserMapper
         isActive: record.isActive,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+        branch: record.branch
+          ? new BranchEntity({
+              id: record.branch.id,
+              props: {
+                code: record.branch.code,
+                branchName: record.branch.branchName,
+                createdBy: record.branch.createdBy,
+              },
+            })
+          : undefined,
+        position: record.position
+          ? new PositionEntity({
+              id: record.position.id,
+              props: {
+                code: record.position.code,
+                positionName: record.position.positionName,
+                createdBy: record.position.createdBy,
+                basicSalary: record.position.basicSalary,
+                allowance: record.position.allowance,
+              },
+            })
+          : undefined,
       },
       skipValidation: true,
     });
