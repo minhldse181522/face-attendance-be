@@ -7,6 +7,7 @@ import { UserRepositoryPort } from './user.repository.port';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { Paginated } from '@src/libs/ddd';
 import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import { RoleEnum } from '../domain/user.type';
 
 @Injectable()
 export class PrismaUserRepository
@@ -36,16 +37,51 @@ export class PrismaUserRepository
 
   async findAllUser(
     params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+    role?: string,
+    positionCode?: string,
+    branchCode?: string,
+    isActive?: boolean,
   ): Promise<Paginated<UserEntity>> {
     const client = await this._getClient();
 
     const { limit, offset, page, where = {}, orderBy } = params;
 
+    //filter theo role
+    const roleFilter: Prisma.UserWhereInput = {};
+    if (role) {
+      switch (role) {
+        case RoleEnum.ADMIN:
+          roleFilter.roleCode = { equals: 'R1' };
+          break;
+
+        case RoleEnum.HR:
+          roleFilter.roleCode = { equals: 'R2' };
+          break;
+
+        case RoleEnum.MANAGER:
+          roleFilter.roleCode = { equals: 'R3' };
+          break;
+
+        case RoleEnum.STAFF:
+          roleFilter.roleCode = { equals: 'R4' };
+          break;
+      }
+    }
+
+    // Gộp Điều kiện
+    const whereFilter: Prisma.UserWhereInput = {
+      ...where,
+      ...roleFilter,
+      positionCode,
+      branchCode,
+      isActive,
+    };
+
     const [data, count] = await Promise.all([
       client.user.findMany({
         skip: offset,
         take: limit,
-        where: { ...where },
+        where: whereFilter,
         orderBy,
       }),
 

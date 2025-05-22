@@ -7,8 +7,28 @@ import { QueryHandler } from '@nestjs/cqrs';
 import { USER_REPOSITORY } from '../../user.di-tokens';
 import { Inject } from '@nestjs/common';
 import { UserRepositoryPort } from '../../database/user.repository.port';
+import { GeneratedFindOptions } from '@chax-at/prisma-filter';
 
-export class FindUserQuery extends PrismaPaginatedQueryBase<Prisma.UserWhereInput> {}
+export class FindUserQuery extends PrismaPaginatedQueryBase<Prisma.UserWhereInput> {
+  role?: string;
+  positionCode?: string;
+  branchCode?: string;
+  isActive?: boolean;
+  constructor(
+    props: GeneratedFindOptions<Prisma.UserWhereInput> & {
+      role?: string;
+      positionCode?: string;
+      branchCode?: string;
+      isActive?: boolean;
+    },
+  ) {
+    super(props);
+    this.role = props.role;
+    this.positionCode = props.positionCode;
+    this.branchCode = props.branchCode;
+    this.isActive = props.isActive;
+  }
+}
 
 export type FindUserQueryResult = Result<Paginated<UserEntity>, void>;
 
@@ -20,7 +40,13 @@ export class FindUserQueryHandler {
   ) {}
 
   async execute(query: FindUserQuery): Promise<FindUserQueryResult> {
-    const result = await this.userRepo.findAllUser(query);
+    const result = await this.userRepo.findAllUser(
+      { ...query },
+      query.role,
+      query.positionCode,
+      query.branchCode,
+      query.isActive,
+    );
 
     return Ok(
       new Paginated({

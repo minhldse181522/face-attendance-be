@@ -1,3 +1,10 @@
+export enum RoleEnum {
+  STAFF = 'STAFF',
+  MANAGER = 'MANAGER',
+  HR = 'HR',
+  ADMIN = 'ADMIN',
+}
+
 export interface UserProps {
   id?: bigint;
   // Add properties here

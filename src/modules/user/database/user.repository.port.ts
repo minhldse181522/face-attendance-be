@@ -7,5 +7,9 @@ export interface UserRepositoryPort extends RepositoryPort<UserEntity> {
   findByUsername(userName: string): Promise<UserEntity | null>;
   findAllUser(
     params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+    role?: string,
+    positionCode?: string,
+    branchCode?: string,
+    isActive?: boolean,
   ): Promise<Paginated<UserEntity>>;
 }
