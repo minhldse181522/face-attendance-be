@@ -1,6 +1,7 @@
 const authRoot = 'auth';
 const humanRoot = 'user';
 const branchRoot = 'branch';
+const positionRoot = 'position';
 
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
@@ -35,6 +36,9 @@ export const routesV1 = {
   },
   branch: {
     ...baseRoutes(`${branchRoot}`),
+  },
+  position: {
+    ...baseRoutes(`${positionRoot}`),
   },
   // #endregion
 

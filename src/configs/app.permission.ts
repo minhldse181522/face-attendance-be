@@ -15,7 +15,12 @@ export const resourcesV1 = {
   BRANCH: {
     name: 'branch',
     displayName: 'Chi nhánh',
-    parent: 'Chi nhánh',
+    parent: 'Công ty',
+  },
+  POSITION: {
+    name: 'position',
+    displayName: 'Chức vụ',
+    parent: 'Vị trí trong công ty',
   },
   //#endregion
   //#region AUTH
