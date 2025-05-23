@@ -75,7 +75,7 @@ export class PrismaUserRepository
       ...roleFilter,
       positionCode,
       branchCode,
-      isActive,
+      isActive: typeof isActive === 'string' ? isActive === 'true' : isActive,
     };
 
     const [data, count] = await Promise.all([
@@ -99,7 +99,7 @@ export class PrismaUserRepository
     });
   }
 
-  async findUserDropDown(): Promise<DropDownResult[]> {
+  async findUserDropDown(branchCode?: string): Promise<DropDownResult[]> {
     const client = await this._getClient();
     const result = await client.user.findMany({
       select: {
@@ -110,6 +110,7 @@ export class PrismaUserRepository
           },
         },
       },
+      where: { branchCode },
     });
     return result.map((item) => ({
       label: `${item.position?.positionName} - ${item.userName}`,

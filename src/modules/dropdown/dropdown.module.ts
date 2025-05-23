@@ -13,6 +13,9 @@ import { PrismaBranchRepository } from '../branch/database/branch.repository.pri
 import { USER_REPOSITORY } from '../user/user.di-tokens';
 import { PrismaUserRepository } from '../user/database/user.repository.prisma';
 import { UserModule } from '../user/user.module';
+import { ROLE_REPOSITORY } from '../role/role.di-tokens';
+import { PrismaRoleRepository } from '../role/database/role.repository.prisma';
+import { RoleModule } from '../role/role.module';
 
 const httpControllers = [DropDownHttpController];
 
@@ -30,6 +33,10 @@ const repositories: Provider[] = [
     useClass: PrismaDropDownRepository,
   },
   {
+    provide: ROLE_REPOSITORY,
+    useClass: PrismaRoleRepository,
+  },
+  {
     provide: USER_REPOSITORY,
     useClass: PrismaUserRepository,
   },
@@ -44,7 +51,7 @@ const repositories: Provider[] = [
 ];
 
 @Module({
-  imports: [CqrsModule, BranchModule, PositionModule, UserModule],
+  imports: [CqrsModule, BranchModule, PositionModule, UserModule, RoleModule],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
     Logger,

@@ -1,5 +1,6 @@
 const authRoot = 'auth';
 const humanRoot = 'user';
+const roleRoot = 'role';
 const branchRoot = 'branch';
 const positionRoot = 'position';
 const dropdown = 'dropdown';
@@ -34,6 +35,9 @@ export const routesV1 = {
    */
   user: {
     ...baseRoutes(`${humanRoot}`),
+  },
+  role: {
+    ...baseRoutes(`${roleRoot}`),
   },
   branch: {
     ...baseRoutes(`${branchRoot}`),

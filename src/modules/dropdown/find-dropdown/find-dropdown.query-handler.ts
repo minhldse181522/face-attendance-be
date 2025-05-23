@@ -4,7 +4,10 @@ import { DROPDOWN_REPOSITORY } from '../dropdown.di-tokens';
 import { PrismaDropDownRepository } from '../database/dropdown.repository.prisma';
 
 export class FindDropdownQuery {
-  constructor(public readonly type: string) {}
+  constructor(
+    public readonly type: string,
+    public readonly branchCode?: string,
+  ) {}
 }
 
 @QueryHandler(FindDropdownQuery)
@@ -17,7 +20,7 @@ export class FindDropdownQueryHandler
   ) {}
 
   async execute(query: FindDropdownQuery): Promise<any> {
-    const { type } = query;
-    return this.service.getDropdownData(type);
+    const { type, branchCode } = query;
+    return this.service.getDropdownData(type, branchCode);
   }
 }
