@@ -10,6 +10,7 @@ import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { RoleEnum } from '../domain/user.type';
 import { DropDownResult } from '@src/libs/utils/dropdown.util';
 
+export const UserScalarFieldEnum = Prisma.UserScalarFieldEnum;
 @Injectable()
 export class PrismaUserRepository
   extends PrismaMultiTenantRepositoryBase<UserEntity, UserModel>

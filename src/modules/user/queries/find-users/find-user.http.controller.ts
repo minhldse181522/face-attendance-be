@@ -11,11 +11,12 @@ import {
 } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator';
+import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
 import { UserPaginatedResponseDto } from '../../dtos/user.paginated.response.dto';
 import { UserMapper } from '../../mappers/user.mapper';
 import { FindUserQuery } from './find-user.query-handler';
 import { FindUserRequestDto } from './find-user.request.dto';
-import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
+import { UserScalarFieldEnum } from '../../database/user.repository.prisma';
 
 @Controller(routesV1.version)
 export class FindUserHttpController {
@@ -34,7 +35,11 @@ export class FindUserHttpController {
   @UseGuards(JwtAuthGuard)
   @Get(routesV1.user.root)
   async findUser(
-    @Query(new DirectFilterPipe<any, Prisma.UserWhereInput>([]))
+    @Query(
+      new DirectFilterPipe<any, Prisma.UserWhereInput>([
+        UserScalarFieldEnum.userName,
+      ]),
+    )
     queryParams: FindUserRequestDto,
   ): Promise<UserPaginatedResponseDto> {
     const query = new FindUserQuery({
