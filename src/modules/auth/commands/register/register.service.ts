@@ -7,6 +7,7 @@ import { UserRepositoryPort } from '@src/modules/user/database/user.repository.p
 import { Err, Ok, Result } from 'oxide.ts';
 import { UserEntity } from '@src/modules/user/domain/user.entity';
 import { RegisterError } from '../../domain/auth.error';
+import { FieldValidationException } from '@src/libs/api/api-validation-error.exception';
 
 export type RegisterServiceResult = Result<UserEntity, any>;
 
@@ -18,9 +19,14 @@ export class RegisterService implements ICommandHandler<RegisterCommand> {
   ) {}
 
   async execute(command: RegisterCommand): Promise<RegisterServiceResult> {
+    const errors: Record<string, string> = {};
     const existing = await this.userRepo.findByUsername(command.userName);
     if (existing) {
-      throw new ConflictException('Username already exists');
+      errors['userName'] = 'Tên đăng nhập đã bị trùng. Vui lòng nhập tên khác';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      throw new FieldValidationException(errors);
     }
 
     const hashedPassword = await bcrypt.hash(command.password, 10);

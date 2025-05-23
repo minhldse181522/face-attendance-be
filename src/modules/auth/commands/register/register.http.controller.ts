@@ -1,5 +1,5 @@
 import { resourcesV1 } from '@config/app.permission';
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, UseFilters } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { routesV1 } from '@src/configs/app.routes';
@@ -11,7 +11,9 @@ import { RegisterResponseDto } from '../../dtos/register.response.dto';
 import { RegisterCommand } from './register.command';
 import { RegisterRequestDto } from './register.request.dto';
 import { RegisterServiceResult } from './register.service';
+import { FieldValidationExceptionFilter } from '@src/libs/api/field-validation-exception.error';
 
+@UseFilters(FieldValidationExceptionFilter)
 @Controller(routesV1.version)
 export class RegisterHttpController {
   constructor(
