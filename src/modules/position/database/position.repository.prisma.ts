@@ -2,10 +2,10 @@ import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-re
 import { Injectable } from '@nestjs/common';
 import { Position as PositionModel } from '@prisma/client';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
+import { DropDownResult } from '@src/libs/utils/dropdown.util';
 import { PositionEntity } from '../domain/position.entity';
 import { PositionMapper } from '../mappers/position.mapper';
 import { PositionRepositoryPort } from './position.repository.port';
-import { DropDownResult } from '@src/libs/utils/dropdown.util';
 
 @Injectable()
 export class PrismaPositionRepository

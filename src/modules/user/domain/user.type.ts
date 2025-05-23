@@ -3,10 +3,10 @@ import { PositionEntity } from '@src/modules/position/domain/position.entity';
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 export enum RoleEnum {
-  STAFF = 'STAFF',
-  MANAGER = 'MANAGER',
-  HR = 'HR',
-  ADMIN = 'ADMIN',
+  ADMIN = 'R1',
+  HR = 'R2',
+  MANAGER = 'R3',
+  STAFF = 'R4',
 }
 
 export interface UserProps {

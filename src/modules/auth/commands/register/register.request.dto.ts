@@ -81,7 +81,7 @@ export class RegisterRequestDto {
     description: 'Địa chỉ',
   })
   @IsNotEmpty()
-  @MaxLength(50)
+  @MaxLength(200)
   address: string;
 
   @ApiProperty({

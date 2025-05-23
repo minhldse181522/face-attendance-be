@@ -23,11 +23,10 @@ export class FindUserByBranchRequestDto {
 
 export class FindPositionByRoleRequestDto {
   @ApiProperty({
-    example: RoleEnum.ADMIN,
-    enum: RoleEnum,
+    example: 'R1',
     description: 'Filter theo role',
   })
   @IsNotEmpty()
   @MaxLength(20)
-  roleCode: RoleEnum;
+  roleCode: string;
 }

@@ -41,11 +41,11 @@ export class DropDownHttpController {
     @Query() queryDto: FindUserByBranchRequestDto,
   ): Promise<DropDownResponseDto> {
     return this.queryBus.execute(
-      new FindDropdownQuery(
-        DropDownTypeEnum.USER,
-        queryDto.branchCode,
-        queryDto.roleCode,
-      ),
+      new FindDropdownQuery({
+        type: DropDownTypeEnum.USER,
+        branchCode: queryDto.branchCode,
+        roleCode: queryDto.roleCode,
+      }),
     );
   }
 
@@ -60,7 +60,11 @@ export class DropDownHttpController {
   @UseGuards(JwtAuthGuard)
   @Get(routesV1.dropdown.role.root)
   async getRoleDropdown(): Promise<DropDownResponseDto> {
-    return this.queryBus.execute(new FindDropdownQuery(DropDownTypeEnum.ROLE));
+    return this.queryBus.execute(
+      new FindDropdownQuery({
+        type: DropDownTypeEnum.ROLE,
+      }),
+    );
   }
 
   // Position
@@ -77,7 +81,10 @@ export class DropDownHttpController {
     @Query() query: FindPositionByRoleRequestDto,
   ): Promise<DropDownResponseDto> {
     return this.queryBus.execute(
-      new FindDropdownQuery(DropDownTypeEnum.POSITION, query.roleCode),
+      new FindDropdownQuery({
+        type: DropDownTypeEnum.POSITION,
+        roleCode: query.roleCode,
+      }),
     );
   }
 
@@ -93,7 +100,9 @@ export class DropDownHttpController {
   @Get(routesV1.dropdown.branch.root)
   async getBranchDropdown(): Promise<DropDownResponseDto> {
     return this.queryBus.execute(
-      new FindDropdownQuery(DropDownTypeEnum.BRANCH),
+      new FindDropdownQuery({
+        type: DropDownTypeEnum.BRANCH,
+      }),
     );
   }
 }

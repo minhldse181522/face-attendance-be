@@ -2,7 +2,7 @@ model Position {
   id BigInt @id @default(autoincrement())
 
   code           String   @unique @map("code") @db.VarChar(50)
-  roleCode       String   @unique @map("role_code") @db.VarChar(50)
+  roleCode       String   @map("role_code") @db.VarChar(50)
   positionName   String   @map("position_name") @db.VarChar(200)
   basicSalary    Decimal  @map("basic_salary") @db.Decimal(18, 0)
   allowance      Decimal  @map("allowance") @db.Decimal(18, 0)

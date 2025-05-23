@@ -4,11 +4,19 @@ import { DROPDOWN_REPOSITORY } from '../dropdown.di-tokens';
 import { PrismaDropDownRepository } from '../database/dropdown.repository.prisma';
 
 export class FindDropdownQuery {
-  constructor(
-    public readonly type: string,
-    public readonly branchCode?: string,
-    public readonly roleCode?: string,
-  ) {}
+  readonly type: string;
+  readonly branchCode?: string;
+  readonly roleCode?: string;
+
+  constructor(params: {
+    type: string;
+    branchCode?: string;
+    roleCode?: string;
+  }) {
+    this.type = params.type;
+    this.branchCode = params.branchCode;
+    this.roleCode = params.roleCode;
+  }
 }
 
 @QueryHandler(FindDropdownQuery)

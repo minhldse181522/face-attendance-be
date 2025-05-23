@@ -9,7 +9,7 @@ model User {
   faceImg      String?  @map("face_img") @db.VarChar(200)
   email        String   @map("email") @db.VarChar(50)
   bod          DateTime @map("bod") @db.Timestamptz(3)
-  address      String   @map("address") @db.VarChar(50)
+  address      String   @map("address") @db.VarChar(200)
   phone        String   @map("phone") @db.VarChar(10)
   contract     String?  @map("contract") @db.VarChar(200)
   branchCode   String   @map("branch_code") @db.VarChar(20)
