@@ -2,6 +2,7 @@ model Position {
   id BigInt @id @default(autoincrement())
 
   code           String   @unique @map("code") @db.VarChar(50)
+  roleCode       String   @unique @map("role_code") @db.VarChar(50)
   positionName   String   @map("position_name") @db.VarChar(200)
   basicSalary    Decimal  @map("basic_salary") @db.Decimal(18, 0)
   allowance      Decimal  @map("allowance") @db.Decimal(18, 0)
@@ -14,6 +15,8 @@ model Position {
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
   user      User[]
+
+  role      Role?    @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
 
   @@map("dt_position")
 }

@@ -38,7 +38,11 @@ export class DropDownHttpController {
     @Query() queryDto: FindUserByBranchRequestDto,
   ): Promise<DropDownResponseDto> {
     return this.queryBus.execute(
-      new FindDropdownQuery(DropDownTypeEnum.USER, queryDto.branchCode),
+      new FindDropdownQuery(
+        DropDownTypeEnum.USER,
+        queryDto.branchCode,
+        queryDto.roleCode,
+      ),
     );
   }
 

@@ -1,5 +1,6 @@
 import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
 import { PositionEntity } from '@src/modules/position/domain/position.entity';
+import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 export enum RoleEnum {
   STAFF = 'STAFF',
@@ -30,6 +31,7 @@ export interface UserProps {
   updatedBy?: string | null;
   inUseCount?: number;
 
+  role?: RoleEntity;
   branch?: BranchEntity;
   position?: PositionEntity;
 }

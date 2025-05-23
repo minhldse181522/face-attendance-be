@@ -28,10 +28,14 @@ export class PrismaDropDownRepository {
     private readonly branchRepo: BranchRepositoryPort,
   ) {}
 
-  async getDropdownData(type: string, branchCode?: string): Promise<any[]> {
+  async getDropdownData(
+    type: string,
+    branchCode?: string,
+    roleCode?: string,
+  ): Promise<any[]> {
     switch (type) {
       case DropDownTypeEnum.USER:
-        return this.userRepo.findUserDropDown(branchCode);
+        return this.userRepo.findUserDropDown(branchCode, roleCode);
       case DropDownTypeEnum.ROLE:
         return this.roleRepo.findRoleDropDown();
       case DropDownTypeEnum.POSITION:

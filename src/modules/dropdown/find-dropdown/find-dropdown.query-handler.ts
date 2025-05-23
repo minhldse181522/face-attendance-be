@@ -7,6 +7,7 @@ export class FindDropdownQuery {
   constructor(
     public readonly type: string,
     public readonly branchCode?: string,
+    public readonly roleCode?: string,
   ) {}
 }
 
@@ -20,7 +21,7 @@ export class FindDropdownQueryHandler
   ) {}
 
   async execute(query: FindDropdownQuery): Promise<any> {
-    const { type, branchCode } = query;
-    return this.service.getDropdownData(type, branchCode);
+    const { type, branchCode, roleCode } = query;
+    return this.service.getDropdownData(type, branchCode, roleCode);
   }
 }

@@ -4,11 +4,13 @@ import {
   Branch as BranchModel,
   Position as PositionModel,
   User as UserModel,
+  Role as RoleModel,
 } from '@prisma/client';
 import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
 import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
 import { PositionEntity } from '@src/modules/position/domain/position.entity';
+import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 @Injectable()
 export class UserMapper
@@ -45,6 +47,7 @@ export class UserMapper
 
   toDomain(
     record: UserModel & {
+      role: RoleModel;
       branch: BranchModel;
       position: PositionModel;
     },
@@ -91,6 +94,16 @@ export class UserMapper
                 createdBy: record.position.createdBy,
                 basicSalary: record.position.basicSalary,
                 allowance: record.position.allowance,
+              },
+            })
+          : undefined,
+        role: record.role
+          ? new RoleEntity({
+              id: record.role.id,
+              props: {
+                roleCode: record.role.roleCode,
+                roleName: record.role.roleName,
+                createdBy: record.role.createdBy,
               },
             })
           : undefined,
