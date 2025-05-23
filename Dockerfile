@@ -10,8 +10,10 @@ RUN npm ci
 # COPY src ./src
 
 COPY . .
-RUN npx prisma generate
 
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
+
+RUN npx prisma generate
 RUN npm run build
 
 # ---------- Production stage ----------
