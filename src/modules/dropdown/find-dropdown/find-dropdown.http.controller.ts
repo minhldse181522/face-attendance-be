@@ -42,6 +42,20 @@ export class DropDownHttpController {
     );
   }
 
+  // Role
+  @ApiOperation({ summary: 'Danh sách role' })
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DropDownResponseDto,
+  })
+  @AuthPermission(resourcesV1.DROP_DOWN_DATA.name, resourceScopes.VIEW)
+  @UseGuards(JwtAuthGuard)
+  @Get(routesV1.dropdown.role.root)
+  async getRoleDropdown(): Promise<DropDownResponseDto> {
+    return this.queryBus.execute(new FindDropdownQuery(DropDownTypeEnum.ROLE));
+  }
+
   // Position
   @ApiOperation({ summary: 'Danh sách vị trí' })
   @ApiBearerAuth()

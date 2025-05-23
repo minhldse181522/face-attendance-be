@@ -51,6 +51,9 @@ export const routesV1 = {
     user: {
       ...baseRoutes(`${dropdown}/dropdown-user`),
     },
+    role: {
+      ...baseRoutes(`${dropdown}/dropdown-role`),
+    },
     position: {
       ...baseRoutes(`${dropdown}/dropdown-position`),
     },
