@@ -38,7 +38,7 @@ function setupSwagger(nestApp: INestApplication) {
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://my-frontend.com',
+  'https://he-thong-cham-cong-admin.vercel.app',
 ];
 
 async function bootstrap() {
