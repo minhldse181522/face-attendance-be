@@ -15,7 +15,10 @@ import { DropDownResponseDto } from '../dtos/dropdown.response.dto';
 import { DropDownTypeEnum } from '../database/dropdown.repository.prisma';
 import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator';
 import { FindDropdownQuery } from './find-dropdown.query-handler';
-import { FindUserByBranchRequestDto } from './find-dropdown.request.dto';
+import {
+  FindPositionByRoleRequestDto,
+  FindUserByBranchRequestDto,
+} from './find-dropdown.request.dto';
 
 @Controller(routesV1.version)
 @ApiTags(
@@ -70,9 +73,11 @@ export class DropDownHttpController {
   @AuthPermission(resourcesV1.DROP_DOWN_DATA.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
   @Get(routesV1.dropdown.position.root)
-  async getPositionDropdown(): Promise<DropDownResponseDto> {
+  async getPositionDropdown(
+    @Query() query: FindPositionByRoleRequestDto,
+  ): Promise<DropDownResponseDto> {
     return this.queryBus.execute(
-      new FindDropdownQuery(DropDownTypeEnum.POSITION),
+      new FindDropdownQuery(DropDownTypeEnum.POSITION, query.roleCode),
     );
   }
 

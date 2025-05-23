@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { RoleEnum } from '@src/modules/user/domain/user.type';
 import { IsNotEmpty, MaxLength } from 'class-validator';
 
@@ -11,7 +11,18 @@ export class FindUserByBranchRequestDto {
   @MaxLength(50)
   branchCode: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
+    example: RoleEnum.ADMIN,
+    enum: RoleEnum,
+    description: 'Filter theo role',
+  })
+  @IsNotEmpty()
+  @MaxLength(20)
+  roleCode: RoleEnum;
+}
+
+export class FindPositionByRoleRequestDto {
+  @ApiProperty({
     example: RoleEnum.ADMIN,
     enum: RoleEnum,
     description: 'Filter theo role',

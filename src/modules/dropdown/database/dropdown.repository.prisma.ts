@@ -39,7 +39,7 @@ export class PrismaDropDownRepository {
       case DropDownTypeEnum.ROLE:
         return this.roleRepo.findRoleDropDown();
       case DropDownTypeEnum.POSITION:
-        return this.positionRepo.findPositionDropDown();
+        return this.positionRepo.findPositionDropDown(roleCode);
       case DropDownTypeEnum.BRANCH:
         return this.branchRepo.findBranchDropDown();
       default:

@@ -3,5 +3,5 @@ import { PositionEntity } from '../domain/position.entity';
 import { DropDownResult } from '@src/libs/utils/dropdown.util';
 
 export interface PositionRepositoryPort extends RepositoryPort<PositionEntity> {
-  findPositionDropDown(): Promise<DropDownResult[]>;
+  findPositionDropDown(roleCode?: string): Promise<DropDownResult[]>;
 }
