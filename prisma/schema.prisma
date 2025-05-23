@@ -1,20 +1,12 @@
 generator client {
   provider = "prisma-client-js"
-  engineType      = "library"
+  engineType = "library"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// From dt_branch.prisma
-
-// From dt_branch.prisma
-
-// From dt_branch.prisma
-
-// From dt_branch.prisma
 
 // From dt_branch.prisma
 model Branch {
