@@ -13,25 +13,25 @@ export class UserProfileResponseDto {
   })
   userName: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: '',
     description: 'Full Name',
   })
   fullName: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: '',
     description: 'Role',
   })
   role: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: '',
     description: 'Ảnh nhân sự',
   })
-  faceImg: string;
+  faceImg?: string | null;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: '',
     description: 'Email',
   })
@@ -43,23 +43,23 @@ export class UserProfileResponseDto {
   })
   address: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: '',
     description: 'Birth Day',
   })
   bod: Date;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: '',
     description: 'Phone',
   })
   phone: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'xxx.pdf',
     description: 'Hợp đồng',
   })
-  contract: string;
+  contract?: string | null;
 
   @ApiProperty({
     example: 'HAC',
@@ -68,8 +68,20 @@ export class UserProfileResponseDto {
   branchCode: string;
 
   @ApiProperty({
+    example: 'HAC',
+    description: 'Mã chi nhánh',
+  })
+  postionCode: string;
+
+  @ApiProperty({
     example: 'admin',
     description: 'Quản lý bởi',
   })
   managedBy: string;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Trạng thái hoạt động',
+  })
+  isActive?: boolean | null;
 }

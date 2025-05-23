@@ -29,8 +29,20 @@ export class LoginService
 
     const payload = {
       sub: user.getProps().id.toString(),
-      username: user.getProps().userName,
-      role: user.getProps().roleCode,
+      userName: user.getProps().userName,
+      roleCode: user.getProps().roleCode,
+      firstName: user.getProps().firstName,
+      lastName: user.getProps().lastName,
+      faceImg: user.getProps().faceImg,
+      email: user.getProps().email,
+      bod: user.getProps().bod,
+      address: user.getProps().address,
+      phone: user.getProps().phone,
+      contract: user.getProps().contract,
+      branchCode: user.getProps().branchCode,
+      positionCode: user.getProps().positionCode,
+      managedBy: user.getProps().managedBy,
+      isActive: user.getProps().isActive,
     };
 
     const accessToken = this.jwtService.sign(payload, {
@@ -47,14 +59,16 @@ export class LoginService
       userName: userProps.userName,
       fullName: `${userProps.firstName} ${userProps.lastName}`,
       role: userProps.roleCode,
-      faceImg: userProps.faceImg,
+      faceImg: userProps.faceImg || null,
       email: userProps.email,
       bod: userProps.bod,
       address: userProps.address,
       phone: userProps.phone,
-      contract: userProps.contract,
+      contract: userProps.contract || null,
       branchCode: userProps.branchCode,
+      postionCode: userProps.positionCode,
       managedBy: userProps.managedBy,
+      isActive: userProps.isActive,
     };
 
     return {

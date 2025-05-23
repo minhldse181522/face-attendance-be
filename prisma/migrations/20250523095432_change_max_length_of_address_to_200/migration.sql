@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "dt_user" ALTER COLUMN "address" SET DATA TYPE VARCHAR(200);

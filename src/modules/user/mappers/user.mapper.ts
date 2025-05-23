@@ -1,8 +1,16 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { User as UserModel } from '@prisma/client';
+import {
+  Branch as BranchModel,
+  Position as PositionModel,
+  User as UserModel,
+  Role as RoleModel,
+} from '@prisma/client';
 import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
+import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
+import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 @Injectable()
 export class UserMapper
@@ -18,14 +26,16 @@ export class UserMapper
       roleCode: copy.roleCode,
       firstName: copy.firstName,
       lastName: copy.lastName,
-      faceImg: copy.faceImg,
+      faceImg: copy.faceImg || null,
       email: copy.email,
       bod: copy.bod,
       address: copy.address,
       phone: copy.phone,
-      contract: copy.contract,
+      contract: copy.contract || null,
       branchCode: copy.branchCode,
       managedBy: copy.managedBy,
+      positionCode: copy.positionCode,
+      isActive: copy.isActive,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -35,7 +45,13 @@ export class UserMapper
     return record;
   }
 
-  toDomain(record: UserModel): UserEntity {
+  toDomain(
+    record: UserModel & {
+      role: RoleModel;
+      branch: BranchModel;
+      position: PositionModel;
+    },
+  ): UserEntity {
     return new UserEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -54,9 +70,44 @@ export class UserMapper
         phone: record.phone,
         contract: record.contract,
         branchCode: record.branchCode,
+        positionCode: record.positionCode,
         managedBy: record.managedBy,
+        isActive: record.isActive,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+        branch: record.branch
+          ? new BranchEntity({
+              id: record.branch.id,
+              props: {
+                code: record.branch.code,
+                branchName: record.branch.branchName,
+                createdBy: record.branch.createdBy,
+              },
+            })
+          : undefined,
+        position: record.position
+          ? new PositionEntity({
+              id: record.position.id,
+              props: {
+                code: record.position.code,
+                roleCode: record.position.roleCode,
+                positionName: record.position.positionName,
+                createdBy: record.position.createdBy,
+                basicSalary: record.position.basicSalary,
+                allowance: record.position.allowance,
+              },
+            })
+          : undefined,
+        role: record.role
+          ? new RoleEntity({
+              id: record.role.id,
+              props: {
+                roleCode: record.role.roleCode,
+                roleName: record.role.roleName,
+                createdBy: record.role.createdBy,
+              },
+            })
+          : undefined,
       },
       skipValidation: true,
     });
@@ -77,7 +128,9 @@ export class UserMapper
     response.phone = props.phone;
     response.contract = props.contract;
     response.branchCode = props.branchCode;
+    response.positionCode = props.positionCode;
     response.managedBy = props.managedBy;
+    response.isActive = props.isActive;
     return response;
   }
 }

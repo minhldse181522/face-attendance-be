@@ -37,9 +37,14 @@ export class FindUserHttpController {
     @Query(new DirectFilterPipe<any, Prisma.UserWhereInput>([]))
     queryParams: FindUserRequestDto,
   ): Promise<UserPaginatedResponseDto> {
-    const result = await this.queryBus.execute(
-      new FindUserQuery(queryParams.findOptions),
-    );
+    const query = new FindUserQuery({
+      ...queryParams.findOptions,
+      role: queryParams.role,
+      positionCode: queryParams.positionCode,
+      branchCode: queryParams.branchCode,
+      isActive: queryParams.isActive,
+    });
+    const result = await this.queryBus.execute(query);
 
     const paginated = result.unwrap();
 

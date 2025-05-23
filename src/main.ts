@@ -35,6 +35,12 @@ function setupSwagger(nestApp: INestApplication) {
   });
 }
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://my-frontend.com',
+];
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // Redis Adapter for Socket.IO
@@ -47,7 +53,15 @@ async function bootstrap() {
   // }
 
   app.use(helmet());
-  app.enableCors();
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));

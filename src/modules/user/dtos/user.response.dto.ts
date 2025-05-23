@@ -1,5 +1,5 @@
 import { ResponseBase } from '@libs/api/response.base';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UserResponseDto extends ResponseBase<any> {
   @ApiProperty({
@@ -26,11 +26,11 @@ export class UserResponseDto extends ResponseBase<any> {
   })
   lastName: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: '',
     description: 'Ảnh nhân sự',
   })
-  faceImg: string;
+  faceImg?: string | null;
 
   @ApiProperty({
     example: 'test@gmail.com',
@@ -56,11 +56,11 @@ export class UserResponseDto extends ResponseBase<any> {
   })
   phone: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'xxx.pdf',
     description: 'Hợp đồng',
   })
-  contract: string;
+  contract?: string | null;
 
   @ApiProperty({
     example: 'HAC',
@@ -69,8 +69,20 @@ export class UserResponseDto extends ResponseBase<any> {
   branchCode: string;
 
   @ApiProperty({
+    example: 'SEP',
+    description: 'Mã vị trí',
+  })
+  positionCode: string;
+
+  @ApiProperty({
     example: 'admin',
     description: 'Quản lý bởi',
   })
   managedBy: string;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Đang hoạt động',
+  })
+  isActive?: boolean | null;
 }

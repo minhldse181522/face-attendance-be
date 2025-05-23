@@ -7,7 +7,97 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// From dt_role.prisma
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+model Branch {
+  id BigInt @id @default(autoincrement())
+
+  code        String   @unique @map("code") @db.VarChar(50)
+  branchName  String   @map("branch_name") @db.VarChar(200)
+
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  user      User[]
+
+  @@map("dt_branch")
+}
+
+// From dt_form.prisma
+model Form {
+  id BigInt @id @default(autoincrement())
+
+  code           String   @unique @map("code") @db.VarChar(20)
+  title          String   @map("title") @db.VarChar(50)
+  description    String   @map("description") @db.VarChar(500)
+  rolePermission String   @map("role_permission") @db.VarChar(20)
+
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  formDetail FormDetail[]
+
+  @@map("dt_form")
+}
+
+// From dt_form_detail.prisma
+model FormDetail {
+  id BigInt @id @default(autoincrement())
+
+  formCode     String   @map("form_code") @db.VarChar(20)
+  status       String   @map("status") @db.VarChar(20)
+  reason       String   @map("reason") @db.VarChar(200)
+  fileEvidence String?  @map("file_evidence") @db.VarChar(200)
+  startTime    DateTime @map("start_time") @db.Timestamptz(3)
+  endTime      DateTime @map("end_time") @db.Timestamptz(3)
+  branchName   String   @map("branch_name") @db.VarChar(200)
+  approvedBy   String   @map("approved_by") @db.VarChar(20)
+  approvedTime DateTime @map("approved_time") @db.Timestamptz(3)
+
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  form     Form      @relation(fields: [formCode], references: [code], onUpdate: Cascade)
+
+  @@map("dt_form_detail")
+}
+
+// From dt_position.prisma
+model Position {
+  id BigInt @id @default(autoincrement())
+
+  code           String   @unique @map("code") @db.VarChar(50)
+  roleCode       String   @map("role_code") @db.VarChar(50)
+  positionName   String   @map("position_name") @db.VarChar(200)
+  basicSalary    Decimal  @map("basic_salary") @db.Decimal(18, 0)
+  allowance      Decimal  @map("allowance") @db.Decimal(18, 0)
+  overtimeSalary Decimal? @map("overtime_salary") @db.Decimal(18, 0)
+  lateFee        Decimal? @map("late_fee") @db.Decimal(18, 0)
+
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  user      User[]
+
+  role      Role?    @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
+
+  @@map("dt_position")
+}
 
 // From dt_role.prisma
 model Role {
@@ -21,7 +111,8 @@ model Role {
   updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
-  user    User[]
+  user     User[]
+  position Position[]
 
   @@map("dt_role")
 }
@@ -30,26 +121,30 @@ model Role {
 model User {
   id BigInt @id @default(autoincrement())
 
-  userName    String   @map("user_name") @db.VarChar(50)
-  password    String   @map("password") @db.VarChar(100)
-  roleCode    String   @map("role_code") @db.VarChar(5)
-  firstName   String   @map("first_name") @db.VarChar(20)
-  lastName    String   @map("last_name") @db.VarChar(50)
-  faceImg     String   @map("face_img") @db.VarChar(200)
-  email       String   @map("email") @db.VarChar(50)
-  bod         DateTime @map("bod") @db.Timestamptz(3)
-  address     String   @map("address") @db.VarChar(50)
-  phone       String   @map("phone") @db.VarChar(10)
-  contract    String   @map("contract") @db.VarChar(200)
-  branchCode  String   @map("branch_code") @db.VarChar(20)
-  managedBy   String   @map("managed_by") @db.VarChar(50)
+  userName     String   @map("user_name") @db.VarChar(50)
+  password     String   @map("password") @db.VarChar(100)
+  roleCode     String   @map("role_code") @db.VarChar(5)
+  firstName    String   @map("first_name") @db.VarChar(20)
+  lastName     String   @map("last_name") @db.VarChar(50)
+  faceImg      String?  @map("face_img") @db.VarChar(200)
+  email        String   @map("email") @db.VarChar(50)
+  bod          DateTime @map("bod") @db.Timestamptz(3)
+  address      String   @map("address") @db.VarChar(200)
+  phone        String   @map("phone") @db.VarChar(10)
+  contract     String?  @map("contract") @db.VarChar(200)
+  branchCode   String   @map("branch_code") @db.VarChar(20)
+  positionCode String   @map("position_code") @db.VarChar(50)
+  managedBy    String   @map("managed_by") @db.VarChar(50)
+  isActive     Boolean  @map("is_active") @default(true) @db.Boolean()
 
   createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy String    @map("created_by") @db.VarChar(36)
   updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
-  role   Role   @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
+  role     Role      @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
+  branch   Branch    @relation(fields: [branchCode], references: [code], onUpdate: Cascade)
+  position Position  @relation(fields: [positionCode], references: [code], onUpdate: Cascade)
 
   @@map("dt_user")
 }

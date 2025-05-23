@@ -11,6 +11,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaMultiTenantModule } from './libs/prisma/prisma-multi-tenant.module';
 import { databaseConfig } from '@config/database.config';
+import { BranchModule } from './modules/branch/branch.module';
+import { PositionModule } from './modules/position/position.module';
+import { DropDownModule } from './modules/dropdown/dropdown.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -55,6 +58,9 @@ const interceptors = [
     // }),
     // ApiLogModule,
     // WebSockmetModule,
+    DropDownModule,
+    PositionModule,
+    BranchModule,
     UserModule,
     AuthModule,
   ],
