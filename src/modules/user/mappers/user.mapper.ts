@@ -90,6 +90,7 @@ export class UserMapper
               id: record.position.id,
               props: {
                 code: record.position.code,
+                roleCode: record.position.roleCode,
                 positionName: record.position.positionName,
                 createdBy: record.position.createdBy,
                 basicSalary: record.position.basicSalary,

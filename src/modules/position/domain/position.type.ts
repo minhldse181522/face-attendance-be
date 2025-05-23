@@ -4,6 +4,7 @@ export interface PositionProps {
   id?: bigint;
   // Add properties here
   code: string;
+  roleCode: string;
   positionName: string;
   basicSalary: Prisma.Decimal;
   allowance: Prisma.Decimal;
@@ -17,6 +18,7 @@ export interface PositionProps {
 export interface CreatePositionProps {
   // Add properties here
   code: string;
+  roleCode: string;
   positionName: string;
   basicSalary: Prisma.Decimal;
   allowance: Prisma.Decimal;
@@ -28,6 +30,7 @@ export interface CreatePositionProps {
 export interface UpdatePositionProps {
   // Add properties here
   code?: string | null;
+  roleCode?: string | null;
   positionName?: string | null;
   basicSalary?: Prisma.Decimal | null;
   allowance?: Prisma.Decimal | null;

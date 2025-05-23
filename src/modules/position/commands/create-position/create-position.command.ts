@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 
 export class CreatePositionCommand extends Command {
   readonly code: string;
+  readonly roleCode: string;
   readonly positionName: string;
   readonly basicSalary: Prisma.Decimal;
   readonly allowance: Prisma.Decimal;

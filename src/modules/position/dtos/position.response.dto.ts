@@ -10,6 +10,12 @@ export class PositionResponseDto extends ResponseBase<any> {
   code: string;
 
   @ApiProperty({
+    example: 'R1',
+    description: 'Mã vai trò',
+  })
+  roleCode: string;
+
+  @ApiProperty({
     example: 'Nhân viên chính thức',
     description: 'Tên chức vụ',
   })

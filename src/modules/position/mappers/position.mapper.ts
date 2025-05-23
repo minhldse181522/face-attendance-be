@@ -14,6 +14,7 @@ export class PositionMapper
       id: copy.id,
       // Map entity properties to record
       code: copy.code,
+      roleCode: copy.roleCode,
       positionName: copy.positionName,
       basicSalary: copy.basicSalary,
       allowance: copy.allowance,
@@ -36,6 +37,7 @@ export class PositionMapper
       props: {
         // Map record properties to entity
         code: record.code,
+        roleCode: record.roleCode,
         positionName: record.positionName,
         basicSalary: record.basicSalary,
         allowance: record.allowance,

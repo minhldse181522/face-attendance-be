@@ -12,6 +12,14 @@ export class CreatePositionRequestDto {
   code: string;
 
   @ApiProperty({
+    example: 'R1',
+    description: 'Mã vai trò',
+  })
+  @IsNotEmpty()
+  @MaxLength(50)
+  roleCode: string;
+
+  @ApiProperty({
     example: 'Trưởng phòng nhân sự',
     description: 'Tên chức vụ',
   })

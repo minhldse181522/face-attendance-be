@@ -5,6 +5,7 @@ export class UpdatePositionCommand extends Command {
   readonly positionId: bigint;
   // Add more properties here
   readonly code?: string | null;
+  readonly roleCode?: string | null;
   readonly positionName?: string | null;
   readonly basicSalary?: Prisma.Decimal | null;
   readonly allowance?: Prisma.Decimal | null;

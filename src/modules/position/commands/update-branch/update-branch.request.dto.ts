@@ -12,6 +12,14 @@ export class UpdatePositionRequestDto {
   code?: string | null;
 
   @ApiPropertyOptional({
+    example: 'R1',
+    description: 'Mã vai trò',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  roleCode?: string | null;
+
+  @ApiPropertyOptional({
     example: 'Trưởng phòng nhân sự',
     description: 'Tên chức vụ',
   })
