@@ -33,8 +33,16 @@ export class LoginService
       roleCode: user.getProps().roleCode,
       firstName: user.getProps().firstName,
       lastName: user.getProps().lastName,
+      faceImg: user.getProps().faceImg,
       email: user.getProps().email,
+      bod: user.getProps().bod,
+      address: user.getProps().address,
       phone: user.getProps().phone,
+      contract: user.getProps().contract,
+      branchCode: user.getProps().branchCode,
+      positionCode: user.getProps().positionCode,
+      managedBy: user.getProps().managedBy,
+      isActive: user.getProps().isActive,
     };
 
     const accessToken = this.jwtService.sign(payload, {
