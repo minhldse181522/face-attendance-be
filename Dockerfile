@@ -1,23 +1,18 @@
 # -------- Build stage --------
-FROM node:18-alpine AS builder
+FROM node:18-bullseye AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
 
-# COPY tsconfig.json ./
-# COPY src ./src
-
 COPY . .
-
-ENV PRISMA_CLIENT_ENGINE_TYPE=library
 
 RUN npx prisma generate
 RUN npm run build
 
 # ---------- Production stage ----------
-FROM node:18-alpine
+FROM node:18-bullseye
 
 WORKDIR /app
 
