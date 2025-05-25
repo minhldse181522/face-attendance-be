@@ -4,6 +4,7 @@ const roleRoot = 'role';
 const branchRoot = 'branch';
 const positionRoot = 'position';
 const dropdown = 'dropdown';
+const formRoot = 'form';
 
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
@@ -44,6 +45,9 @@ export const routesV1 = {
   },
   position: {
     ...baseRoutes(`${positionRoot}`),
+  },
+  form: {
+    ...baseRoutes(`${formRoot}`),
   },
   // #endregion
   // #region Dropdown
