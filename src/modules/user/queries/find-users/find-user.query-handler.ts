@@ -43,8 +43,6 @@ export class FindUserQueryHandler {
     const result = await this.userRepo.findAllUser(
       { ...query },
       query.role,
-      query.positionCode,
-      query.branchCode,
       query.isActive,
     );
 

@@ -1,14 +1,13 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
 import { Prisma, User as UserModel } from '@prisma/client';
-import { UserEntity } from '../domain/user.entity';
-import { UserMapper } from '../mappers/user.mapper';
-import { UserRepositoryPort } from './user.repository.port';
-import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { Paginated } from '@src/libs/ddd';
 import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
+import { UserEntity } from '../domain/user.entity';
 import { RoleEnum } from '../domain/user.type';
-import { DropDownResult } from '@src/libs/utils/dropdown.util';
+import { UserMapper } from '../mappers/user.mapper';
+import { UserRepositoryPort } from './user.repository.port';
 
 export const UserScalarFieldEnum = Prisma.UserScalarFieldEnum;
 @Injectable()
@@ -40,8 +39,6 @@ export class PrismaUserRepository
   async findAllUser(
     params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
     role?: string,
-    positionCode?: string,
-    branchCode?: string,
     isActive?: boolean,
   ): Promise<Paginated<UserEntity>> {
     const client = await this._getClient();
@@ -74,8 +71,6 @@ export class PrismaUserRepository
     const whereFilter: Prisma.UserWhereInput = {
       ...where,
       ...roleFilter,
-      positionCode,
-      branchCode,
       isActive: typeof isActive === 'string' ? isActive === 'true' : isActive,
     };
 
@@ -100,53 +95,53 @@ export class PrismaUserRepository
     });
   }
 
-  async findUserDropDown(
-    branchCode?: string,
-    roleCode?: string,
-  ): Promise<DropDownResult[]> {
-    const client = await this._getClient();
+  // async findUserDropDown(
+  //   branchCode?: string,
+  //   roleCode?: string,
+  // ): Promise<DropDownResult[]> {
+  //   const client = await this._getClient();
 
-    //Nếu là admin + manager load list admin
-    //Nêu là HR => load list manager, nếu là STAFF => load list HR
-    const roleFilter: Prisma.UserWhereInput = {};
-    if (roleCode) {
-      switch (roleCode) {
-        case RoleEnum.ADMIN:
-          roleFilter.roleCode = { equals: 'R1' };
-          break;
+  //   //Nếu là admin + manager load list admin
+  //   //Nêu là HR => load list manager, nếu là STAFF => load list HR
+  //   const roleFilter: Prisma.UserWhereInput = {};
+  //   if (roleCode) {
+  //     switch (roleCode) {
+  //       case RoleEnum.ADMIN:
+  //         roleFilter.roleCode = { equals: 'R1' };
+  //         break;
 
-        case RoleEnum.HR:
-          roleFilter.roleCode = { equals: 'R3' };
-          break;
+  //       case RoleEnum.HR:
+  //         roleFilter.roleCode = { equals: 'R3' };
+  //         break;
 
-        case RoleEnum.MANAGER:
-          roleFilter.roleCode = { equals: 'R1' };
-          break;
+  //       case RoleEnum.MANAGER:
+  //         roleFilter.roleCode = { equals: 'R1' };
+  //         break;
 
-        case RoleEnum.STAFF:
-          roleFilter.roleCode = { equals: 'R2' };
-          break;
-      }
-    }
+  //       case RoleEnum.STAFF:
+  //         roleFilter.roleCode = { equals: 'R2' };
+  //         break;
+  //     }
+  //   }
 
-    const result = await client.user.findMany({
-      select: {
-        userName: true,
-        firstName: true,
-        lastName: true,
-        position: {
-          select: {
-            positionName: true,
-          },
-        },
-      },
-      where: { branchCode, ...roleFilter },
-    });
-    return result.map((item) => ({
-      label: `${item.position?.positionName} - ${item.firstName} ${
-        item.lastName
-      }`,
-      value: item.userName,
-    }));
-  }
+  //   const result = await client.user.findMany({
+  //     select: {
+  //       userName: true,
+  //       firstName: true,
+  //       lastName: true,
+  //       position: {
+  //         select: {
+  //           positionName: true,
+  //         },
+  //       },
+  //     },
+  //     where: { branchCode, ...roleFilter },
+  //   });
+  //   return result.map((item) => ({
+  //     label: `${item.position?.positionName} - ${item.firstName} ${
+  //       item.lastName
+  //     }`,
+  //     value: item.userName,
+  //   }));
+  // }
 }

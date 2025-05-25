@@ -3,6 +3,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UserResponseDto extends ResponseBase<any> {
   @ApiProperty({
+    example: 'USER0001',
+    description: 'Mã người dùng',
+  })
+  code: string;
+
+  @ApiProperty({
     example: 'utest',
     description: 'Tên đăng nhập',
   })
@@ -42,13 +48,13 @@ export class UserResponseDto extends ResponseBase<any> {
     example: new Date(),
     description: 'Ngày tháng năm sinh',
   })
-  bod: Date;
+  dob: Date;
 
   @ApiProperty({
-    example: '126 Las Vegas',
-    description: 'Địa chỉ',
+    example: 'M',
+    description: 'Giới tính',
   })
-  address: string;
+  gender: string;
 
   @ApiProperty({
     example: '0987654321',
@@ -60,13 +66,13 @@ export class UserResponseDto extends ResponseBase<any> {
     example: 'xxx.pdf',
     description: 'Hợp đồng',
   })
-  contract?: string | null;
+  typeOfWork?: string | null;
 
   @ApiProperty({
     example: 'HAC',
     description: 'Mã chi nhánh',
   })
-  branchCode: string;
+  addressCode: string;
 
   @ApiProperty({
     example: 'SEP',

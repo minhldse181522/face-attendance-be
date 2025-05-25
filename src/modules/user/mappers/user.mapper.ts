@@ -1,15 +1,8 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import {
-  Branch as BranchModel,
-  Position as PositionModel,
-  User as UserModel,
-  Role as RoleModel,
-} from '@prisma/client';
+import { User as UserModel, Role as RoleModel } from '@prisma/client';
 import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
-import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
-import { PositionEntity } from '@src/modules/position/domain/position.entity';
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 @Injectable()
@@ -21,21 +14,22 @@ export class UserMapper
     const record: UserModel = {
       id: copy.id,
       // Map entity properties to record
+      code: copy.code,
       userName: copy.userName,
       password: copy.password,
-      roleCode: copy.roleCode,
       firstName: copy.firstName,
       lastName: copy.lastName,
-      faceImg: copy.faceImg || null,
       email: copy.email,
-      bod: copy.bod,
-      address: copy.address,
+      faceImg: copy.faceImg || null,
+      dob: copy.dob,
+      gender: copy.gender,
       phone: copy.phone,
-      contract: copy.contract || null,
-      branchCode: copy.branchCode,
+      typeOfWork: copy.typeOfWork || null,
       managedBy: copy.managedBy,
-      positionCode: copy.positionCode,
+      roleCode: copy.roleCode,
       isActive: copy.isActive,
+      addressCode: copy.addressCode,
+      positionCode: copy.positionCode,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -48,8 +42,6 @@ export class UserMapper
   toDomain(
     record: UserModel & {
       role: RoleModel;
-      branch: BranchModel;
-      position: PositionModel;
     },
   ): UserEntity {
     return new UserEntity({
@@ -58,46 +50,24 @@ export class UserMapper
       updatedAt: record.updatedAt,
       props: {
         // Map record properties to entity
+        code: record.code,
         userName: record.userName,
         password: record.password,
-        roleCode: record.roleCode,
         firstName: record.firstName,
         lastName: record.lastName,
-        faceImg: record.faceImg,
         email: record.email,
-        bod: record.bod,
-        address: record.address,
+        faceImg: record.faceImg,
+        dob: record.dob,
+        gender: record.gender,
         phone: record.phone,
-        contract: record.contract,
-        branchCode: record.branchCode,
-        positionCode: record.positionCode,
+        typeOfWork: record.typeOfWork,
         managedBy: record.managedBy,
         isActive: record.isActive,
+        positionCode: record.positionCode,
+        roleCode: record.roleCode,
+        addressCode: record.addressCode,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
-        branch: record.branch
-          ? new BranchEntity({
-              id: record.branch.id,
-              props: {
-                code: record.branch.code,
-                branchName: record.branch.branchName,
-                createdBy: record.branch.createdBy,
-              },
-            })
-          : undefined,
-        position: record.position
-          ? new PositionEntity({
-              id: record.position.id,
-              props: {
-                code: record.position.code,
-                roleCode: record.position.roleCode,
-                positionName: record.position.positionName,
-                createdBy: record.position.createdBy,
-                basicSalary: record.position.basicSalary,
-                allowance: record.position.allowance,
-              },
-            })
-          : undefined,
         role: record.role
           ? new RoleEntity({
               id: record.role.id,
@@ -117,17 +87,18 @@ export class UserMapper
     const props = entity.getProps();
     const response = new UserResponseDto(entity);
     // Map entity properties to response DTO
+    response.code = props.code;
     response.userName = props.userName;
-    response.roleCode = props.roleCode;
     response.firstName = props.firstName;
     response.lastName = props.lastName;
-    response.faceImg = props.faceImg;
     response.email = props.email;
-    response.bod = props.bod;
-    response.address = props.address;
+    response.faceImg = props.faceImg;
+    response.dob = props.dob;
+    response.gender = props.gender;
     response.phone = props.phone;
-    response.contract = props.contract;
-    response.branchCode = props.branchCode;
+    response.typeOfWork = props.typeOfWork;
+    response.roleCode = props.roleCode;
+    response.addressCode = props.addressCode;
     response.positionCode = props.positionCode;
     response.managedBy = props.managedBy;
     response.isActive = props.isActive;

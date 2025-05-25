@@ -18,20 +18,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // Trả về đối tượng user sẽ được inject vào Request (req.user)
     return {
       id: payload.sub,
+      code: payload.code,
       userName: payload.userName,
-      roleCode: payload.roleCode,
       firstName: payload.firstName,
       lastName: payload.lastName,
-      faceImg: payload.faceImg,
       email: payload.email,
-      bod: payload.bod,
-      address: payload.address,
+      faceImg: payload.faceImg,
+      dob: payload.dob,
+      gender: payload.gender,
       phone: payload.phone,
-      contract: payload.contract,
-      branchCode: payload.branchCode,
-      positionCode: payload.positionCode,
+      typeOfWork: payload.typeOfWork,
       managedBy: payload.managedBy,
       isActive: payload.isActive,
+      roleCode: payload.roleCode,
+      positionCode: payload.positionCode,
+      addressCode: payload.addressCode,
     };
   }
 }

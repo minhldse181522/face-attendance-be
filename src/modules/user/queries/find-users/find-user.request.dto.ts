@@ -16,22 +16,6 @@ export class FindUserRequestDto extends FilterDto<Prisma.UserWhereInput> {
 
   @ApiPropertyOptional({
     example: '',
-    description: 'Filter theo position',
-  })
-  @IsOptional()
-  @MaxLength(50)
-  positionCode?: string;
-
-  @ApiPropertyOptional({
-    example: '',
-    description: 'Filter theo branch',
-  })
-  @IsOptional()
-  @MaxLength(50)
-  branchCode?: string;
-
-  @ApiPropertyOptional({
-    example: '',
     description: 'Filter theo trạng thái tài khoản',
   })
   @IsOptional()

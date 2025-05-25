@@ -2,25 +2,30 @@ import { ValueObject } from '@src/libs/ddd';
 
 export interface RequestUserProps {
   id: string;
+  code: string;
   userName: string;
-  roleCode: string;
   firstName: string;
   lastName: string;
-  faceImg: string;
   email: string;
-  bod: Date;
-  address: string;
+  faceImg: string;
+  dob: Date;
+  gender: string;
   phone: string;
-  contract: string;
-  branchCode: string;
-  positionCode: string;
+  typeOfWork: string;
   managedBy: string;
   isActive: boolean;
+  roleCode: string;
+  positionCode: string;
+  addressCode: string;
 }
 
 export class RequestUser extends ValueObject<RequestUserProps> {
   get id(): string {
     return this.props.id;
+  }
+
+  get code(): string {
+    return this.props.code;
   }
 
   get userName(): string {
@@ -47,24 +52,24 @@ export class RequestUser extends ValueObject<RequestUserProps> {
     return this.props.email;
   }
 
-  get bod(): Date {
-    return this.props.bod;
+  get dob(): Date {
+    return this.props.dob;
   }
 
-  get address(): string {
-    return this.props.address;
+  get gender(): string {
+    return this.props.gender;
   }
 
   get phone(): string {
     return this.props.phone;
   }
 
-  get contract(): string {
-    return this.props.contract;
+  get typeOfWork(): string {
+    return this.props.typeOfWork;
   }
 
-  get branchCode(): string {
-    return this.props.branchCode;
+  get addressCode(): string {
+    return this.props.addressCode;
   }
 
   get positionCode(): string {

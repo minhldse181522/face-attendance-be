@@ -11,9 +11,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaMultiTenantModule } from './libs/prisma/prisma-multi-tenant.module';
 import { databaseConfig } from '@config/database.config';
-import { BranchModule } from './modules/branch/branch.module';
-import { PositionModule } from './modules/position/position.module';
-import { DropDownModule } from './modules/dropdown/dropdown.module';
+// import { DropDownModule } from './modules/dropdown/dropdown.module';
+import { CacheModule } from './libs/cache/cache.module';
+import { cacheConfig } from './configs/cache.config';
+import { RoleModule } from './modules/role/role.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -47,20 +48,19 @@ const interceptors = [
     // //     ...bullConfig,
     // //   }),
     // // }),
-    // CacheModule.forRootAsync({
-    //   useFactory: async () => ({
-    //     isGlobal: true,
-    //     ...cacheConfig,
-    //   }),
-    // }),
+    CacheModule.forRootAsync({
+      useFactory: async () => ({
+        isGlobal: true,
+        ...cacheConfig,
+      }),
+    }),
     // MinioModule.forRootAsync({
     //   useFactory: async () => minioConfig,
     // }),
     // ApiLogModule,
     // WebSockmetModule,
-    DropDownModule,
-    PositionModule,
-    BranchModule,
+    // DropDownModule,
+    RoleModule,
     UserModule,
     AuthModule,
   ],

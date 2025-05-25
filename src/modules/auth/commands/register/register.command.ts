@@ -3,18 +3,18 @@ import { Command, CommandProps } from '@libs/ddd';
 export class RegisterCommand extends Command {
   readonly userName: string;
   readonly password: string;
-  readonly roleCode: string;
   readonly firstName: string;
   readonly lastName: string;
-  readonly faceImg?: string | null;
   readonly email: string;
-  readonly bod: Date;
-  readonly address: string;
+  readonly faceImg?: string | null;
+  readonly gender: string;
+  readonly dob: Date;
   readonly phone: string;
-  readonly contract?: string | null;
-  readonly branchCode: string;
-  readonly positionCode: string;
+  readonly typeOfWork?: string | null;
   readonly managedBy: string;
+  readonly roleCode: string;
+  readonly addressCode: string;
+  readonly positionCode: string;
   readonly createdBy: string;
 
   constructor(props: CommandProps<RegisterCommand>) {
