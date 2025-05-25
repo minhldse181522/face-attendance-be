@@ -7,7 +7,17 @@ import { Ok, Result } from 'oxide.ts';
 import { FormEntity } from '../../domain/form.entity';
 import { FormRepositoryPort } from '../../database/form.repository.port';
 import { FORM_REPOSITORY } from '../../form.di-tokens';
-export class FindFormQuery extends PrismaPaginatedQueryBase<Prisma.FormWhereInput> {}
+import { GeneratedFindOptions } from '@chax-at/prisma-filter';
+export class FindFormQuery extends PrismaPaginatedQueryBase<Prisma.FormWhereInput> {
+  constructor(
+    props: GeneratedFindOptions<Prisma.FormWhereInput> & {
+      quickSearch?: string | number;
+    },
+  ) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
 
 export type FindFormQueryResult = Result<Paginated<FormEntity>, void>;
 
@@ -19,7 +29,9 @@ export class FindFormQueryHandler {
   ) {}
 
   async execute(query: FindFormQuery): Promise<FindFormQueryResult> {
-    const result = await this.formRepo.findAllPaginated(query);
+    const result = await this.formRepo.findAllPaginatedQuickSearch({
+      ...query,
+    });
 
     return Ok(
       new Paginated({

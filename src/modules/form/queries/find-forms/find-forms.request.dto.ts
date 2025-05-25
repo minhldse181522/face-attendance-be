@@ -1,4 +1,4 @@
 import { Prisma } from '@prisma/client';
-import { FilterDto } from '@src/libs/application/validators/prisma-filter.validator';
+import { FilterDtoWithQuickSearch } from '@src/libs/application/validators/prisma-filter.validator';
 
-export class FindFormRequestDto extends FilterDto<Prisma.FormWhereInput> {}
+export class FindFormRequestDto extends FilterDtoWithQuickSearch<Prisma.FormWhereInput> {}
