@@ -5,8 +5,19 @@ import { RoleMapper } from './mappers/branch.mapper';
 import { FindRoleHttpController } from './queries/find-roles/find-branches.http.controller';
 import { FindRoleQueryHandler } from './queries/find-roles/find-branches.query-handler';
 import { ROLE_REPOSITORY } from './role.di-tokens';
+import { CreateRoleHttpController } from './commands/create-role/create-role.http.controller';
+import { UpdateRoleHttpController } from './commands/update-role/update-role.http.controller';
+import { DeleteRoleHttpController } from './commands/delete-role/delete-branch.http.controller';
+import { CreateRoleService } from './commands/create-role/create-role.service';
+import { UpdateRoleService } from './commands/update-role/update-role.service';
+import { DeleteRoleService } from './commands/delete-role/delete-branch.service';
 
-const httpControllers = [FindRoleHttpController];
+const httpControllers = [
+  FindRoleHttpController,
+  CreateRoleHttpController,
+  UpdateRoleHttpController,
+  DeleteRoleHttpController,
+];
 
 const messageControllers = [];
 
@@ -14,7 +25,11 @@ const cliControllers: Provider[] = [];
 
 const graphqlResolvers: Provider[] = [];
 
-const commandHandlers: Provider[] = [];
+const commandHandlers: Provider[] = [
+  CreateRoleService,
+  UpdateRoleService,
+  DeleteRoleService,
+];
 
 const queryHandlers: Provider[] = [FindRoleQueryHandler];
 

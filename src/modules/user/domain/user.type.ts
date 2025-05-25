@@ -1,5 +1,3 @@
-import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
-import { PositionEntity } from '@src/modules/position/domain/position.entity';
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 export enum RoleEnum {
@@ -12,65 +10,65 @@ export enum RoleEnum {
 export interface UserProps {
   id?: bigint;
   // Add properties here
+  code: string;
   userName: string;
   password: string;
-  roleCode: string;
   firstName: string;
   lastName: string;
-  faceImg?: string | null;
   email: string;
-  bod: Date;
-  address: string;
+  faceImg?: string | null;
+  gender: string;
+  dob: Date;
   phone: string;
-  contract?: string | null;
-  branchCode: string;
-  positionCode: string;
+  typeOfWork?: string | null;
   managedBy: string;
   isActive: boolean;
+  roleCode: string;
+  positionCode: string;
+  addressCode: string;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
 
   role?: RoleEntity;
-  branch?: BranchEntity;
-  position?: PositionEntity;
 }
 
 export interface RegisterUserProps {
   // Add properties here
+  code: string;
   userName: string;
   password: string;
-  roleCode: string;
   firstName: string;
   lastName: string;
-  faceImg?: string | null;
   email: string;
-  bod: Date;
-  address: string;
+  faceImg?: string | null;
+  gender: string;
+  dob: Date;
   phone: string;
-  contract?: string | null;
-  branchCode: string;
-  positionCode: string;
+  typeOfWork?: string | null;
   isActive: boolean;
   managedBy: string;
+  roleCode: string;
+  addressCode: string;
+  positionCode: string;
   createdBy: string;
 }
 
 export interface UpdateUserProps {
   // Add properties here
   userName?: string | null;
-  roleCode?: string | null;
   firstName?: string | null;
   lastName?: string | null;
-  faceImg?: string | null;
   email?: string | null;
-  bod?: Date | null;
-  address?: string | null;
+  faceImg?: string | null;
+  gender?: string | null;
+  dob?: Date | null;
   phone?: string | null;
-  contract?: string | null;
-  branchCode?: string | null;
-  positionCode?: string | null;
+  typeOfWork?: string | null;
   managedBy?: string | null;
   isActive?: boolean | null;
+  roleCode?: string | null;
+  addressCode?: string | null;
+  positionCode?: string | null;
   updatedBy: string | null;
 }

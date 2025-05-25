@@ -8,6 +8,7 @@ import { Err, Ok, Result } from 'oxide.ts';
 import { UserEntity } from '@src/modules/user/domain/user.entity';
 import { RegisterError } from '../../domain/auth.error';
 import { FieldValidationException } from '@src/libs/api/api-validation-error.exception';
+import { GenerateCode } from '@src/libs/utils/generate-code.util';
 
 export type RegisterServiceResult = Result<UserEntity, any>;
 
@@ -16,6 +17,7 @@ export class RegisterService implements ICommandHandler<RegisterCommand> {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepo: UserRepositoryPort,
+    private readonly generateCode: GenerateCode,
   ) {}
 
   async execute(command: RegisterCommand): Promise<RegisterServiceResult> {
@@ -31,8 +33,10 @@ export class RegisterService implements ICommandHandler<RegisterCommand> {
 
     const hashedPassword = await bcrypt.hash(command.password, 10);
     const props = command.getExtendedProps<RegisterCommand>();
+    const code = await this.generateCode.generateCode('USER', 4);
     const newUser = UserEntity.create({
       ...props,
+      code: code,
       password: hashedPassword,
       isActive: true,
     });

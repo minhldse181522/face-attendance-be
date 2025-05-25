@@ -29,20 +29,21 @@ export class LoginService
 
     const payload = {
       sub: user.getProps().id.toString(),
+      code: user.getProps().code,
       userName: user.getProps().userName,
-      roleCode: user.getProps().roleCode,
       firstName: user.getProps().firstName,
       lastName: user.getProps().lastName,
-      faceImg: user.getProps().faceImg,
       email: user.getProps().email,
-      bod: user.getProps().bod,
-      address: user.getProps().address,
+      faceImg: user.getProps().faceImg,
+      dob: user.getProps().dob,
+      gender: user.getProps().gender,
       phone: user.getProps().phone,
-      contract: user.getProps().contract,
-      branchCode: user.getProps().branchCode,
-      positionCode: user.getProps().positionCode,
-      managedBy: user.getProps().managedBy,
+      typeOfWork: user.getProps().typeOfWork,
       isActive: user.getProps().isActive,
+      managedBy: user.getProps().managedBy,
+      roleCode: user.getProps().roleCode,
+      positionCode: user.getProps().positionCode,
+      addressCode: user.getProps().addressCode,
     };
 
     const accessToken = this.jwtService.sign(payload, {
@@ -56,19 +57,20 @@ export class LoginService
     const userProps = user.getProps();
     const userProfile: UserProfileResponseDto = {
       id: userProps.id.toString(),
+      code: userProps.code,
       userName: userProps.userName,
       fullName: `${userProps.firstName} ${userProps.lastName}`,
-      role: userProps.roleCode,
-      faceImg: userProps.faceImg || null,
       email: userProps.email,
-      bod: userProps.bod,
-      address: userProps.address,
+      faceImg: userProps.faceImg || null,
+      gender: userProps.gender,
+      dob: userProps.dob,
       phone: userProps.phone,
-      contract: userProps.contract || null,
-      branchCode: userProps.branchCode,
-      postionCode: userProps.positionCode,
+      typeOfWork: userProps.typeOfWork || null,
       managedBy: userProps.managedBy,
       isActive: userProps.isActive,
+      roleCode: userProps.roleCode,
+      addressCode: userProps.addressCode,
+      postionCode: userProps.positionCode,
     };
 
     return {

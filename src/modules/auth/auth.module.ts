@@ -8,6 +8,7 @@ import { LoginService } from './commands/login/login.service';
 import { LoginHttpController } from './commands/login/login.http.controller';
 import { RegisterHttpController } from './commands/register/register.http.controller';
 import { RegisterService } from './commands/register/register.service';
+import { GenerateCode } from '@src/libs/utils/generate-code.util';
 
 const httpControllers = [LoginHttpController, RegisterHttpController];
 
@@ -22,6 +23,8 @@ const commandHandlers: Provider[] = [LoginService, RegisterService];
 const queryHandlers: Provider[] = [];
 
 const mappers: Provider[] = [];
+
+const utils: Provider[] = [GenerateCode];
 
 const repositories: Provider[] = [];
 
@@ -45,6 +48,7 @@ const repositories: Provider[] = [];
     ...commandHandlers,
     ...queryHandlers,
     ...mappers,
+    ...utils,
   ],
 })
 export class AuthModule {}

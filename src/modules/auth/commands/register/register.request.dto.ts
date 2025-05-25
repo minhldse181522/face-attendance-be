@@ -26,17 +26,6 @@ export class RegisterRequestDto {
   password: string;
 
   @ApiProperty({
-    example: RoleCode.ADMIN,
-    enum: RoleCode,
-    description:
-      'MÃ QUYỀN: R1 - Admin, R2 - Staff, R3 - Manager, R4 - Customer',
-  })
-  @IsEnum(RoleCode, { message: 'roleCode must be one of R1, R2, R3, R4' })
-  @IsNotEmpty()
-  @MaxLength(5)
-  roleCode: string;
-
-  @ApiProperty({
     example: 'Pham',
     description: 'HỌ',
   })
@@ -52,6 +41,14 @@ export class RegisterRequestDto {
   @MaxLength(50)
   lastName: string;
 
+  @ApiProperty({
+    example: 'test@gmail.com',
+    description: 'Email',
+  })
+  @IsNotEmpty()
+  @MaxLength(50)
+  email: string;
+
   @ApiPropertyOptional({
     example: '',
     description: 'Ảnh nhân sự',
@@ -61,28 +58,20 @@ export class RegisterRequestDto {
   faceImg?: string | null;
 
   @ApiProperty({
-    example: 'test@gmail.com',
-    description: 'Email',
-  })
-  @IsNotEmpty()
-  @MaxLength(50)
-  email: string;
-
-  @ApiProperty({
     example: new Date(),
     description: 'Ngày tháng năm sinh',
   })
   @IsNotEmpty()
   @IsDateString()
-  bod: Date;
+  dob: Date;
 
   @ApiProperty({
-    example: '129 Las Vegas',
-    description: 'Địa chỉ',
+    example: 'M',
+    description: 'Giới tính',
   })
   @IsNotEmpty()
-  @MaxLength(200)
-  address: string;
+  @MaxLength(2)
+  gender: string;
 
   @ApiProperty({
     example: '0987654321',
@@ -98,23 +87,7 @@ export class RegisterRequestDto {
   })
   @IsOptional()
   @MaxLength(200)
-  contract?: string | null;
-
-  @ApiProperty({
-    example: 'HAC',
-    description: 'Mã chi nhánh',
-  })
-  @IsNotEmpty()
-  @MaxLength(20)
-  branchCode: string;
-
-  @ApiProperty({
-    example: 'SEP',
-    description: 'Mã nhân viên',
-  })
-  @IsNotEmpty()
-  @MaxLength(20)
-  positionCode: string;
+  typeOfWork?: string | null;
 
   @ApiProperty({
     example: 'admin',
@@ -123,4 +96,31 @@ export class RegisterRequestDto {
   @IsNotEmpty()
   @MaxLength(50)
   managedBy: string;
+
+  @ApiProperty({
+    example: RoleCode.ADMIN,
+    enum: RoleCode,
+    description:
+      'MÃ QUYỀN: R1 - Admin, R2 - Staff, R3 - Manager, R4 - Customer',
+  })
+  @IsEnum(RoleCode, { message: 'roleCode must be one of R1, R2, R3, R4' })
+  @IsNotEmpty()
+  @MaxLength(5)
+  roleCode: string;
+
+  @ApiProperty({
+    example: 'HAC',
+    description: 'Mã chi nhánh',
+  })
+  @IsNotEmpty()
+  @MaxLength(20)
+  addressCode: string;
+
+  @ApiProperty({
+    example: 'SEP',
+    description: 'Mã nhân viên',
+  })
+  @IsNotEmpty()
+  @MaxLength(20)
+  positionCode: string;
 }

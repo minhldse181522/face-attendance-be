@@ -45,8 +45,6 @@ export class FindUserHttpController {
     const query = new FindUserQuery({
       ...queryParams.findOptions,
       role: queryParams.role,
-      positionCode: queryParams.positionCode,
-      branchCode: queryParams.branchCode,
       isActive: queryParams.isActive,
     });
     const result = await this.queryBus.execute(query);

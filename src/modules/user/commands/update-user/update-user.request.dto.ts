@@ -10,11 +10,6 @@ export class UpdateUserRequestDto {
   @MaxLength(50)
   userName?: string | null;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @MaxLength(5)
-  roleCode?: string | null;
-
   @ApiPropertyOptional({
     example: 'Pham',
     description: 'HỌ',
@@ -53,43 +48,31 @@ export class UpdateUserRequestDto {
   })
   @IsOptional()
   @IsDateString()
-  bod?: Date | null;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  address?: string | null;
+  dob?: Date | null;
 
   @ApiPropertyOptional({
-    example: '129 Las Vegas',
-    description: 'Địa chỉ',
+    example: 'M',
+    description: 'Giới tính',
+  })
+  @IsOptional()
+  @MaxLength(2)
+  gender?: string | null;
+
+  @ApiPropertyOptional({
+    example: '0987654321',
+    description: 'Số điện thoại',
   })
   @IsOptional()
   @MaxLength(10)
   phone?: string | null;
 
   @ApiPropertyOptional({
-    example: 'xxx.pdf',
-    description: 'Hợp đồng',
+    example: 'part time',
+    description: 'Type of work',
   })
   @IsOptional()
   @MaxLength(200)
-  contract?: string | null;
-
-  @ApiPropertyOptional({
-    example: 'HAC',
-    description: 'Mã chi nhánh',
-  })
-  @IsOptional()
-  @MaxLength(20)
-  branchCode?: string | null;
-
-  @ApiPropertyOptional({
-    example: 'SEP',
-    description: 'Mã vị trí',
-  })
-  @IsOptional()
-  @MaxLength(20)
-  positionCode?: string | null;
+  typeOfWork?: string | null;
 
   @ApiPropertyOptional({
     example: 'admin',
@@ -105,4 +88,28 @@ export class UpdateUserRequestDto {
   })
   @IsOptional()
   isActive?: boolean | null;
+
+  @ApiPropertyOptional({
+    example: 'R2',
+    description: 'Mã vai trò',
+  })
+  @IsOptional()
+  @MaxLength(5)
+  roleCode?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'HAC',
+    description: 'Mã chi nhánh',
+  })
+  @IsOptional()
+  @MaxLength(20)
+  addressCode?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'SEP',
+    description: 'Mã vị trí',
+  })
+  @IsOptional()
+  @MaxLength(20)
+  positionCode?: string | null;
 }

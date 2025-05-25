@@ -9,6 +9,12 @@ export class UserProfileResponseDto {
 
   @ApiProperty({
     example: '',
+    description: 'CODE',
+  })
+  code: string;
+
+  @ApiProperty({
+    example: '',
     description: 'Username',
   })
   userName: string;
@@ -21,9 +27,9 @@ export class UserProfileResponseDto {
 
   @ApiProperty({
     example: '',
-    description: 'Role',
+    description: 'Email',
   })
-  role: string;
+  email: string;
 
   @ApiPropertyOptional({
     example: '',
@@ -33,21 +39,15 @@ export class UserProfileResponseDto {
 
   @ApiProperty({
     example: '',
-    description: 'Email',
-  })
-  email: string;
-
-  @ApiProperty({
-    example: '',
-    description: 'Address',
-  })
-  address: string;
-
-  @ApiProperty({
-    example: '',
     description: 'Birth Day',
   })
-  bod: Date;
+  dob: Date;
+
+  @ApiProperty({
+    example: '',
+    description: 'Giới tính',
+  })
+  gender: string;
 
   @ApiProperty({
     example: '',
@@ -56,22 +56,10 @@ export class UserProfileResponseDto {
   phone: string;
 
   @ApiPropertyOptional({
-    example: 'xxx.pdf',
-    description: 'Hợp đồng',
+    example: '',
+    description: 'Type of work',
   })
-  contract?: string | null;
-
-  @ApiProperty({
-    example: 'HAC',
-    description: 'Mã chi nhánh',
-  })
-  branchCode: string;
-
-  @ApiProperty({
-    example: 'HAC',
-    description: 'Mã chi nhánh',
-  })
-  postionCode: string;
+  typeOfWork?: string | null;
 
   @ApiProperty({
     example: 'admin',
@@ -83,5 +71,23 @@ export class UserProfileResponseDto {
     example: true,
     description: 'Trạng thái hoạt động',
   })
-  isActive?: boolean | null;
+  isActive: boolean;
+
+  @ApiProperty({
+    example: '',
+    description: 'Role',
+  })
+  roleCode: string;
+
+  @ApiProperty({
+    example: 'HAC',
+    description: 'Mã chi nhánh',
+  })
+  postionCode: string;
+
+  @ApiProperty({
+    example: 'HAC',
+    description: 'Mã địa chỉ',
+  })
+  addressCode: string;
 }

@@ -1,51 +1,93 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RegisterResponseDto {
   @ApiProperty({
-    example: '',
-    description: 'Username',
+    example: 'USER0001',
+    description: 'Mã người dùng',
+  })
+  code: string;
+
+  @ApiProperty({
+    example: 'utest',
+    description: 'Tên đăng nhập',
   })
   userName: string;
 
   @ApiProperty({
-    example: '',
-    description: 'First Name',
-  })
-  firstName: string;
-
-  @ApiProperty({
-    example: '',
-    description: 'First Name',
-  })
-  lastName: string;
-
-  @ApiProperty({
-    example: '',
-    description: 'Role',
+    example: 'R1',
+    description: 'Vai trò',
   })
   roleCode: string;
 
   @ApiProperty({
+    example: 'Pham',
+    description: 'Họ',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    example: 'Tú',
+    description: 'Tên',
+  })
+  lastName: string;
+
+  @ApiPropertyOptional({
     example: '',
-    description: 'Email',
+    description: 'Ảnh nhân sự',
+  })
+  faceImg?: string | null;
+
+  @ApiProperty({
+    example: 'test@gmail.com',
+    description: 'Mail',
   })
   email: string;
 
   @ApiProperty({
-    example: '',
-    description: 'Phone',
+    example: new Date(),
+    description: 'Ngày tháng năm sinh',
+  })
+  dob: Date;
+
+  @ApiProperty({
+    example: 'M',
+    description: 'Giới tính',
+  })
+  gender: string;
+
+  @ApiProperty({
+    example: '0987654321',
+    description: 'Số điện thoại',
   })
   phone: string;
 
-  @ApiProperty({
-    example: '',
-    description: 'Address',
+  @ApiPropertyOptional({
+    example: 'xxx.pdf',
+    description: 'Hợp đồng',
   })
-  address: string;
+  typeOfWork?: string | null;
 
   @ApiProperty({
-    example: '',
-    description: 'Birth Day',
+    example: 'HAC',
+    description: 'Mã chi nhánh',
   })
-  bod: Date;
+  addressCode: string;
+
+  @ApiProperty({
+    example: 'SEP',
+    description: 'Mã vị trí',
+  })
+  positionCode: string;
+
+  @ApiProperty({
+    example: 'admin',
+    description: 'Quản lý bởi',
+  })
+  managedBy: string;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Đang hoạt động',
+  })
+  isActive?: boolean | null;
 }
