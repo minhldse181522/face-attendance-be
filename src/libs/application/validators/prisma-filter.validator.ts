@@ -99,3 +99,13 @@ export class FilterDto<TWhereInput>
   // This will be set by filter pipe
   findOptions!: GeneratedFindOptions<TWhereInput>;
 }
+export class FilterDtoWithQuickSearch<
+  TWhereInput,
+> extends FilterDto<TWhereInput> {
+  @ApiPropertyOptional({
+    example: 'search string',
+    description: 'Quick search string',
+  })
+  @IsOptional()
+  quickSearch?: string | number;
+}

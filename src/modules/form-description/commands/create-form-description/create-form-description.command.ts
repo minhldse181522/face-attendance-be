@@ -1,0 +1,17 @@
+import { Command, CommandProps } from '@src/libs/ddd';
+
+export class CreateFormDescriptionCommand extends Command {
+  readonly reason: string;
+  readonly status?: string;
+  readonly file?: string | null;
+  readonly startTime: Date;
+  readonly endTime: Date;
+  readonly formId: string;
+  readonly submittedBy: string;
+  readonly createdBy: string;
+
+  constructor(props: CommandProps<CreateFormDescriptionCommand>) {
+    super(props);
+    Object.assign(this, props);
+  }
+}

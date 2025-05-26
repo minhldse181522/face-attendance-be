@@ -4,7 +4,8 @@ const roleRoot = 'role';
 const branchRoot = 'branch';
 const positionRoot = 'position';
 const dropdown = 'dropdown';
-
+const formRoot = 'form';
+const formDescriptionRoot = 'form-description';
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
  * @param root - Đường dẫn gốc của resource (ví dụ: 'human/get-salary')
@@ -44,6 +45,12 @@ export const routesV1 = {
   },
   position: {
     ...baseRoutes(`${positionRoot}`),
+  },
+  form: {
+    ...baseRoutes(`${formRoot}`),
+  },
+  formDescription: {
+    ...baseRoutes(`${formDescriptionRoot}`),
   },
   // #endregion
   // #region Dropdown

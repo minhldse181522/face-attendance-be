@@ -10,6 +10,8 @@ model Role {
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
   user     User[]
+  forms    Form[]   
+  
 
   @@map("dt_role")
 }

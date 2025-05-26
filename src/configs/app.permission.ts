@@ -41,4 +41,16 @@ export const resourcesV1 = {
     displayName: 'Authen',
     parent: 'Bảo mật',
   },
+  //#endregion
+  //#region FORM
+  FORM: {
+    name: 'form',
+    displayName: 'Đơn',
+    parent: 'Quản lý Đơn',
+  },
+  FORM_DESCRIPTION: {
+    name: 'form-description',
+    displayName: 'Đơn đã gửi',
+    parent: 'Quản lý Đơn',
+  },
 };

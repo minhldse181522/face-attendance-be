@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { None, Option, Some } from 'oxide.ts';
 import { RequestContextService } from '../application/context/AppRequestContext';
@@ -11,6 +11,7 @@ import {
 } from '../ddd';
 import { ConflictException, NotFoundException } from '../exceptions';
 import { ObjectLiteral } from '../types';
+import { builderPrismaCondition, IField } from '../utils';
 
 export interface PrismaClientManager {
   getClient(tenantId?: string): PrismaClient;
@@ -70,6 +71,57 @@ export abstract class PrismaMultiTenantRepositoryBase<
 
     return new Paginated({
       data: data.map(this.mapper.toDomain),
+      count,
+      limit,
+      page,
+    });
+  }
+  async findAllPaginatedWithQuickSearch<T>(
+    params: PrismaPaginatedQueryParams<T> & {
+      quickSearch?: {
+        quickSearchString: string | number;
+        searchableFields: IField[];
+      };
+    },
+  ): Promise<Paginated<Aggregate>> {
+    // Get client by context
+    const client = await this._getClient();
+
+    const { limit, offset, page, where = {}, orderBy, quickSearch } = params;
+    let searchConditions: T = {} as T;
+
+    if (quickSearch) {
+      searchConditions = this.createQuickSearchFilter(
+        quickSearch.quickSearchString,
+        quickSearch.searchableFields,
+      );
+    }
+
+    const [data, count] = await Promise.all([
+      client[this.modelName].findMany({
+        skip: offset,
+        take: limit,
+        where: {
+          ...where,
+          ...(searchConditions && {
+            ...searchConditions,
+          }),
+        },
+        orderBy,
+      }),
+
+      client[this.modelName].count({
+        where: {
+          ...where,
+          ...(searchConditions && {
+            ...searchConditions,
+          }),
+        },
+      }),
+    ]);
+
+    return new Paginated({
+      data: count > 0 ? data.map((item) => this.mapper.toDomain(item)) : [],
       count,
       limit,
       page,
@@ -226,5 +278,32 @@ export abstract class PrismaMultiTenantRepositoryBase<
     }
 
     return client;
+  }
+  /**
+   * Create a quick search filter for Prisma query
+   * @param searchTerm The search term
+   * @param fields The fields to search
+   * @returns The quick search filter
+   */
+  protected createQuickSearchFilter<T = any>(
+    searchTerm: string | number,
+    fields: IField[],
+  ): Prisma.Enumerable<any> {
+    if (!searchTerm) {
+      return {};
+    }
+
+    //kiểm tra từng field cho riêng từng kiểu
+    const quickSearchConditions = searchTerm
+      ? fields
+          .map((field) => builderPrismaCondition<T>(field, searchTerm))
+          .filter(Boolean)
+      : [];
+    if (quickSearchConditions.length > 0) {
+      return {
+        OR: quickSearchConditions,
+      };
+    }
+    return {};
   }
 }

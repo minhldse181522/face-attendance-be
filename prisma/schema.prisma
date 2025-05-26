@@ -1,11 +1,72 @@
 generator client {
   provider = "prisma-client-js"
   engineType = "library"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// From dt_role.prisma
+
+// From dt_role.prisma
+
+// From dt_form.prisma
+
+// From dt.form_description.prisma
+
+// From dt.form_description.prisma
+
+// From dt.form_description.prisma
+
+// From dt.form_description.prisma
+model FormDescription {
+  id BigInt @id @default(autoincrement())
+
+  code          String   @unique @db.VarChar(50)
+  reason        String   @db.Text
+  status        String   @db.VarChar(50)
+  file          String?  @db.VarChar(200)
+  startTime     DateTime @map("start_time") @db.Timestamptz(3)
+  endTime       DateTime @map("end_time") @db.Timestamptz(3)
+  approvedTime  DateTime? @map("approved_time") @db.Timestamptz(3)
+  
+  formId        BigInt   @map("form_id")
+  submittedBy   String   @map("submitted_by") @db.VarChar(50)
+  approvedBy    String?  @map("approved_by") @db.VarChar(50)
+
+  createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy     String    @map("created_by") @db.VarChar(36)
+  updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy     String?   @map("modified_by") @db.VarChar(36)
+
+  // Relations
+  form          Form     @relation(fields: [formId], references: [id], onUpdate: Cascade)
+  submitter     User     @relation("FormSubmitter", fields: [submittedBy], references: [code], onUpdate: Cascade)
+  approver      User?    @relation("FormApprover", fields: [approvedBy], references: [code], onUpdate: Cascade)
+
+  @@map("dt_form_description")
+}
+
+// From dt_form.prisma
+model Form {
+  id BigInt @id @default(autoincrement())
+
+  title        String    @db.VarChar(100)
+  description  String?   @db.Text
+  roleCode     String    @map("role_code") @db.VarChar(5)
+  
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  // Relation to Role
+  role     Role     @relation(fields: [roleCode], references: [roleCode])
+  formDescriptions FormDescription[]
+  @@map("dt_form")
 }
 
 // From dt_role.prisma
@@ -21,6 +82,8 @@ model Role {
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
   user     User[]
+  forms    Form[]   
+  
 
   @@map("dt_role")
 }
@@ -52,6 +115,8 @@ model User {
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
   role     Role      @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
+  submittedForms FormDescription[] @relation("FormSubmitter")
+  approvedForms  FormDescription[] @relation("FormApprover")
 
   @@map("dt_user")
 }
