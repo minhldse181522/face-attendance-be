@@ -16,6 +16,7 @@ import { CacheModule } from './libs/cache/cache.module';
 import { cacheConfig } from './configs/cache.config';
 import { RoleModule } from './modules/role/role.module';
 import { FormModule } from './modules/form/form.module';
+import { FormDescriptionModule } from './modules/form-description/form-description.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -65,6 +66,7 @@ const interceptors = [
     UserModule,
     AuthModule,
     FormModule,
+    FormDescriptionModule,
   ],
   controllers: [],
   providers: [

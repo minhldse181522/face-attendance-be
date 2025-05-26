@@ -48,4 +48,9 @@ export const resourcesV1 = {
     displayName: 'Đơn',
     parent: 'Quản lý Đơn',
   },
+  FORM_DESCRIPTION: {
+    name: 'form-description',
+    displayName: 'Đơn đã gửi',
+    parent: 'Quản lý Đơn',
+  },
 };
