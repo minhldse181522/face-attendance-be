@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
   engineType = "library"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -13,6 +14,10 @@ datasource db {
 // From dt_role.prisma
 
 // From dt_form.prisma
+
+// From dt.form_description.prisma
+
+// From dt.form_description.prisma
 
 // From dt.form_description.prisma
 

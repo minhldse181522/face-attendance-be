@@ -5,10 +5,16 @@ import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
+// Mapper là nơi chuyển đổi qua lại giữa 3 tầng dữ liệu
+// Domain Entity ←→ Persistence Model (Prisma)
+// Domain Entity ←→ Response DTO (trả về client)
+
 @Injectable()
 export class UserMapper
   implements Mapper<UserEntity, UserModel, UserResponseDto>
 {
+  // Trích xuất dữ liệu từ UserEntity → ánh xạ đúng định dạng UserModel của Prisma schema.
+  // Entity → DB model
   toPersistence(entity: UserEntity): UserModel {
     const copy = entity.getProps();
     const record: UserModel = {
@@ -39,6 +45,8 @@ export class UserMapper
     return record;
   }
 
+  // Chuyển từ Prisma record => Domain Entity (để dùng trong logic nghiệp vụ)
+  // DB model → Entity
   toDomain(
     record: UserModel & {
       role: RoleModel;
@@ -83,6 +91,8 @@ export class UserMapper
     });
   }
 
+  // Trả dữ liệu từ domain entity sang DTO phù hợp để trả về API
+  // Entity → DTO (client view)
   toResponse(entity: UserEntity): UserResponseDto {
     const props = entity.getProps();
     const response = new UserResponseDto(entity);

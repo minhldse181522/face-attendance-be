@@ -1,27 +1,49 @@
 version: '3.8'
 
 services:
-  # postgres:
-  #   image: postgres
-  #   container_name: face-attendance
-  #   environment:
-  #     POSTGRES_PASSWORD: aiface_123
-  #   ports:
-  #     - '5433:5432'
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_PASSWORD: aiface_123
+      POSTGRES_DB: face_attendance
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env
     container_name: face-attendance-backend
-    # depends_on:
-    #   - postgres
     environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
       DATABASE_URL: ${DATABASE_URL}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_FAMILY: ${REDIS_FAMILY}
+    depends_on:
+      - postgres
+      - redis
     ports:
       - '3001:3001'
     command: ['npm', 'run', 'start:prod']
-# volumes:
-#   pgdata:
+
+volumes:
+  pgdata:
