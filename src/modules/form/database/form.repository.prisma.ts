@@ -44,4 +44,13 @@ export class PrismaFormRepository
       }),
     });
   }
+  async checkExist(formId: bigint): Promise<boolean> {
+    const client = await this._getClient();
+
+    const count = await client.form.count({
+      where: { id: formId },
+    });
+
+    return count > 0;
+  }
 }
