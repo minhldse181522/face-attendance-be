@@ -12,6 +12,6 @@ model Form {
 
   // Relation to Role
   role     Role     @relation(fields: [roleCode], references: [roleCode])
-
+  formDescriptions FormDescription[]
   @@map("dt_form")
 }

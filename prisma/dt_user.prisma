@@ -24,6 +24,8 @@ model User {
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
   role     Role      @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
+  submittedForms FormDescription[] @relation("FormSubmitter")
+  approvedForms  FormDescription[] @relation("FormApprover")
 
   @@map("dt_user")
 }
