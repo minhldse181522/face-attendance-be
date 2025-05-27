@@ -15,8 +15,11 @@ import { GenerateCode } from '@src/libs/utils/generate-code.util';
 import { FORM_REPOSITORY } from '../form/form.di-tokens';
 import { PrismaFormRepository } from '../form/database/form.repository.prisma';
 import { FormModule } from '../form/form.module';
+import { FindFormDescriptionFilterHttpController } from './queries/find-form-descriptions-fiter/find-form-descriptions-fiter.http.controller';
+import { FindFormDescriptionFiterQueryHandler } from './queries/find-form-descriptions-fiter/find-form-descriptions-fiter.query-handler';
 
 const httpControllers = [
+  FindFormDescriptionFilterHttpController,
   FindFormDescriptionHttpController,
   UpdateFormDescriptionHttpController,
   DeleteFormDescriptionHttpController,
@@ -35,7 +38,10 @@ const commandHandlers: Provider[] = [
   CreateFormDescriptionService,
 ];
 
-const queryHandlers: Provider[] = [FindFormDescriptionQueryHandler];
+const queryHandlers: Provider[] = [
+  FindFormDescriptionQueryHandler,
+  FindFormDescriptionFiterQueryHandler,
+];
 
 const mappers: Provider[] = [FormDescriptionMapper];
 const utils: Provider[] = [GenerateCode];

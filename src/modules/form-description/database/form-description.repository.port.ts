@@ -10,6 +10,9 @@ export interface FormDescriptionRepositoryPort
   extends RepositoryPort<FormDescriptionEntity> {
   findAllPaginatedQuickSearch(
     params: PrismaPaginatedQueryParams<Prisma.FormDescriptionWhereInput> & {
+      fromDate?: string;
+      toDate?: string;
+      formId?: string;
       quickSearch?: string | number | Date;
     },
   ): Promise<Paginated<FormDescriptionEntity>>;

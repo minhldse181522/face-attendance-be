@@ -8,6 +8,7 @@ export interface FormDescriptionProps {
   endTime: Date;
   approvedTime?: Date | null;
   formId: bigint;
+  formTitle?: string; // Add formTitle property
   submittedBy: string;
   approvedBy?: string | null;
   createdBy: string;
