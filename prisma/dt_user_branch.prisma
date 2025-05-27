@@ -1,0 +1,16 @@
+model UserBranch {
+  id               BigInt  @id @default(autoincrement())
+
+  code             String  @unique @map("code") @db.VarChar(50)
+  userCode         String  @map("user_code") @db.VarChar(50)
+  branchCode       String  @map("branch_code") @db.VarChar(50)
+  userContractCode String? @map("user_contract_code") @db.VarChar(50)
+
+  branch Branch?   @relation(fields: [branchCode], references: [code])
+  user   User?     @relation(fields: [userCode], references: [code])
+  userContract UserContract? @relation(fields: [userContractCode], references: [code])
+
+  workingSchedules WorkingSchedule[]
+
+  @@map("dt_user_branch")
+}

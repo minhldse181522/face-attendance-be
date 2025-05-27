@@ -1,0 +1,27 @@
+name: Deploy to VPS via Docker Compose
+
+on:
+  push:
+    branches:
+      - master # Tự động chạy khi push lên nhánh master
+
+jobs:
+  deploy:
+    name: Deploy backend to VPS
+    runs-on: self-hosted # <<< Chạy trên VPS
+
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      - name: Stop existing containers
+        run: |
+          docker-compose down || true
+
+      - name: Build and start containers
+        run: |
+          docker-compose up -d --build
+
+      - name: Run Prisma migrate
+        run: |
+          docker exec face-attendance-backend npx prisma migrate deploy

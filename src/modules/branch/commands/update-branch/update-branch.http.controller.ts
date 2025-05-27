@@ -24,81 +24,81 @@ import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator'
 import { ReqUser } from '@src/libs/decorators/request-user.decorator';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 import { match } from 'oxide.ts';
-import { RoleMapper } from '../../mappers/role.mapper';
-import { RoleResponseDto } from '../../dtos/role.response.dto';
+import { BranchEntity } from '../../domain/branch.entity';
 import {
-  RoleAlreadyExistsError,
-  RoleAlreadyInUseError,
-  RoleNotFoundError,
-} from '../../domain/role.error';
-import { UpdateRoleRequestDto } from './update-role.request.dto';
-import { UpdateRoleCommand } from './update-role.command';
-import { UpdateRoleServiceResult } from './update-role.service';
-import { RoleEntity } from '../../domain/role.entity';
+  BranchAlreadyExistsError,
+  BranchAlreadyInUseError,
+  BranchNotFoundError,
+} from '../../domain/branch.error';
+import { BranchResponseDto } from '../../dtos/branch.response.dto';
+import { UpdateBranchCommand } from './update-branch.command';
+import { UpdateBranchRequestDto } from './update-branch.request.dto';
+import { UpdateBranchServiceResult } from './update-branch.service';
+import { BranchMapper } from '../../mappers/branch.mapper';
 
 @Controller(routesV1.version)
-export class UpdateRoleHttpController {
+export class UpdateBranchHttpController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly mapper: RoleMapper,
+    private readonly mapper: BranchMapper,
   ) {}
 
-  @ApiTags(`${resourcesV1.ROLE.parent} - ${resourcesV1.ROLE.displayName}`)
-  @ApiOperation({ summary: 'Update a Role' })
+  @ApiTags(`${resourcesV1.BRANCH.parent} - ${resourcesV1.BRANCH.displayName}`)
+  @ApiOperation({ summary: 'Update a Branch' })
   @ApiBearerAuth()
   @ApiParam({
     name: 'id',
-    description: 'ROLE ID',
+    description: 'Branch ID',
     type: 'string',
     required: true,
     example: '1',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: RoleResponseDto,
+    type: BranchResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: RoleNotFoundError.message,
+    description: BranchNotFoundError.message,
     type: ApiErrorResponse,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     type: ApiErrorResponse,
   })
-  @AuthPermission(resourcesV1.ROLE.name, resourceScopes.UPDATE)
+  @AuthPermission(resourcesV1.BRANCH.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.role.update)
+  @Put(routesV1.branch.update)
   async update(
     @ReqUser() user: RequestUser,
-    @Param('id') roleId: bigint,
-    @Body() body: UpdateRoleRequestDto,
-  ): Promise<RoleResponseDto> {
-    const command = new UpdateRoleCommand({
-      roleId,
+    @Param('id') branchId: bigint,
+    @Body() body: UpdateBranchRequestDto,
+  ): Promise<BranchResponseDto> {
+    const command = new UpdateBranchCommand({
+      branchId,
       ...body,
       updatedBy: user.userName,
     });
 
-    const result: UpdateRoleServiceResult =
+    const result: UpdateBranchServiceResult =
       await this.commandBus.execute(command);
 
     return match(result, {
-      Ok: (Role: RoleEntity) => this.mapper.toResponse(Role),
+      Ok: (Branch: BranchEntity) => this.mapper.toResponse(Branch),
       Err: (error: Error) => {
-        if (error instanceof RoleNotFoundError) {
+        if (error instanceof BranchNotFoundError) {
           throw new NotFoundHttpException({
             message: error.message,
             errorCode: error.code,
           });
         }
-        if (error instanceof RoleAlreadyExistsError) {
+        if (error instanceof BranchAlreadyExistsError) {
           throw new ConflictException({
             message: error.message,
             errorCode: error.code,
           });
         }
-        if (error instanceof RoleAlreadyInUseError) {
+        if (error instanceof BranchAlreadyInUseError) {
           throw new ConflictException({
             message: error.message,
             error: error.code,
