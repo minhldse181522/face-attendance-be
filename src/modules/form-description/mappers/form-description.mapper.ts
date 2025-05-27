@@ -1,8 +1,12 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { FormDescription as FormDescriptionModel } from '@prisma/client';
-import { FormDescriptionResponseDto } from '../dtos/form-description.response.dto';
+import {
+  FormDescription as FormDescriptionModel,
+  Form as FormModel,
+  User as UserModel,
+} from '@prisma/client';
 import { FormDescriptionEntity } from '../domain/form-description.entity';
+import { FormDescriptionResponseDto } from '../dtos/form-description.response.dto';
 
 @Injectable()
 export class FormDescriptionMapper
@@ -36,7 +40,13 @@ export class FormDescriptionMapper
     return record;
   }
 
-  toDomain(record: FormDescriptionModel): FormDescriptionEntity {
+  toDomain(
+    record: FormDescriptionModel & {
+      submitter?: UserModel;
+      form?: FormModel;
+      approver?: UserModel;
+    },
+  ): FormDescriptionEntity {
     return new FormDescriptionEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -50,8 +60,12 @@ export class FormDescriptionMapper
         endTime: record.endTime,
         approvedTime: record.approvedTime,
         formId: record.formId,
-        submittedBy: record.submittedBy,
+        submittedBy:
+          record.submitter?.firstName && record.submitter?.lastName
+            ? `${record.submitter.firstName} ${record.submitter.lastName}`
+            : record.submittedBy,
         approvedBy: record.approvedBy,
+        formTitle: record.form?.title || '', // Assuming the form model has a title field
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
       },
@@ -69,7 +83,8 @@ export class FormDescriptionMapper
     response.startTime = props.startTime;
     response.endTime = props.endTime;
     response.approvedTime = props.approvedTime ?? undefined;
-    response.formId = props.formId;
+    // response.formId = props.formId;
+    response.formTitle = props.formTitle || ''; // Map the formTitle to the response
     response.submittedBy = props.submittedBy;
     response.approvedBy = props.approvedBy ?? undefined;
     return response;

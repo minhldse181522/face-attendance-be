@@ -44,11 +44,17 @@ export class FormDescriptionResponseDto extends ResponseBase<any> {
   })
   approvedTime?: Date;
 
+  // @ApiProperty({
+  //   example: 1,
+  //   description: 'ID của form',
+  // })
+  // formId: bigint;
+
   @ApiProperty({
-    example: 1,
-    description: 'ID của form',
+    example: 'Đơn xin nghỉ phép',
+    description: 'Tên biểu mẫu',
   })
-  formId: bigint;
+  formTitle: string;
 
   @ApiProperty({
     example: 'USER001',
