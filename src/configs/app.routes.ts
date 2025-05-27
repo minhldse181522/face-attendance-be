@@ -52,6 +52,9 @@ export const routesV1 = {
   formDescription: {
     ...baseRoutes(`${formDescriptionRoot}`),
   },
+  formDescriptionFiter: {
+    ...baseRoutes(`${formDescriptionRoot}/filter`),
+  },
   // #endregion
   // #region Dropdown
   dropdown: {
