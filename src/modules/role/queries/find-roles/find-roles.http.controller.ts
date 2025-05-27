@@ -13,9 +13,9 @@ import { Prisma } from '@prisma/client';
 import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator';
 import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
 import { RolePaginatedResponseDto } from '../../dtos/role.paginated.response.dto';
-import { RoleMapper } from '../../mappers/branch.mapper';
-import { FindRoleQuery } from './find-branches.query-handler';
-import { FindRoleRequestDto } from './find-branches.request.dto';
+import { RoleMapper } from '../../mappers/role.mapper';
+import { FindRoleQuery } from './find-roles.query-handler';
+import { FindRoleRequestDto } from './find-roles.request.dto';
 
 @Controller(routesV1.version)
 export class FindRoleHttpController {

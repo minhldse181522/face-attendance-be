@@ -4,7 +4,7 @@ import { Role as RoleModel } from '@prisma/client';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { DropDownResult } from '@src/libs/utils/dropdown.util';
 import { RoleEntity } from '../domain/role.entity';
-import { RoleMapper } from '../mappers/branch.mapper';
+import { RoleMapper } from '../mappers/role.mapper';
 import { RoleRepositoryPort } from './role.repository.port';
 
 @Injectable()

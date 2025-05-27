@@ -40,7 +40,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://he-thong-cham-cong-admin.vercel.app',
-  'https://face-attendance-be-production.up.railway.app',
+  'http://128.199.119.151:3001',
 ];
 
 async function bootstrap() {

@@ -22,6 +22,55 @@ datasource db {
 // From dt.form_description.prisma
 
 // From dt.form_description.prisma
+
+// From dt.form_description.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+model Branch {
+  id           BigInt  @id @default(autoincrement())
+
+  code         String  @unique @map("code") @db.VarChar(50)
+  branchName   String  @map("branch_name") @db.VarChar(200)
+  addressLine  String  @map("address_line") @db.VarChar(200)
+  placeId      String  @map("place_id") @db.VarChar(50)
+  city         String  @map("city") @db.VarChar(50)
+  district     String  @map("district") @db.VarChar(50)
+  lat          Float   @map("lat") @db.DoublePrecision
+  long         Float   @map("long") @db.DoublePrecision
+  companyCode  String  @map("company_code") @db.VarChar(20)
+
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  userBranches UserBranch[]
+
+  @@map("dt_branch")
+}
+
+// From dt_form.prisma
+model Form {
+  id BigInt @id @default(autoincrement())
+
+  title        String    @db.VarChar(100)
+  description  String?   @db.Text
+  roleCode     String    @map("role_code") @db.VarChar(5)
+  
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  // Relation to Role
+  role     Role     @relation(fields: [roleCode], references: [roleCode])
+  formDescriptions FormDescription[]
+  @@map("dt_form")
+}
+
+// From dt_form_description.prisma
 model FormDescription {
   id BigInt @id @default(autoincrement())
 
@@ -48,25 +97,6 @@ model FormDescription {
   approver      User?    @relation("FormApprover", fields: [approvedBy], references: [code], onUpdate: Cascade)
 
   @@map("dt_form_description")
-}
-
-// From dt_form.prisma
-model Form {
-  id BigInt @id @default(autoincrement())
-
-  title        String    @db.VarChar(100)
-  description  String?   @db.Text
-  roleCode     String    @map("role_code") @db.VarChar(5)
-  
-  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
-  createdBy String    @map("created_by") @db.VarChar(36)
-  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
-  updatedBy String?   @map("modified_by") @db.VarChar(36)
-
-  // Relation to Role
-  role     Role     @relation(fields: [roleCode], references: [roleCode])
-  formDescriptions FormDescription[]
-  @@map("dt_form")
 }
 
 // From dt_role.prisma
@@ -115,8 +145,79 @@ model User {
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
   role     Role      @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
-  submittedForms FormDescription[] @relation("FormSubmitter")
-  approvedForms  FormDescription[] @relation("FormApprover")
+  
+  workingSchedules WorkingSchedule[]
+  userBranches     UserBranch[]
+  userContracts    UserContract[]
+  submittedForms   FormDescription[] @relation("FormSubmitter")
+  approvedForms    FormDescription[] @relation("FormApprover")
 
   @@map("dt_user")
+}
+
+// From dt_user_branch.prisma
+model UserBranch {
+  id               BigInt  @id @default(autoincrement())
+
+  code             String  @unique @map("code") @db.VarChar(50)
+  userCode         String  @map("user_code") @db.VarChar(50)
+  branchCode       String  @map("branch_code") @db.VarChar(50)
+  userContractCode String? @map("user_contract_code") @db.VarChar(50)
+
+  branch Branch?   @relation(fields: [branchCode], references: [code])
+  user   User?     @relation(fields: [userCode], references: [code])
+  userContract UserContract? @relation(fields: [userContractCode], references: [code])
+
+  workingSchedules WorkingSchedule[]
+
+  @@map("dt_user_branch")
+}
+
+// From dt_user_contract.prisma
+model UserContract {
+  id             BigInt  @id @default(autoincrement())
+
+  code           String?    @unique @map("code") @db.VarChar(50)
+  title          String?    @map("title") @db.VarChar(100)
+  description    String?    @map("description") @db.VarChar(2000)
+  startTime      DateTime?  @map("start_time") @db.Timestamptz(0)
+  endTime        DateTime?  @map("end_time") @db.Timestamptz(0)
+  duration       String?    @map("duration") @db.VarChar(50)
+  contractPdf    String?    @map("contract_pdf") @db.VarChar(200)
+  status         String?    @map("status") @db.VarChar(50)
+  userCode       String?    @map("user_code") @db.VarChar(200)
+  userBranchCode String?    @map("user_branch_code") @db.VarChar(200)
+
+  createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy     String    @map("created_by") @db.VarChar(36)
+  updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy     String?   @map("modified_by") @db.VarChar(36)
+
+  user          User?     @relation(fields: [userCode], references: [code], onUpdate: Cascade)
+
+  userBranches  UserBranch[]
+
+  @@map("dt_user_contract")
+}
+
+// From dt_working_schedule.prisma
+model WorkingSchedule {
+  id             BigInt  @id @default(autoincrement())
+
+  code           String?    @unique @map("code") @db.VarChar(50)
+  userCode       String?    @map("user_code") @db.VarChar(200)
+  userBranchCode String?    @map("user_branch_code") @db.VarChar(200)
+  date           DateTime?  @map("date") @db.Timestamptz(0)
+  shiftCode      String?   @map("shift_code") @db.VarChar(50)
+
+
+  createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy     String    @map("created_by") @db.VarChar(36)
+  updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy     String?   @map("modified_by") @db.VarChar(36)
+
+  user          User?       @relation(fields: [userCode], references: [code], onUpdate: Cascade)
+  userBranch    UserBranch? @relation(fields: [userBranchCode], references: [code], onUpdate: Cascade)
+
+  @@map("dt_working_schedule")
 }
