@@ -11,6 +11,7 @@ import { IField } from '@src/libs/utils';
 import { FormDescriptionEntity } from '../domain/form-description.entity';
 import { FormDescriptionMapper } from '../mappers/form-description.mapper';
 import { FormDescriptionRepositoryPort } from './form-description.repository.port';
+import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 
 export const FormDescriptionScalarFieldEnum =
   Prisma.FormDescriptionScalarFieldEnum;
@@ -38,21 +39,26 @@ export class PrismaFormDescriptionRepository
       toDate?: string;
       formId?: string;
       quickSearch?: string;
+      user?: RequestUser;
     },
   ): Promise<Paginated<FormDescriptionEntity>> {
+    // Định nghĩa các trường có thể tìm kiếm trong FormDescription
     const searchableFields: IField[] = [
       { field: 'code', type: 'string' },
       { field: 'reason', type: 'string' },
       { field: 'status', type: 'string' },
       { field: 'submittedBy', type: 'string' },
     ];
+    // Định nghĩa các trường có thể tìm kiếm trong User
     const searchableFieldsUser: IField[] = [
       { field: 'firstName', type: 'string' },
       { field: 'lastName', type: 'string' },
     ];
+    // Định nghĩa các trường có thể tìm kiếm trong Form
     const searchableFieldsForm: IField[] = [{ field: 'title', type: 'string' }];
 
     const { quickSearch, ...rest } = params;
+    // Gọi hàm xử lý tìm kiếm chính
     const data = this.findAllPaginatedWithQuickSearchFiter(
       rest,
       quickSearch
@@ -66,11 +72,13 @@ export class PrismaFormDescriptionRepository
     );
     return data;
   }
+
   private async findAllPaginatedWithQuickSearchFiter(
     params: PrismaPaginatedQueryBase<Prisma.FormDescriptionWhereInput> & {
       fromDate?: string;
       toDate?: string;
       formId?: string;
+      user?: RequestUser;
     },
     quickSearch?: {
       quickSearchString: string | number;
@@ -89,132 +97,242 @@ export class PrismaFormDescriptionRepository
       fromDate,
       toDate,
       formId,
+      user,
     } = params;
 
-    //#region function createQuickSearchFilter
+    // Trích xuất thông tin người dùng
+    const userRoleCode = user?.roleCode;
+    const userCode = user?.code;
 
-    let searchableFields: Prisma.FormDescriptionWhereInput =
-      {} as Prisma.FormDescriptionWhereInput;
-    let searchableFieldsUser: Prisma.UserWhereInput =
-      {} as Prisma.UserWhereInput;
-    let searchableFieldsForm: Prisma.FormWhereInput =
-      {} as Prisma.FormWhereInput;
+    // Xây dựng điều kiện tìm kiếm cơ bản (thời gian, formId)
+    const baseConditions: Prisma.FormDescriptionWhereInput = {
+      ...where,
+      ...(fromDate || toDate
+        ? {
+            createdAt: {
+              ...(fromDate && { gte: fromDate }), // Từ ngày
+              ...(toDate && { lte: toDate }), // Đến ngày
+            },
+          }
+        : {}),
+      ...(formId ? { formId: Number(formId) } : {}), // Lọc theo ID form nếu có
+    };
 
+    // Xây dựng điều kiện tìm kiếm nhanh (từ khóa tìm kiếm)
+    const searchConditions: Prisma.FormDescriptionWhereInput[] = [];
     if (quickSearch) {
-      searchableFields =
+      // Tìm trong các trường của FormDescription
+      const formDescriptionSearchFields =
         this.createQuickSearchFilter<Prisma.FormDescriptionWhereInput>(
           quickSearch.quickSearchString,
           quickSearch.searchableFields,
         );
-      searchableFieldsUser =
+
+      if (Object.keys(formDescriptionSearchFields).length > 0) {
+        searchConditions.push(formDescriptionSearchFields);
+      }
+
+      // Tìm trong các trường của User (người gửi đơn)
+      const userSearchFields =
         this.createQuickSearchFilter<Prisma.UserWhereInput>(
           quickSearch.quickSearchString,
           quickSearch.searchableFieldsUser,
         );
-      searchableFieldsForm =
+
+      if (Object.keys(userSearchFields).length > 0) {
+        searchConditions.push({
+          submitter: { ...userSearchFields },
+        });
+      }
+
+      // Tìm trong các trường của Form
+      const formSearchFields =
         this.createQuickSearchFilter<Prisma.FormWhereInput>(
           quickSearch.quickSearchString,
           quickSearch.searchableFieldsForm || [],
         );
-    }
-    if (fromDate || toDate) {
-      searchableFields = {
-        ...searchableFields,
-        createdAt: {
-          ...(fromDate && { gte: fromDate }),
-          ...(toDate && { lte: toDate }),
-        },
-      };
+
+      if (Object.keys(formSearchFields).length > 0) {
+        searchConditions.push({
+          form: { ...formSearchFields },
+        });
+      }
     }
 
-    if (formId) {
-      searchableFields = {
-        ...searchableFields,
-        formId: Number(formId),
-      };
+    // Khởi tạo điều kiện lọc dựa vào role và quyền truy cập
+    let formRoleCondition: Prisma.FormDescriptionWhereInput = {};
+    let roleBasedConditions: Prisma.FormDescriptionWhereInput = {};
+
+    // Nếu có thông tin user và role, áp dụng lọc theo quyền
+    if (userRoleCode && user) {
+      // Xử lý quyền truy cập theo role của người dùng
+      switch (userRoleCode) {
+        // R1 (Admin) - Có thể xem tất cả form
+        case 'R1':
+          // Không cần thêm điều kiện lọc cho admin
+          break;
+
+        // R3 (Branch user) - Chỉ xem forms từ users cùng branch
+        case 'R3':
+          if (userCode) {
+            // Lấy danh sách branches của user hiện tại
+            const currentUserBranches = await client.userBranch.findMany({
+              where: { userCode },
+              select: { branchCode: true },
+              take: 100, // Giới hạn số lượng branch để tối ưu hiệu suất
+            });
+
+            const branchCodes = currentUserBranches.map(
+              (branch) => branch.branchCode,
+            );
+
+            // Nếu user có branch, chỉ xem được các đơn từ người dùng trong cùng branch
+            if (branchCodes.length > 0) {
+              roleBasedConditions = {
+                submitter: {
+                  userBranches: {
+                    some: {
+                      branchCode: {
+                        in: branchCodes,
+                      },
+                    },
+                  },
+                },
+              };
+            }
+          }
+          break;
+
+        // R2 (Manager) - Chỉ xem forms từ users họ quản lý
+        case 'R2':
+          roleBasedConditions = {
+            submitter: {
+              managedBy: user.userName, // Lọc theo user được quản lý bởi người dùng hiện tại
+            },
+          };
+          break;
+      }
+
+      // Xử lý quyền truy cập dựa theo form.roleCode
+      if (formId) {
+        try {
+          // Lấy thông tin roleCode của form
+          const form = await client.form.findUnique({
+            where: { id: Number(formId) },
+            select: { roleCode: true },
+          });
+
+          if (form) {
+            // Định nghĩa ma trận phân quyền: role nào được xem form có roleCode nào
+            const roleAccessMap = {
+              R1: ['R1', 'R2', 'R3'], // Admin xem tất cả
+              R3: ['R3', 'R2'], // Branch user chỉ xem R3, R2
+              R2: ['R2'], // Manager chỉ xem R2
+            };
+
+            const allowedFormRoleCodes = roleAccessMap[userRoleCode] || [];
+
+            // Kiểm tra quyền truy cập
+            if (!allowedFormRoleCodes.includes(form.roleCode)) {
+              // Nếu không có quyền xem, trả về kết quả rỗng
+              return new Paginated({
+                data: [],
+                count: 0,
+                limit,
+                page,
+              });
+            }
+
+            // Thêm điều kiện lọc theo roleCode của form
+            formRoleCondition = {
+              form: {
+                roleCode: form.roleCode,
+              },
+            };
+          }
+        } catch (error) {
+          console.error('Error fetching form role:', error);
+        }
+      } else {
+        // Nếu không có formId cụ thể, lọc theo các forms mà user có quyền xem dựa trên role
+        const roleAccessMap = {
+          R1: ['R1', 'R2', 'R3'],
+          R3: ['R3', 'R2'],
+          R2: ['R2'],
+        };
+
+        const allowedFormRoleCodes = roleAccessMap[userRoleCode] || [];
+
+        // Thêm điều kiện lọc các form theo roleCode được phép
+        if (allowedFormRoleCodes.length > 0) {
+          formRoleCondition = {
+            form: {
+              roleCode: {
+                in: allowedFormRoleCodes,
+              },
+            },
+          };
+        }
+      }
     }
 
-    //#endregion
+    // Kết hợp tất cả điều kiện lọc để tạo điều kiện cuối cùng
+    const finalWhereCondition: Prisma.FormDescriptionWhereInput = {
+      ...baseConditions,
+      ...formRoleCondition,
+      ...roleBasedConditions,
+      ...(searchConditions.length > 0 ? { OR: searchConditions } : {}),
+    };
+
+    // Thực thi song song hai truy vấn: lấy dữ liệu và đếm tổng số
     const [data, count] = await Promise.all([
       client.formDescription
         .findMany({
-          where: {
-            ...where,
-            OR: [
-              {
-                ...(Object.keys(searchableFields).length > 0 && {
-                  ...searchableFields,
-                }),
-              },
-              {
-                ...(Object.keys(searchableFieldsUser).length > 0 && {
-                  submitter: {
-                    ...searchableFieldsUser,
-                  },
-                }),
-              },
-              {
-                ...(Object.keys(searchableFieldsForm).length > 0 && {
-                  form: {
-                    ...searchableFieldsForm,
-                  },
-                }),
-              },
-            ],
-          },
+          where: finalWhereCondition,
           include: {
-            form: true,
+            form: true, // Lấy thông tin form
             submitter: {
               select: {
                 firstName: true,
                 lastName: true,
                 code: true,
+                managedBy: true,
+                userBranches: {
+                  select: {
+                    branchCode: true,
+                  },
+                },
               },
-            },
-            approver: true,
+            }, // Lấy thông tin người gửi đơn
+            approver: true, // Lấy thông tin người duyệt
           },
-          orderBy,
-          skip: offset,
-          take: limit,
+          orderBy, // Sắp xếp kết quả
+          skip: offset, // Bỏ qua các bản ghi theo phân trang
+          take: limit, // Giới hạn số lượng bản ghi trả về
         })
-        .catch(() => []), // Return empty array if query fails
+        .catch((error) => {
+          // Xử lý lỗi khi truy vấn dữ liệu
+          console.error('Error fetching form descriptions:', error);
+          return [];
+        }),
+
       client.formDescription
-        .count({
-          where: {
-            ...where,
-            ...(Object.keys(searchableFields).length > 0 && {
-              ...searchableFields,
-            }),
-            ...(Object.keys(searchableFieldsUser).length > 0 && {
-              submitter: {
-                ...searchableFieldsUser,
-              },
-            }),
-            ...(Object.keys(searchableFieldsForm).length > 0 && {
-              form: {
-                ...searchableFieldsForm,
-              },
-            }),
-          },
-        })
-        .catch(() => 0), // Trả về 0 nếu truy vấn đếm thất bại
+        .count({ where: finalWhereCondition }) // Đếm tổng số bản ghi phù hợp
+        .catch((error) => {
+          // Xử lý lỗi khi đếm số lượng bản ghi
+          console.error('Error counting form descriptions:', error);
+          return 0;
+        }),
     ]);
 
     // Chuyển đổi dữ liệu từ model sang entity
-    const mappedResult =
-      data && data.length > 0
-        ? data.map((item) => {
-            const entity = this.mapper.toDomain(item);
-
-            return entity;
-          })
-        : []; // Trả về mảng rỗng nếu không có dữ liệu
+    const mappedResult = data.map((item) => this.mapper.toDomain(item));
 
     // Trả về kết quả đã phân trang
     return new Paginated({
-      data: mappedResult, // Dữ liệu đã được ánh xạ
-      count: count || 0, // Tổng số bản ghi (hoặc 0 nếu không có)
-      limit, // Giới hạn số bản ghi trên mỗi trang
+      data: mappedResult, // Dữ liệu đã được ánh xạ thành entities
+      count, // Tổng số bản ghi thỏa điều kiện
+      limit, // Số bản ghi trên mỗi trang
       page, // Trang hiện tại
     });
   }
