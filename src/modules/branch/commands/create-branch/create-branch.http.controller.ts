@@ -21,27 +21,27 @@ import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator'
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
 import { match } from 'oxide.ts';
-import { RoleEntity } from '../../domain/role.entity';
-import { RoleAlreadyExistsError } from '../../domain/role.error';
-import { RoleResponseDto } from '../../dtos/role.response.dto';
-import { RoleMapper } from '../../mappers/role.mapper';
-import { CreateRoleCommand } from './create-role.command';
-import { CreateRoleRequestDto } from './create-role.request.dto';
-import { CreateRoleServiceResult } from './create-role.service';
+import { BranchEntity } from '../../domain/branch.entity';
+import { BranchAlreadyExistsError } from '../../domain/branch.error';
+import { BranchResponseDto } from '../../dtos/branch.response.dto';
+import { BranchMapper } from '../../mappers/branch.mapper';
+import { CreateBranchCommand } from './create-branch.command';
+import { CreateBranchRequestDto } from './create-branch.request.dto';
+import { CreateBranchServiceResult } from './create-branch.service';
 
 @Controller(routesV1.version)
-export class CreateRoleHttpController {
+export class CreateBranchHttpController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly mapper: RoleMapper,
+    private readonly mapper: BranchMapper,
   ) {}
 
-  @ApiTags(`${resourcesV1.ROLE.parent} - ${resourcesV1.ROLE.displayName}`)
-  @ApiOperation({ summary: 'Create a role' })
+  @ApiTags(`${resourcesV1.BRANCH.parent} - ${resourcesV1.BRANCH.displayName}`)
+  @ApiOperation({ summary: 'Create a branch' })
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: RoleResponseDto,
+    type: BranchResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -49,28 +49,28 @@ export class CreateRoleHttpController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: RoleAlreadyExistsError.message,
+    description: BranchAlreadyExistsError.message,
     type: ApiErrorResponse,
   })
-  @AuthPermission(resourcesV1.ROLE.name, resourceScopes.CREATE)
+  @AuthPermission(resourcesV1.BRANCH.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
-  @Post(routesV1.role.root)
+  @Post(routesV1.branch.root)
   async create(
     @ReqUser() user: RequestUser,
-    @Body() body: CreateRoleRequestDto,
-  ): Promise<RoleResponseDto> {
-    const command = new CreateRoleCommand({
+    @Body() body: CreateBranchRequestDto,
+  ): Promise<BranchResponseDto> {
+    const command = new CreateBranchCommand({
       ...body,
       createdBy: user.userName,
     });
 
-    const result: CreateRoleServiceResult =
+    const result: CreateBranchServiceResult =
       await this.commandBus.execute(command);
 
     return match(result, {
-      Ok: (role: RoleEntity) => this.mapper.toResponse(role),
+      Ok: (Branch: BranchEntity) => this.mapper.toResponse(Branch),
       Err: (error: Error) => {
-        if (error instanceof RoleAlreadyExistsError) {
+        if (error instanceof BranchAlreadyExistsError) {
           throw new ConflictException({
             message: error.message,
             errorCode: error.code,

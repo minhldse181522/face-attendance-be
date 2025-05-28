@@ -289,21 +289,24 @@ export abstract class PrismaMultiTenantRepositoryBase<
     searchTerm: string | number,
     fields: IField[],
   ): Prisma.Enumerable<any> {
-    if (!searchTerm) {
-      return {};
-    }
-
-    //kiểm tra từng field cho riêng từng kiểu
-    const quickSearchConditions = searchTerm
-      ? fields
-          .map((field) => builderPrismaCondition<T>(field, searchTerm))
-          .filter(Boolean)
-      : [];
-    if (quickSearchConditions.length > 0) {
-      return {
-        OR: quickSearchConditions,
-      };
-    }
-    return {};
+    const or: any[] = [];
+    fields.forEach((f) => {
+      if (f.type === 'string' && typeof searchTerm === 'string') {
+        or.push({
+          [f.field]: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        });
+      }
+      if (f.type === 'number' && !isNaN(Number(searchTerm))) {
+        or.push({
+          [f.field]: {
+            equals: Number(searchTerm),
+          },
+        });
+      }
+    });
+    return or.length > 0 ? { OR: or } : {};
   }
 }

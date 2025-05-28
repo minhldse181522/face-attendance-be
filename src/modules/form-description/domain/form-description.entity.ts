@@ -44,4 +44,24 @@ export class FormDescriptionEntity extends AggregateRoot<
   validate(): void {
     // Entity business rules validation
   }
+
+  // Add a public method to set the form title
+  public setFormTitle(title: string): void {
+    this.props.formTitle = title;
+  }
+
+  // Add a getter to retrieve the form title
+  public getFormTitle(): string | undefined {
+    return this.props.formTitle;
+  }
+
+  // Add a public method to set the submitter full name
+  public setSubmitterFullName(fullName: string): void {
+    this.props.submittedBy = fullName;
+  }
+
+  // Add a getter to retrieve the submitter full name
+  public getSubmitterFullName(): string | undefined {
+    return this.props.submittedBy;
+  }
 }

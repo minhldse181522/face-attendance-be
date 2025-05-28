@@ -1,9 +1,9 @@
 import { Logger, Module, Provider } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PrismaRoleRepository } from './database/role.repository.prisma';
-import { RoleMapper } from './mappers/branch.mapper';
-import { FindRoleHttpController } from './queries/find-roles/find-branches.http.controller';
-import { FindRoleQueryHandler } from './queries/find-roles/find-branches.query-handler';
+import { RoleMapper } from './mappers/role.mapper';
+import { FindRoleHttpController } from './queries/find-roles/find-roles.http.controller';
+import { FindRoleQueryHandler } from './queries/find-roles/find-roles.query-handler';
 import { ROLE_REPOSITORY } from './role.di-tokens';
 import { CreateRoleHttpController } from './commands/create-role/create-role.http.controller';
 import { UpdateRoleHttpController } from './commands/update-role/update-role.http.controller';
