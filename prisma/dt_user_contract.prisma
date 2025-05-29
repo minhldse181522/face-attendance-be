@@ -20,6 +20,7 @@ model UserContract {
   user          User?     @relation(fields: [userCode], references: [code], onUpdate: Cascade)
 
   userBranches  UserBranch[]
+  workingSchedules WorkingSchedule[]
 
   @@map("dt_user_contract")
 }
