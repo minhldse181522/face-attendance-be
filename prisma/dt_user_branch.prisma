@@ -2,15 +2,16 @@ model UserBranch {
   id               BigInt  @id @default(autoincrement())
 
   code             String  @unique @map("code") @db.VarChar(50)
-  userCode         String  @map("user_code") @db.VarChar(50)
   branchCode       String  @map("branch_code") @db.VarChar(50)
   userContractCode String? @map("user_contract_code") @db.VarChar(50)
 
-  branch Branch?   @relation(fields: [branchCode], references: [code])
-  user   User?     @relation(fields: [userCode], references: [code])
-  userContract UserContract? @relation(fields: [userContractCode], references: [code])
+  createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy     String    @map("created_by") @db.VarChar(36)
+  updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy     String?   @map("modified_by") @db.VarChar(36)
 
-  workingSchedules WorkingSchedule[]
+  branch Branch?   @relation(fields: [branchCode], references: [code])
+  userContract UserContract? @relation(fields: [userContractCode], references: [code])
 
   @@map("dt_user_branch")
 }

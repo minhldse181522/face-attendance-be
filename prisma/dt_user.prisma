@@ -26,7 +26,6 @@ model User {
   role     Role      @relation(fields: [roleCode], references: [roleCode], onUpdate: Cascade)
   
   workingSchedules WorkingSchedule[]
-  userBranches     UserBranch[]
   userContracts    UserContract[]
   submittedForms   FormDescription[] @relation("FormSubmitter")
   approvedForms    FormDescription[] @relation("FormApprover")
