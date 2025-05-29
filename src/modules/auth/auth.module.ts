@@ -9,8 +9,17 @@ import { LoginHttpController } from './commands/login/login.http.controller';
 import { RegisterHttpController } from './commands/register/register.http.controller';
 import { RegisterService } from './commands/register/register.service';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
+import { RefreshTokenHttpController } from './commands/refresh-token/refresh-token.http.controller';
+import { RefreshTokenService } from './commands/refresh-token/refresh-token.service';
+import { LogoutHttpController } from './commands/logout/logout.http.controller';
+import { LogoutService } from './commands/logout/logout.service';
 
-const httpControllers = [LoginHttpController, RegisterHttpController];
+const httpControllers = [
+  LoginHttpController,
+  RegisterHttpController,
+  RefreshTokenHttpController,
+  LogoutHttpController,
+];
 
 const messageControllers = [];
 
@@ -18,7 +27,12 @@ const cliControllers: Provider[] = [];
 
 const graphqlResolvers: Provider[] = [];
 
-const commandHandlers: Provider[] = [LoginService, RegisterService];
+const commandHandlers: Provider[] = [
+  LoginService,
+  RegisterService,
+  RefreshTokenService,
+  LogoutService,
+];
 
 const queryHandlers: Provider[] = [];
 
