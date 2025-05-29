@@ -18,6 +18,7 @@ import { RoleModule } from './modules/role/role.module';
 import { FormModule } from './modules/form/form.module';
 import { FormDescriptionModule } from './modules/form-description/form-description.module';
 import { BranchModule } from './modules/branch/branch.module';
+import { DropDownModule } from './modules/dropdown/dropdown.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -62,7 +63,7 @@ const interceptors = [
     // }),
     // ApiLogModule,
     // WebSockmetModule,
-    // DropDownModule,
+    DropDownModule,
     BranchModule,
     RoleModule,
     UserModule,
