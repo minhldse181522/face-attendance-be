@@ -24,6 +24,15 @@ export class PrismaBranchRepository
   ) {
     super(manager, mapper);
   }
+  async checkExist(branchCode: string): Promise<boolean> {
+    const client = await this._getClient();
+
+    const count = await client.branch.count({
+      where: { code: branchCode },
+    });
+
+    return count > 0;
+  }
 
   async findBranchDropDown(): Promise<DropDownResult[]> {
     const client = await this._getClient();

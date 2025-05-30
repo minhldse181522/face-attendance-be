@@ -60,5 +60,10 @@ export const resourcesV1 = {
     displayName: 'User Branch Management',
     parent: 'Reference Data',
   },
+  USER_CONTRACT: {
+    name: 'USER_CONTRACT',
+    displayName: 'User Contract Management',
+    parent: 'Reference Data',
+  },
   //#endregion
 };

@@ -7,6 +7,7 @@ const dropdown = 'dropdown';
 const formRoot = 'form';
 const formDescriptionRoot = 'form-description';
 const userBranchRoot = 'user-branch';
+const userContractRoot = 'user-contract';
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
  * @param root - Đường dẫn gốc của resource (ví dụ: 'human/get-salary')
@@ -58,6 +59,10 @@ export const routesV1 = {
   },
   userBranch: {
     ...baseRoutes(`${userBranchRoot}`),
+  },
+  userContract: {
+    ...baseRoutes(`${userContractRoot}`),
+    detail: `/${userContractRoot}/:id`,
   },
   // #endregion
   // #region Dropdown
