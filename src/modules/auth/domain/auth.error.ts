@@ -19,3 +19,13 @@ export class RegisterError extends ExceptionBase {
     super(RegisterError.message, cause, metadata);
   }
 }
+
+export class RefreshTokenError extends ExceptionBase {
+  static readonly message = 'RefreshToken not success';
+
+  public readonly code = 'REFRESH_TOKEN_NOT_SUCCESS';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(RefreshTokenError.message, cause, metadata);
+  }
+}

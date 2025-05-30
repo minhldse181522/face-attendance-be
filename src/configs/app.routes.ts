@@ -86,5 +86,7 @@ export const routesV1 = {
     root: authRoot,
     login: `/${authRoot}/login`,
     register: `/${authRoot}/register`,
+    refreshToken: `${authRoot}/refresh-token`,
+    logout: `${authRoot}/logout`,
   },
 };
