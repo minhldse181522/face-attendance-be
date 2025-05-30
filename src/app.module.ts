@@ -19,6 +19,8 @@ import { FormModule } from './modules/form/form.module';
 import { FormDescriptionModule } from './modules/form-description/form-description.module';
 import { BranchModule } from './modules/branch/branch.module';
 import { DropDownModule } from './modules/dropdown/dropdown.module';
+import { UserBranchModule } from './modules/user-branch/user-branch.module';
+import { UserContractModule } from './modules/user-contract/user-contract.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -70,6 +72,8 @@ const interceptors = [
     AuthModule,
     FormModule,
     FormDescriptionModule,
+    UserBranchModule,
+    UserContractModule,
   ],
   controllers: [],
   providers: [

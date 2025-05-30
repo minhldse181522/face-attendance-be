@@ -1,6 +1,6 @@
 import { Logger, Module, Provider } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { USER_BRANCH_REPOSITORY } from './user-branch.di-tokens';
+import { GenerateCode } from '@src/libs/utils/generate-code.util';
 import { CreateUserBranchHttpController } from './commands/create-user-branch/create-user-branch.http.controller';
 import { CreateUserBranchService } from './commands/create-user-branch/create-user-branch.service';
 import { DeleteUserBranchHttpController } from './commands/delete-user-branch/delete-user-branch.http.controller';
@@ -11,7 +11,13 @@ import { PrismaUserBranchRepository } from './database/user-branch.repository.pr
 import { UserBranchMapper } from './mappers/user-branch.mapper';
 import { FindUserBranchesHttpController } from './queries/find-user-branches/find-user-branches.http.controller';
 import { FindUserBranchesQueryHandler } from './queries/find-user-branches/find-user-branches.query-handler';
-import { GenerateCode } from '@src/libs/utils/generate-code.util';
+import { USER_BRANCH_REPOSITORY } from './user-branch.di-tokens';
+import { UserContractModule } from '../user-contract/user-contract.module';
+import { USER_CONTRACT_REPOSITORY } from '../user-contract/user-contract.di-tokens';
+import { PrismaUserContractRepository } from '../user-contract/database/user-contract.repository.prisma';
+import { BRANCH_REPOSITORY } from '../branch/branch.di-tokens';
+import { PrismaBranchRepository } from '../branch/database/branch.repository.prisma';
+import { BranchModule } from '../branch/branch.module';
 
 const httpControllers = [
   FindUserBranchesHttpController,
@@ -43,10 +49,18 @@ const repositories: Provider[] = [
     provide: USER_BRANCH_REPOSITORY,
     useClass: PrismaUserBranchRepository,
   },
+  {
+    provide: BRANCH_REPOSITORY,
+    useClass: PrismaBranchRepository,
+  },
+  {
+    provide: USER_CONTRACT_REPOSITORY,
+    useClass: PrismaUserContractRepository,
+  },
 ];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, UserContractModule, BranchModule],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
     Logger,

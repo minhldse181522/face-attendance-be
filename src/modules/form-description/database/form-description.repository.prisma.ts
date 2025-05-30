@@ -175,25 +175,37 @@ export class PrismaFormDescriptionRepository
         // R3 (Branch user) - Chỉ xem forms từ users cùng branch
         case 'R3':
           if (userCode) {
-            // Lấy danh sách branches của user hiện tại
-            const currentUserBranches = await client.userBranch.findMany({
+            // Lấy danh sách branches của user hiện tại thông qua userContracts
+            const userContracts = await client.userContract.findMany({
               where: { userCode },
-              select: { branchCode: true },
-              take: 100, // Giới hạn số lượng branch để tối ưu hiệu suất
+              include: {
+                userBranches: {
+                  select: { branchCode: true },
+                },
+              },
+              take: 100, // Giới hạn số lượng contracts để tối ưu hiệu suất
             });
 
-            const branchCodes = currentUserBranches.map(
-              (branch) => branch.branchCode,
+            // Lấy tất cả branchCodes từ tất cả userContracts
+            const branchCodes = userContracts.flatMap((contract) =>
+              contract.userBranches.map((ub) => ub.branchCode),
             );
 
+            // Loại bỏ các giá trị trùng lặp
+            const uniqueBranchCodes = [...new Set(branchCodes)];
+
             // Nếu user có branch, chỉ xem được các đơn từ người dùng trong cùng branch
-            if (branchCodes.length > 0) {
+            if (uniqueBranchCodes.length > 0) {
               roleBasedConditions = {
                 submitter: {
-                  userBranches: {
+                  userContracts: {
                     some: {
-                      branchCode: {
-                        in: branchCodes,
+                      userBranches: {
+                        some: {
+                          branchCode: {
+                            in: uniqueBranchCodes,
+                          },
+                        },
                       },
                     },
                   },
@@ -297,9 +309,14 @@ export class PrismaFormDescriptionRepository
                 lastName: true,
                 code: true,
                 managedBy: true,
-                userBranches: {
+                userContracts: {
                   select: {
-                    branchCode: true,
+                    code: true,
+                    userBranches: {
+                      select: {
+                        branchCode: true,
+                      },
+                    },
                   },
                 },
               },
