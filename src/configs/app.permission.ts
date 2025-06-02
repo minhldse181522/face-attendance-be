@@ -53,4 +53,17 @@ export const resourcesV1 = {
     displayName: 'Đơn đã gửi',
     parent: 'Quản lý Đơn',
   },
+  //#endregion
+  //#region USER_BRANCH
+  USER_BRANCH: {
+    name: 'USER_BRANCH',
+    displayName: 'User Branch Management',
+    parent: 'Reference Data',
+  },
+  USER_CONTRACT: {
+    name: 'USER_CONTRACT',
+    displayName: 'User Contract Management',
+    parent: 'Reference Data',
+  },
+  //#endregion
 };

@@ -5,15 +5,19 @@ import {
 } from '@libs/ddd';
 import { Prisma } from '@prisma/client';
 import { FormDescriptionEntity } from '../domain/form-description.entity';
+import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 
+// Định nghĩa interface cho repository của FormDescription
 export interface FormDescriptionRepositoryPort
   extends RepositoryPort<FormDescriptionEntity> {
+  // Phương thức lấy danh sách form description với phân trang và lọc
   findAllPaginatedQuickSearch(
     params: PrismaPaginatedQueryParams<Prisma.FormDescriptionWhereInput> & {
-      fromDate?: string;
-      toDate?: string;
-      formId?: string;
-      quickSearch?: string | number | Date;
+      fromDate?: string; // Lọc theo ngày bắt đầu
+      toDate?: string; // Lọc theo ngày kết thúc
+      formId?: string; // Lọc theo ID form
+      quickSearch?: string | number | Date; // Từ khóa tìm kiếm nhanh
+      user?: RequestUser; // Thông tin người dùng để phân quyền (đầy đủ)
     },
   ): Promise<Paginated<FormDescriptionEntity>>;
 }

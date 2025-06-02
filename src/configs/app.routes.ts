@@ -6,6 +6,8 @@ const positionRoot = 'position';
 const dropdown = 'dropdown';
 const formRoot = 'form';
 const formDescriptionRoot = 'form-description';
+const userBranchRoot = 'user-branch';
+const userContractRoot = 'user-contract';
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
  * @param root - Đường dẫn gốc của resource (ví dụ: 'human/get-salary')
@@ -55,6 +57,13 @@ export const routesV1 = {
   formDescriptionFiter: {
     ...baseRoutes(`${formDescriptionRoot}/filter`),
   },
+  userBranch: {
+    ...baseRoutes(`${userBranchRoot}`),
+  },
+  userContract: {
+    ...baseRoutes(`${userContractRoot}`),
+    detail: `/${userContractRoot}/:id`,
+  },
   // #endregion
   // #region Dropdown
   dropdown: {
@@ -77,5 +86,7 @@ export const routesV1 = {
     root: authRoot,
     login: `/${authRoot}/login`,
     register: `/${authRoot}/register`,
+    refreshToken: `${authRoot}/refresh-token`,
+    logout: `${authRoot}/logout`,
   },
 };

@@ -54,7 +54,14 @@ async function bootstrap() {
   //   console.error('Error connecting to Redis:', error);
   // }
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginOpenerPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+  // Bật lại khi có domain + http
+  // app.use(helmet())
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {

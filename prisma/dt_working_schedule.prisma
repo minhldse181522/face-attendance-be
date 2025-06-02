@@ -3,7 +3,7 @@ model WorkingSchedule {
 
   code           String?    @unique @map("code") @db.VarChar(50)
   userCode       String?    @map("user_code") @db.VarChar(200)
-  userBranchCode String?    @map("user_branch_code") @db.VarChar(200)
+  userContractCode  String?    @map("user_branch_code") @db.VarChar(200)
   date           DateTime?  @map("date") @db.Timestamptz(0)
   shiftCode      String?   @map("shift_code") @db.VarChar(50)
 
@@ -14,7 +14,7 @@ model WorkingSchedule {
   updatedBy     String?   @map("modified_by") @db.VarChar(36)
 
   user          User?       @relation(fields: [userCode], references: [code], onUpdate: Cascade)
-  userBranch    UserBranch? @relation(fields: [userBranchCode], references: [code], onUpdate: Cascade)
+  userContract  UserContract? @relation(fields: [userContractCode], references: [code], onUpdate: Cascade)
 
   @@map("dt_working_schedule")
 }
