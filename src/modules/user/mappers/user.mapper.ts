@@ -1,6 +1,11 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { User as UserModel, Role as RoleModel } from '@prisma/client';
+import {
+  User as UserModel,
+  Role as RoleModel,
+  Branch as BranchModel,
+  UserContract as UserContractModel,
+} from '@prisma/client';
 import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
@@ -31,11 +36,9 @@ export class UserMapper
       gender: copy.gender,
       phone: copy.phone,
       typeOfWork: copy.typeOfWork || null,
-      managedBy: copy.managedBy,
       roleCode: copy.roleCode,
       isActive: copy.isActive,
-      addressCode: copy.addressCode,
-      positionCode: copy.positionCode,
+      addressCode: copy.addressCode || null,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -50,8 +53,66 @@ export class UserMapper
   toDomain(
     record: UserModel & {
       role: RoleModel;
+      userContracts?: Array<
+        UserContractModel & {
+          userBranches?: Array<{
+            branch?: BranchModel;
+          }>;
+        }
+      >;
     },
   ): UserEntity {
+    // Khởi tạo các biến để lưu thông tin từ hợp đồng
+    let branchName = '';
+    let managedBy: string | null = null;
+    let positionCode: string | null = null;
+
+    // Chỉ xử lý khi có dữ liệu hợp đồng
+    if (record.userContracts && record.userContracts.length > 0) {
+      // Lấy ra các hợp đồng đang hoạt động (status === 'ACTIVE') từ userCode hiện tại
+      const activeContracts = record.userContracts.filter(
+        (contract) =>
+          contract.status === 'ACTIVE' && contract.userCode === record.code,
+      );
+
+      if (activeContracts.length > 0) {
+        // Lấy danh sách mã hợp đồng đang hoạt động
+        const activeContractCodes = activeContracts
+          .filter((contract) => contract.code)
+          .map((contract) => contract.code as string);
+
+        console.log(
+          `Người dùng ${record.code} có các hợp đồng hoạt động: ${activeContractCodes.join(', ')}`,
+        );
+
+        // Danh sách để lưu tên của các chi nhánh
+        const branchNames: string[] = [];
+
+        // Duyệt qua từng hợp đồng hoạt động và lấy thông tin chi nhánh
+        activeContracts.forEach((contract) => {
+          if (contract.userBranches && contract.userBranches.length > 0) {
+            contract.userBranches.forEach((userBranch) => {
+              if (userBranch.branch && userBranch.branch.branchName) {
+                branchNames.push(userBranch.branch.branchName);
+              }
+            });
+          }
+        });
+
+        // Ghép các tên chi nhánh lại thành một chuỗi
+        branchName = branchNames.join(', ');
+        console.log(
+          `Người dùng ${record.code} làm việc tại các chi nhánh: ${branchName}`,
+        );
+
+        // Lấy thông tin quản lý và vị trí từ hợp đồng mới nhất
+        const latestActiveContract = activeContracts[0];
+        managedBy = latestActiveContract.managedBy ?? null;
+        positionCode = latestActiveContract.positionCode ?? null;
+      }
+    }
+
+    // Tạo entity với đầy đủ thông tin đã thu thập
     return new UserEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -69,13 +130,14 @@ export class UserMapper
         gender: record.gender,
         phone: record.phone,
         typeOfWork: record.typeOfWork,
-        managedBy: record.managedBy,
+        managedBy: managedBy,
         isActive: record.isActive,
-        positionCode: record.positionCode,
+        positionCode: positionCode,
         roleCode: record.roleCode,
         addressCode: record.addressCode,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+        branchName: branchName, // Gán tên chi nhánh đã được xử lý
         role: record.role
           ? new RoleEntity({
               id: record.role.id,
@@ -111,6 +173,7 @@ export class UserMapper
     response.addressCode = props.addressCode;
     response.positionCode = props.positionCode;
     response.managedBy = props.managedBy;
+    response.branchName = props.branchName ?? '';
     response.isActive = props.isActive;
     return response;
   }

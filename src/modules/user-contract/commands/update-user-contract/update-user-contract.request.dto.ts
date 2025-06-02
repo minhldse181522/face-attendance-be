@@ -81,4 +81,20 @@ export class UpdateUserContractRequestDto {
   @IsOptional()
   @MaxLength(200)
   userBranchCode?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'admin',
+    description: 'Người quản lý (userCode)',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  managedBy?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'MGR',
+    description: 'Mã vị trí',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  positionCode?: string | null;
 }

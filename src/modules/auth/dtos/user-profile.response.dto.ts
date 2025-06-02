@@ -65,7 +65,7 @@ export class UserProfileResponseDto {
     example: 'admin',
     description: 'Quản lý bởi',
   })
-  managedBy: string;
+  managedBy?: string | null;
 
   @ApiPropertyOptional({
     example: true,
@@ -83,11 +83,11 @@ export class UserProfileResponseDto {
     example: 'HAC',
     description: 'Mã chi nhánh',
   })
-  postionCode: string;
+  postionCode?: string | null;
 
   @ApiProperty({
     example: 'HAC',
     description: 'Mã địa chỉ',
   })
-  addressCode: string;
+  addressCode?: string | null;
 }

@@ -175,20 +175,44 @@ export class PrismaFormDescriptionRepository
         // R3 (Branch user) - Chỉ xem forms từ users cùng branch
         case 'R3':
           if (userCode) {
-            // Lấy danh sách branches của user hiện tại thông qua userContracts
+            // Lấy danh sách contracts hoạt động của user hiện tại
             const userContracts = await client.userContract.findMany({
-              where: { userCode },
-              include: {
+              where: {
+                userCode,
+                status: 'ACTIVE', // Chỉ lấy hợp đồng đang hoạt động
+              },
+              select: {
+                code: true, // Lấy userContractCode
                 userBranches: {
-                  select: { branchCode: true },
+                  select: {
+                    branchCode: true,
+                    branch: {
+                      select: {
+                        branchName: true,
+                      },
+                    },
+                  },
                 },
               },
-              take: 100, // Giới hạn số lượng contracts để tối ưu hiệu suất
             });
 
-            // Lấy tất cả branchCodes từ tất cả userContracts
+            // Lấy tất cả branchCodes và branchNames từ các userContracts hoạt động
             const branchCodes = userContracts.flatMap((contract) =>
               contract.userBranches.map((ub) => ub.branchCode),
+            );
+
+            // Hiển thị thông tin chi nhánh cho việc debug
+            const branchNames = userContracts
+              .flatMap((contract) =>
+                contract.userBranches.map((ub) => ub.branch?.branchName),
+              )
+              .filter(Boolean);
+
+            console.log(
+              `User ${userCode} thuộc các chi nhánh: ${branchNames.join(', ')}`,
+            );
+            console.log(
+              `Các userContractCode hoạt động: ${userContracts.map((c) => c.code).join(', ')}`,
             );
 
             // Loại bỏ các giá trị trùng lặp
@@ -200,6 +224,7 @@ export class PrismaFormDescriptionRepository
                 submitter: {
                   userContracts: {
                     some: {
+                      status: 'ACTIVE', // Chỉ xét các hợp đồng đang hoạt động
                       userBranches: {
                         some: {
                           branchCode: {
@@ -219,7 +244,12 @@ export class PrismaFormDescriptionRepository
         case 'R2':
           roleBasedConditions = {
             submitter: {
-              managedBy: user.userName, // Lọc theo user được quản lý bởi người dùng hiện tại
+              userContracts: {
+                some: {
+                  status: 'ACTIVE', // Only consider active contracts
+                  managedBy: user.userName, // Use managedBy from userContract
+                },
+              },
             },
           };
           break;
@@ -308,10 +338,14 @@ export class PrismaFormDescriptionRepository
                 firstName: true,
                 lastName: true,
                 code: true,
-                managedBy: true,
                 userContracts: {
+                  where: {
+                    status: 'ACTIVE', // Only include active contracts
+                  },
                   select: {
                     code: true,
+                    managedBy: true, // Get managedBy from here
+                    positionCode: true, // Get positionCode from here
                     userBranches: {
                       select: {
                         branchCode: true,

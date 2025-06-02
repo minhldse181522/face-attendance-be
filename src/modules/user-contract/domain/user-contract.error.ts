@@ -29,3 +29,12 @@ export class UserContractAlreadyInUseError extends ExceptionBase {
     super(UserContractAlreadyInUseError.message, cause, metadata);
   }
 }
+export class BranchNotFoundError extends ExceptionBase {
+  static readonly message = 'Branch not found';
+
+  public readonly code = 'BRANCH.NOT_FOUND';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(BranchNotFoundError.message, cause, metadata);
+  }
+}

@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, MaxLength, IsISO8601 } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+  IsISO8601,
+  IsArray,
+} from 'class-validator';
 
 export class CreateUserContractRequestDto {
   @ApiProperty({
@@ -81,4 +87,30 @@ export class CreateUserContractRequestDto {
   @IsOptional()
   @MaxLength(200)
   userBranchCode?: string;
+
+  @ApiPropertyOptional({
+    example: 'admin',
+    description: 'Người quản lý (userCode)',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  managedBy?: string;
+
+  @ApiPropertyOptional({
+    example: 'MGR',
+    description: 'Mã vị trí',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  positionCode?: string;
+
+  @ApiPropertyOptional({
+    example: ['BRANCH001', 'BRANCH002'],
+    description: 'Danh sách mã chi nhánh người dùng',
+    isArray: true,
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  branchCodes?: string[];
 }

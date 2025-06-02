@@ -1,9 +1,11 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { UserContract as UserContractModel } from '@prisma/client';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
-import { DropDownResult } from '@src/libs/utils/dropdown.util';
+import { GenerateCode } from '@src/libs/utils/generate-code.util';
 import { UserContractEntity } from '../domain/user-contract.entity';
+import { BranchNotFoundError } from '../domain/user-contract.error';
 import { UserContractMapper } from '../mappers/user-contract.mapper';
 import { UserContractRepositoryPort } from './user-contract.repository.port';
 
@@ -15,11 +17,13 @@ export class PrismaUserContractRepository
   protected modelName = 'userContract';
 
   constructor(
-    private manager: PrismaClientManager,
-    mapper: UserContractMapper,
+    manager: PrismaClientManager, // Sử dụng PrismaClientManager theo yêu cầu của lớp cơ sở
+    public mapper: UserContractMapper, // Làm cho mapper công khai
+    private readonly generateCode: GenerateCode,
   ) {
     super(manager, mapper);
   }
+
   async checkExist(userContractCode: string): Promise<boolean> {
     const client = await this._getClient();
     const count = await client.userContract.count({
@@ -28,18 +32,84 @@ export class PrismaUserContractRepository
     return count > 0;
   }
 
-  async findUserContractDropDown(): Promise<DropDownResult[]> {
+  async createWithBranches(
+    entity: UserContractEntity,
+    branchCodes: string[],
+    createdBy: string,
+  ): Promise<UserContractEntity> {
     const client = await this._getClient();
-    const result = await client.userContract.findMany({
-      select: {
-        code: true,
-        title: true,
-      },
-      orderBy: { code: 'asc' },
-    });
-    return result.map((item) => ({
-      label: item.title || '',
-      value: item.code || '',
-    }));
+    const data = this.mapper.toPersistence(entity);
+
+    try {
+      // Sử dụng transaction để đảm bảo tất cả các hoạt động thành công hoặc thất bại cùng nhau
+      const result = await client.$transaction(async (tx) => {
+        // Đầu tiên tạo hợp đồng người dùng
+        const createdContract = await tx.userContract.create({
+          data: {
+            ...data,
+            status: data.status || 'ACTIVE', // Mặc định là trạng thái hoạt động
+          },
+        });
+
+        // Nếu branchCodes được cung cấp, tạo các mục UserBranch cho từng mã
+        if (branchCodes && branchCodes.length > 0) {
+          const userBranchPromises = branchCodes.map(async (branchCode) => {
+            // Tạo mã duy nhất cho mỗi UserBranch
+            const ubCode = await this.generateCode.generateCode('UB', 4);
+
+            return tx.userBranch.create({
+              data: {
+                code: ubCode,
+                branchCode: branchCode,
+                userContractCode: createdContract.code,
+                createdBy: createdBy,
+              },
+            });
+          });
+
+          // Tạo tất cả các bản ghi UserBranch
+          await Promise.all(userBranchPromises);
+        }
+
+        // Trả về hợp đồng đã tạo
+        return createdContract;
+      });
+
+      // Lấy thực thể hợp đồng người dùng hoàn chỉnh với các mối quan hệ mới tạo
+      const completeContract = await client.userContract.findUnique({
+        where: { id: result.id },
+        include: {
+          userBranches: {
+            include: {
+              branch: true,
+            },
+          },
+        },
+      });
+
+      // Thêm kiểm tra null và xử lý trường hợp đó một cách thích hợp
+      if (!completeContract) {
+        throw new Error(
+          `Không thể truy xuất hợp đồng đã tạo với ID ${result.id}`,
+        );
+      }
+
+      // Sử dụng ép kiểu rõ ràng hoặc chuyển đổi sang cấu trúc dự kiến
+      return this.mapper.toDomain({
+        ...completeContract,
+        // Thêm bất kỳ trường thiếu nào với giá trị mặc định nếu cần
+      });
+    } catch (error) {
+      // Kiểm tra vi phạm ràng buộc khóa ngoại cụ thể cho chi nhánh
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2003' &&
+        error.message.includes('dt_user_branch_branch_code_fkey')
+      ) {
+        throw new BranchNotFoundError(error, { branchCodes });
+      }
+      // Ném lại các lỗi khác
+      throw error;
+    }
   }
 }
