@@ -30,6 +30,25 @@ export class PrismaUserRepository
 
     const result = await client.user.findFirst({
       where: { userName: userName },
+      include: {
+        role: true,
+        userContracts: {
+          where: {
+            status: 'ACTIVE', // Chỉ lấy hợp đồng đang hoạt động
+          },
+          orderBy: {
+            createdAt: 'desc', // Sắp xếp theo thứ tự hợp đồng mới nhất
+          },
+          include: {
+            // Thay đổi từ select sang include để lấy đầy đủ thông tin
+            userBranches: {
+              include: {
+                branch: true, // Đảm bảo lấy đầy đủ thông tin của chi nhánh
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!result) return null;
@@ -81,10 +100,28 @@ export class PrismaUserRepository
         take: limit,
         where: whereFilter,
         orderBy,
+        include: {
+          role: true,
+          userContracts: {
+            where: {
+              status: 'ACTIVE', // Chỉ lấy hợp đồng đang hoạt động
+            },
+            orderBy: {
+              createdAt: 'desc', // Sắp xếp theo thứ tự hợp đồng mới nhất
+            },
+            include: {
+              userBranches: {
+                include: {
+                  branch: true, // Đảm bảo lấy đầy đủ thông tin của chi nhánh
+                },
+              },
+            },
+          },
+        },
       }),
 
       client.user.count({
-        where: { ...where },
+        where: whereFilter,
       }),
     ]);
 

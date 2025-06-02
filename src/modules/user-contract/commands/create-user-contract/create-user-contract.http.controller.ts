@@ -65,6 +65,7 @@ export class CreateUserContractHttpController {
       ...body,
       startTime: body.startTime ? new Date(body.startTime) : undefined,
       endTime: body.endTime ? new Date(body.endTime) : undefined,
+      branchCodes: body.branchCodes, // Add the branch codes array
       createdBy: user.userName,
     });
 

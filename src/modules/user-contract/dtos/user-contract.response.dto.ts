@@ -71,4 +71,18 @@ export class UserContractResponseDto extends ResponseBase<any> {
     nullable: true,
   })
   userBranchCode?: string | null;
+
+  @ApiProperty({
+    example: 'admin',
+    description: 'Quản lý bởi (người quản lý)',
+    nullable: true,
+  })
+  managedBy?: string | null;
+
+  @ApiProperty({
+    example: 'MGR',
+    description: 'Mã vị trí',
+    nullable: true,
+  })
+  positionCode?: string | null;
 }

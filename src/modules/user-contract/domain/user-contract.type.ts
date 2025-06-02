@@ -9,10 +9,12 @@ export interface UserContractProps {
   contractPdf?: string | null;
   status?: string | null;
   userCode?: string | null;
-  userBranchCode?: string | null;
+  managedBy?: string | null;
+  positionCode?: string | null;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
+  branchNames?: string; // Add branch information field
 }
 
 export interface CreateUserContractProps {
@@ -25,7 +27,8 @@ export interface CreateUserContractProps {
   contractPdf?: string | null;
   status?: string | null;
   userCode?: string | null;
-  userBranchCode?: string | null;
+  managedBy?: string | null;
+  positionCode?: string | null;
   createdBy: string;
 }
 
@@ -39,6 +42,7 @@ export interface UpdateUserContractProps {
   contractPdf?: string | null;
   status?: string | null;
   userCode?: string | null;
-  userBranchCode?: string | null;
+  managedBy?: string | null;
+  positionCode?: string | null;
   updatedBy: string | null;
 }

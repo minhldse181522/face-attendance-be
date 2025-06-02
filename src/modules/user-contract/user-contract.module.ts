@@ -13,6 +13,7 @@ import { UpdateUserContractService } from './commands/update-user-contract/updat
 import { DeleteUserContractService } from './commands/delete-user-contract/delete-user-contract.service';
 import { FindUserContractByIdHttpController } from './queries/find-user-contract-by-id/find-user-contract-by-id.http.controller';
 import { FindUserContractByIdQueryHandler } from './queries/find-user-contract-by-id/find-user-contract-by-id.query-handler';
+import { GenerateCode } from '@src/libs/utils/generate-code.util';
 
 const httpControllers = [
   FindUserContractHttpController,
@@ -48,6 +49,8 @@ const repositories: Provider[] = [
   },
 ];
 
+const utilities: Provider[] = [GenerateCode];
+
 @Module({
   imports: [CqrsModule],
   controllers: [...httpControllers, ...messageControllers],
@@ -59,6 +62,7 @@ const repositories: Provider[] = [
     ...commandHandlers,
     ...queryHandlers,
     ...mappers,
+    ...utilities,
   ],
   exports: [...repositories, ...mappers],
 })

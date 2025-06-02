@@ -1,8 +1,18 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { UserContract as UserContractModel } from '@prisma/client';
+import {
+  UserContract as UserContractModel,
+  Branch,
+  UserBranch,
+} from '@prisma/client';
 import { UserContractResponseDto } from '../dtos/user-contract.response.dto';
 import { UserContractEntity } from '../domain/user-contract.entity';
+
+type UserContractWithRelations = UserContractModel & {
+  userBranches?: (UserBranch & {
+    branch?: Branch | null;
+  })[];
+};
 
 @Injectable()
 export class UserContractMapper
@@ -22,7 +32,8 @@ export class UserContractMapper
       contractPdf: copy.contractPdf || null,
       status: copy.status || null,
       userCode: copy.userCode || null,
-      userBranchCode: copy.userBranchCode || null,
+      managedBy: copy.managedBy || null,
+      positionCode: copy.positionCode || null,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -32,7 +43,14 @@ export class UserContractMapper
     return record;
   }
 
-  toDomain(record: UserContractModel): UserContractEntity {
+  toDomain(record: UserContractWithRelations): UserContractEntity {
+    // Extract branch information if available
+    const branchNames =
+      record.userBranches
+        ?.map((ub) => ub.branch?.branchName || 'Unknown')
+        .join(', ') || '';
+
+    // Create the entity with all available properties
     return new UserContractEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -47,9 +65,12 @@ export class UserContractMapper
         contractPdf: record.contractPdf,
         status: record.status,
         userCode: record.userCode,
-        userBranchCode: record.userBranchCode,
+        managedBy: record.managedBy,
+        positionCode: record.positionCode,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+        // Add branch information from the relationship
+        branchNames: branchNames,
       },
       skipValidation: true,
     });
@@ -67,7 +88,8 @@ export class UserContractMapper
     response.contractPdf = props.contractPdf;
     response.status = props.status;
     response.userCode = props.userCode;
-    response.userBranchCode = props.userBranchCode;
+    response.managedBy = props.managedBy;
+    response.positionCode = props.positionCode;
     return response;
   }
 }

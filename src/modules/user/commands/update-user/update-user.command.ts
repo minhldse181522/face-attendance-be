@@ -12,11 +12,9 @@ export class UpdateUserCommand extends Command {
   readonly gender?: string | null;
   readonly phone?: string | null;
   readonly typeOfWork?: string | null;
-  readonly managedBy?: string | null;
   readonly isActive?: boolean | null;
   readonly roleCode?: string | null;
   readonly addressCode?: string | null;
-  readonly positionCode?: string | null;
   readonly updatedBy: string | null;
 
   constructor(props: CommandProps<UpdateUserCommand>) {

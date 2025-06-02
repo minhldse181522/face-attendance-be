@@ -42,6 +42,16 @@ datasource db {
 // From dt_branch.prisma
 
 // From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
 model Branch {
   id           BigInt  @id @default(autoincrement())
 
@@ -137,7 +147,7 @@ model User {
   id BigInt @id @default(autoincrement())
 
   code         String   @unique @map("code") @db.VarChar(50)
-  userName     String   @map("user_name") @db.VarChar(50)
+  userName     String   @unique @map("user_name") @db.VarChar(50)
   password     String   @map("password") @db.VarChar(100)
   firstName    String   @map("first_name") @db.VarChar(20)
   lastName     String   @map("last_name") @db.VarChar(50)
@@ -148,10 +158,8 @@ model User {
   phone        String   @map("phone") @db.VarChar(10)
   typeOfWork   String?  @map("type_of_work") @db.VarChar(200)
   isActive     Boolean  @map("is_active") @default(true) @db.Boolean()
-  managedBy    String   @map("managed_by") @db.VarChar(50)
   roleCode     String   @map("role_code") @db.VarChar(5)
-  positionCode String   @map("position_code") @db.VarChar(50)
-  addressCode  String   @map("address_code") @db.VarChar(20)
+  addressCode  String?  @map("address_code") @db.VarChar(20)
 
   createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy String    @map("created_by") @db.VarChar(36)
@@ -162,6 +170,7 @@ model User {
   
   workingSchedules WorkingSchedule[]
   userContracts    UserContract[]
+  managedContracts UserContract[] @relation("ManagedContracts")
   submittedForms   FormDescription[] @relation("FormSubmitter")
   approvedForms    FormDescription[] @relation("FormApprover")
 
@@ -200,7 +209,8 @@ model UserContract {
   contractPdf    String?    @map("contract_pdf") @db.VarChar(200)
   status         String?    @map("status") @db.VarChar(50)
   userCode       String?    @map("user_code") @db.VarChar(200)
-  userBranchCode String?    @map("user_branch_code") @db.VarChar(200)
+  managedBy      String?    @map("managed_by") @db.VarChar(50)
+  positionCode   String?    @map("position_code") @db.VarChar(50)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)
@@ -208,6 +218,7 @@ model UserContract {
   updatedBy     String?   @map("modified_by") @db.VarChar(36)
 
   user          User?     @relation(fields: [userCode], references: [code], onUpdate: Cascade)
+  manager       User?     @relation("ManagedContracts", fields: [managedBy], references: [userName], onUpdate: Cascade)
 
   userBranches  UserBranch[]
   workingSchedules WorkingSchedule[]

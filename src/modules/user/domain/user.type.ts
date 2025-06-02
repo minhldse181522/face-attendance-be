@@ -21,16 +21,17 @@ export interface UserProps {
   dob: Date;
   phone: string;
   typeOfWork?: string | null;
-  managedBy: string;
   isActive: boolean;
   roleCode: string;
-  positionCode: string;
-  addressCode: string;
+  addressCode?: string | null;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
 
   role?: RoleEntity;
+  branchName?: string;
+  managedBy?: string | null;
+  positionCode?: string | null;
 }
 
 export interface RegisterUserProps {
@@ -47,10 +48,8 @@ export interface RegisterUserProps {
   phone: string;
   typeOfWork?: string | null;
   isActive: boolean;
-  managedBy: string;
   roleCode: string;
-  addressCode: string;
-  positionCode: string;
+  addressCode?: string | null;
   createdBy: string;
 }
 
@@ -65,10 +64,8 @@ export interface UpdateUserProps {
   dob?: Date | null;
   phone?: string | null;
   typeOfWork?: string | null;
-  managedBy?: string | null;
   isActive?: boolean | null;
   roleCode?: string | null;
   addressCode?: string | null;
-  positionCode?: string | null;
   updatedBy: string | null;
 }

@@ -24,14 +24,19 @@ export class CreateUserContractService
   async execute(
     command: CreateUserContractCommand,
   ): Promise<CreateUserContractServiceResult> {
-    const userContract = UserContractEntity.create({
-      ...command.getExtendedProps<CreateUserContractCommand>(),
-    });
+    const { branchCodes, ...contractProps } =
+      command.getExtendedProps<CreateUserContractCommand>();
+    const userContract = UserContractEntity.create(contractProps);
 
     try {
-      const createdUserContract =
-        await this.userContractRepo.insert(userContract);
-      return Ok(createdUserContract);
+      // Use the repository's method to create the contract with branches
+      const createdContract = await this.userContractRepo.createWithBranches(
+        userContract,
+        branchCodes || [],
+        command.createdBy,
+      );
+
+      return Ok(createdContract);
     } catch (error: any) {
       if (error instanceof ConflictException) {
         return Err(new UserContractAlreadyExistsError());

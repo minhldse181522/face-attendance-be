@@ -71,19 +71,19 @@ export class RegisterResponseDto {
     example: 'HAC',
     description: 'Mã chi nhánh',
   })
-  addressCode: string;
+  addressCode?: string | null;
 
   @ApiProperty({
     example: 'SEP',
     description: 'Mã vị trí',
   })
-  positionCode: string;
+  positionCode?: string | null;
 
   @ApiProperty({
     example: 'admin',
     description: 'Quản lý bởi',
   })
-  managedBy: string;
+  managedBy?: string | null;
 
   @ApiPropertyOptional({
     example: true,

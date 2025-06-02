@@ -10,7 +10,8 @@ model UserContract {
   contractPdf    String?    @map("contract_pdf") @db.VarChar(200)
   status         String?    @map("status") @db.VarChar(50)
   userCode       String?    @map("user_code") @db.VarChar(200)
-  userBranchCode String?    @map("user_branch_code") @db.VarChar(200)
+  managedBy      String?    @map("managed_by") @db.VarChar(50)
+  positionCode   String?    @map("position_code") @db.VarChar(50)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)
@@ -18,6 +19,7 @@ model UserContract {
   updatedBy     String?   @map("modified_by") @db.VarChar(36)
 
   user          User?     @relation(fields: [userCode], references: [code], onUpdate: Cascade)
+  manager       User?     @relation("ManagedContracts", fields: [managedBy], references: [userName], onUpdate: Cascade)
 
   userBranches  UserBranch[]
   workingSchedules WorkingSchedule[]

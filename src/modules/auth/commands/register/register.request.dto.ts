@@ -90,14 +90,6 @@ export class RegisterRequestDto {
   typeOfWork?: string | null;
 
   @ApiProperty({
-    example: 'admin',
-    description: 'Quản lý bởi',
-  })
-  @IsNotEmpty()
-  @MaxLength(50)
-  managedBy: string;
-
-  @ApiProperty({
     example: RoleCode.ADMIN,
     enum: RoleCode,
     description:
@@ -115,12 +107,4 @@ export class RegisterRequestDto {
   @IsNotEmpty()
   @MaxLength(20)
   addressCode: string;
-
-  @ApiProperty({
-    example: 'SEP',
-    description: 'Mã nhân viên',
-  })
-  @IsNotEmpty()
-  @MaxLength(20)
-  positionCode: string;
 }
