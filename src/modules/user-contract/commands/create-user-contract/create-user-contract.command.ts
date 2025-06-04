@@ -1,7 +1,6 @@
 import { Command, CommandProps } from '@src/libs/ddd';
 
 export class CreateUserContractCommand extends Command {
-  readonly code?: string | null;
   readonly title?: string | null;
   readonly description?: string | null;
   readonly startTime?: Date | null;

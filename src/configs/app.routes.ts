@@ -63,6 +63,7 @@ export const routesV1 = {
   userContract: {
     ...baseRoutes(`${userContractRoot}`),
     detail: `/${userContractRoot}/:id`,
+    byUserCode: `/${userContractRoot}/by-user-code/:userCode`,
   },
   // #endregion
   // #region Dropdown

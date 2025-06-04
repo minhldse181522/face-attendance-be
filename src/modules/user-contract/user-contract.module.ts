@@ -14,13 +14,16 @@ import { DeleteUserContractService } from './commands/delete-user-contract/delet
 import { FindUserContractByIdHttpController } from './queries/find-user-contract-by-id/find-user-contract-by-id.http.controller';
 import { FindUserContractByIdQueryHandler } from './queries/find-user-contract-by-id/find-user-contract-by-id.query-handler';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
-
+import { FindUserContractsByUserCodeHttpController } from './queries/find-user-contracts-by-usercode/find-user-contracts-by-usercode.http.controller';
+import { FindUserContractsByUserCodeQueryHandler } from './queries/find-user-contracts-by-usercode/find-user-contracts-by-usercode.query-handler';
+import { UserModule } from '../user/user.module';
 const httpControllers = [
   FindUserContractHttpController,
   FindUserContractByIdHttpController,
   CreateUserContractHttpController,
   UpdateUserContractHttpController,
   DeleteUserContractHttpController,
+  FindUserContractsByUserCodeHttpController, // Add the new controller
 ];
 
 const messageControllers = [];
@@ -38,6 +41,7 @@ const commandHandlers: Provider[] = [
 const queryHandlers: Provider[] = [
   FindUserContractQueryHandler,
   FindUserContractByIdQueryHandler,
+  FindUserContractsByUserCodeQueryHandler, // Add the new query handler
 ];
 
 const mappers: Provider[] = [UserContractMapper];
@@ -52,7 +56,7 @@ const repositories: Provider[] = [
 const utilities: Provider[] = [GenerateCode];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, UserModule],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
     Logger,

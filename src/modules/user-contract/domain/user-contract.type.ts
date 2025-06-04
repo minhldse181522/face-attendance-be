@@ -15,6 +15,8 @@ export interface UserContractProps {
   updatedBy?: string | null;
   inUseCount?: number;
   branchNames?: string; // Add branch information field
+  branchCodes?: string[]; // Add branchCodes as an array of strings
+  fullName?: string;
 }
 
 export interface CreateUserContractProps {

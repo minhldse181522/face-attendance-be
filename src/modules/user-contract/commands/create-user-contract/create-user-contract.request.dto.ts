@@ -9,14 +9,6 @@ import {
 
 export class CreateUserContractRequestDto {
   @ApiProperty({
-    example: 'CONTRACT001',
-    description: 'Mã hợp đồng',
-  })
-  @IsNotEmpty()
-  @MaxLength(50)
-  code: string;
-
-  @ApiProperty({
     example: 'Hợp đồng lao động',
     description: 'Tiêu đề hợp đồng',
   })

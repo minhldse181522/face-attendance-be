@@ -9,4 +9,5 @@ export interface UserContractRepositoryPort
     createdBy: string,
   ): Promise<UserContractEntity>;
   checkExist(userContractCode: string): Promise<boolean>;
+  findByUserCode(userCode: string): Promise<UserContractEntity>;
 }

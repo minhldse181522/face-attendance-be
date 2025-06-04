@@ -76,15 +76,6 @@ export class UserMapper
       );
 
       if (activeContracts.length > 0) {
-        // Lấy danh sách mã hợp đồng đang hoạt động
-        const activeContractCodes = activeContracts
-          .filter((contract) => contract.code)
-          .map((contract) => contract.code as string);
-
-        console.log(
-          `Người dùng ${record.code} có các hợp đồng hoạt động: ${activeContractCodes.join(', ')}`,
-        );
-
         // Danh sách để lưu tên của các chi nhánh
         const branchNames: string[] = [];
 
@@ -101,10 +92,6 @@ export class UserMapper
 
         // Ghép các tên chi nhánh lại thành một chuỗi
         branchName = branchNames.join(', ');
-        console.log(
-          `Người dùng ${record.code} làm việc tại các chi nhánh: ${branchName}`,
-        );
-
         // Lấy thông tin quản lý và vị trí từ hợp đồng mới nhất
         const latestActiveContract = activeContracts[0];
         managedBy = latestActiveContract.managedBy ?? null;

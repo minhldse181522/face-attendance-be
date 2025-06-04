@@ -5,7 +5,10 @@ import { UserContract as UserContractModel } from '@prisma/client';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
 import { UserContractEntity } from '../domain/user-contract.entity';
-import { BranchNotFoundError } from '../domain/user-contract.error';
+import {
+  BranchNotFoundError,
+  UserContractNotFoundError,
+} from '../domain/user-contract.error';
 import { UserContractMapper } from '../mappers/user-contract.mapper';
 import { UserContractRepositoryPort } from './user-contract.repository.port';
 
@@ -41,12 +44,14 @@ export class PrismaUserContractRepository
     const data = this.mapper.toPersistence(entity);
 
     try {
+      const ctCode = await this.generateCode.generateCode('CONTRACT', 4);
       // Sử dụng transaction để đảm bảo tất cả các hoạt động thành công hoặc thất bại cùng nhau
       const result = await client.$transaction(async (tx) => {
         // Đầu tiên tạo hợp đồng người dùng
         const createdContract = await tx.userContract.create({
           data: {
             ...data,
+            code: ctCode,
             status: data.status || 'ACTIVE', // Mặc định là trạng thái hoạt động
           },
         });
@@ -79,6 +84,7 @@ export class PrismaUserContractRepository
       const completeContract = await client.userContract.findUnique({
         where: { id: result.id },
         include: {
+          user: true, // Include user information
           userBranches: {
             include: {
               branch: true,
@@ -111,5 +117,31 @@ export class PrismaUserContractRepository
       // Ném lại các lỗi khác
       throw error;
     }
+  }
+
+  async findByUserCode(userCode: string): Promise<UserContractEntity> {
+    const client = await this._getClient();
+    const contracts = await client.userContract.findMany({
+      where: {
+        userCode,
+        status: 'ACTIVE', // Only fetch contracts with ACTIVE status
+      },
+      include: {
+        user: true, // Include user information
+        userBranches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 1, // Only get the first/latest active contract
+    });
+
+    if (contracts.length === 0) {
+      throw new UserContractNotFoundError(undefined, { userCode });
+    }
+
+    return this.mapper.toDomain(contracts[0]);
   }
 }

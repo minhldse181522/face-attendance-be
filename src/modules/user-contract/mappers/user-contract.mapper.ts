@@ -4,6 +4,7 @@ import {
   UserContract as UserContractModel,
   Branch,
   UserBranch,
+  User as UserModel,
 } from '@prisma/client';
 import { UserContractResponseDto } from '../dtos/user-contract.response.dto';
 import { UserContractEntity } from '../domain/user-contract.entity';
@@ -12,6 +13,7 @@ type UserContractWithRelations = UserContractModel & {
   userBranches?: (UserBranch & {
     branch?: Branch | null;
   })[];
+  user?: UserModel | null; // Add user relationship
 };
 
 @Injectable()
@@ -50,6 +52,20 @@ export class UserContractMapper
         ?.map((ub) => ub.branch?.branchName || 'Unknown')
         .join(', ') || '';
 
+    // Extract branch codes
+    const branchCodes =
+      record.userBranches
+        ?.filter((ub) => ub.branchCode)
+        .map((ub) => ub.branchCode) || [];
+
+    // Extract user full name from related user record
+    let fullName: string | undefined;
+    if (record.user) {
+      fullName = `${record.user.firstName} ${record.user.lastName}`.trim();
+    } else if (record.userCode) {
+      fullName = record.userCode; // Fallback to userCode if user object not available
+    }
+
     // Create the entity with all available properties
     return new UserContractEntity({
       id: record.id,
@@ -71,6 +87,8 @@ export class UserContractMapper
         updatedBy: record.updatedBy,
         // Add branch information from the relationship
         branchNames: branchNames,
+        branchCodes: branchCodes,
+        fullName: fullName,
       },
       skipValidation: true,
     });
@@ -90,6 +108,9 @@ export class UserContractMapper
     response.userCode = props.userCode;
     response.managedBy = props.managedBy;
     response.positionCode = props.positionCode;
+    response.branchNames = props.branchNames;
+    response.branchCodes = props.branchCodes;
+    response.fullName = props.fullName;
     return response;
   }
 }

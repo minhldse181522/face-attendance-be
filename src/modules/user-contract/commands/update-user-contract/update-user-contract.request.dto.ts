@@ -3,14 +3,6 @@ import { IsOptional, MaxLength, IsISO8601 } from 'class-validator';
 
 export class UpdateUserContractRequestDto {
   @ApiPropertyOptional({
-    example: 'CONTRACT001',
-    description: 'Mã hợp đồng',
-  })
-  @IsOptional()
-  @MaxLength(50)
-  code?: string | null;
-
-  @ApiPropertyOptional({
     example: 'Hợp đồng lao động',
     description: 'Tiêu đề hợp đồng',
   })
