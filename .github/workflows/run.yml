@@ -14,14 +14,14 @@ jobs:
       - name: Checkout latest code
         uses: actions/checkout@v4
 
+      - name: Copy .env from VPS vào thư mục làm việc
+        run: cp /root/face-attendance-be/.env .env
+
       - name: Stop existing containers
-        run: |
-          docker-compose down || true
+        run: docker-compose down || true
 
       - name: Build and start containers
-        run: |
-          docker-compose up -d --build
+        run: docker-compose up -d --build
 
       - name: Run Prisma migrate
-        run: |
-          docker exec face-attendance-backend npx prisma migrate deploy
+        run: docker exec face-attendance-backend npx prisma migrate deploy

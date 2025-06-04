@@ -9,7 +9,7 @@ import { USER_REPOSITORY } from '@src/modules/user/user.di-tokens';
 export enum DropDownTypeEnum {
   USER = 'USER',
   ROLE = 'ROLE',
-  //   POSITION = 'POSITION',
+  // POSITION = 'POSITION',
   BRANCH = 'BRANCH',
 }
 

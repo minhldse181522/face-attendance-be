@@ -21,6 +21,7 @@ import { BranchModule } from './modules/branch/branch.module';
 import { DropDownModule } from './modules/dropdown/dropdown.module';
 import { UserBranchModule } from './modules/user-branch/user-branch.module';
 import { UserContractModule } from './modules/user-contract/user-contract.module';
+import { PositionModule } from './modules/position/position.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -66,6 +67,7 @@ const interceptors = [
     // ApiLogModule,
     // WebSockmetModule,
     DropDownModule,
+    PositionModule,
     BranchModule,
     RoleModule,
     UserModule,

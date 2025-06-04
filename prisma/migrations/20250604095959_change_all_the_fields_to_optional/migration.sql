@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "dt_position" ALTER COLUMN "position_name" DROP NOT NULL,
+ALTER COLUMN "role" DROP NOT NULL,
+ALTER COLUMN "description" DROP NOT NULL,
+ALTER COLUMN "base_salary" DROP NOT NULL,
+ALTER COLUMN "overtime_salary" DROP NOT NULL,
+ALTER COLUMN "late_fine" DROP NOT NULL,
+ALTER COLUMN "code" DROP NOT NULL;
