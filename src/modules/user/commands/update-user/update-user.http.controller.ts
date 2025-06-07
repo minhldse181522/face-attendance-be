@@ -67,7 +67,7 @@ export class UpdateUserHttpController {
   })
   @AuthPermission(resourcesV1.USER.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.user.update)
+  @Put(routesV1.tacVu.user.update)
   async update(
     @ReqUser() user: RequestUser,
     @Param('id') userId: bigint,

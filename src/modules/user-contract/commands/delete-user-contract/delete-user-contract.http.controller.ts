@@ -53,7 +53,7 @@ export class DeleteUserContractHttpController {
   })
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.DELETE)
   @UseGuards(JwtAuthGuard)
-  @Delete(routesV1.userContract.delete)
+  @Delete(routesV1.tacVu.userContract.delete)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') userContractId: bigint): Promise<void> {
     const command = new DeleteUserContractCommand({ userContractId });

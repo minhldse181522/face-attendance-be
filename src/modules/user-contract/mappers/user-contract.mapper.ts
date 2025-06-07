@@ -1,20 +1,8 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import {
-  UserContract as UserContractModel,
-  Branch,
-  UserBranch,
-  User as UserModel,
-} from '@prisma/client';
-import { UserContractResponseDto } from '../dtos/user-contract.response.dto';
+import { UserContract as UserContractModel } from '@prisma/client';
 import { UserContractEntity } from '../domain/user-contract.entity';
-
-type UserContractWithRelations = UserContractModel & {
-  userBranches?: (UserBranch & {
-    branch?: Branch | null;
-  })[];
-  user?: UserModel | null; // Add user relationship
-};
+import { UserContractResponseDto } from '../dtos/user-contract.response.dto';
 
 @Injectable()
 export class UserContractMapper
@@ -45,50 +33,26 @@ export class UserContractMapper
     return record;
   }
 
-  toDomain(record: UserContractWithRelations): UserContractEntity {
-    // Extract branch information if available
-    const branchNames =
-      record.userBranches
-        ?.map((ub) => ub.branch?.branchName || 'Unknown')
-        .join(', ') || '';
-
-    // Extract branch codes
-    const branchCodes =
-      record.userBranches
-        ?.filter((ub) => ub.branchCode)
-        .map((ub) => ub.branchCode) || [];
-
-    // Extract user full name from related user record
-    let fullName: string | undefined;
-    if (record.user) {
-      fullName = `${record.user.firstName} ${record.user.lastName}`.trim();
-    } else if (record.userCode) {
-      fullName = record.userCode; // Fallback to userCode if user object not available
-    }
-
-    // Create the entity with all available properties
+  toDomain(record: UserContractModel): UserContractEntity {
     return new UserContractEntity({
       id: record.id,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
       props: {
-        code: record.code,
-        title: record.title,
-        description: record.description,
-        startTime: record.startTime,
-        endTime: record.endTime,
-        duration: record.duration,
-        contractPdf: record.contractPdf,
-        status: record.status,
-        userCode: record.userCode,
-        managedBy: record.managedBy,
-        positionCode: record.positionCode,
+        code: record.code || null,
+        title: record.title || null,
+        description: record.description || null,
+        startTime: record.startTime || null,
+        endTime: record.endTime || null,
+        duration: record.duration || null,
+        contractPdf: record.contractPdf || null,
+        status: record.status || null,
+        userCode: record.userCode || null,
+        managedBy: record.managedBy || null,
+        positionCode: record.positionCode || null,
+
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
-        // Add branch information from the relationship
-        branchNames: branchNames,
-        branchCodes: branchCodes,
-        fullName: fullName,
       },
       skipValidation: true,
     });
@@ -108,9 +72,6 @@ export class UserContractMapper
     response.userCode = props.userCode;
     response.managedBy = props.managedBy;
     response.positionCode = props.positionCode;
-    response.branchNames = props.branchNames;
-    response.branchCodes = props.branchCodes;
-    response.fullName = props.fullName;
     return response;
   }
 }

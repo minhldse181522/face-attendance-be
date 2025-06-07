@@ -52,7 +52,7 @@ export class DeletePositionHttpController {
   })
   @AuthPermission(resourcesV1.POSITION.name, resourceScopes.DELETE)
   @UseGuards(JwtAuthGuard)
-  @Delete(routesV1.position.delete)
+  @Delete(routesV1.tacVu.position.delete)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') positionId: bigint): Promise<void> {
     const command = new DeletePositionCommand({ positionId });

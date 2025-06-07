@@ -8,6 +8,8 @@ const formRoot = 'form';
 const formDescriptionRoot = 'form-description';
 const userBranchRoot = 'user-branch';
 const userContractRoot = 'user-contract';
+const workingScheduleRoot = 'working-schedule';
+const businessRoot = 'business';
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
  * @param root - Đường dẫn gốc của resource (ví dụ: 'human/get-salary')
@@ -27,7 +29,7 @@ const v1 = 'v1';
 
 export const routesV1 = {
   version: v1,
-  // #region Human
+  // #region TacVu
   // Khai báo các đường dẫn api trong đây, ví dụ
   /**
    * Đường dẫn liên quan đến lương của nhân sự
@@ -36,34 +38,52 @@ export const routesV1 = {
    * PUT /human/get-salary/:id    => Cập nhật
    * DELETE /human/get-salary/:id => Xóa
    */
-  user: {
-    ...baseRoutes(`${humanRoot}`),
+  tacVu: {
+    user: {
+      ...baseRoutes(`${humanRoot}`),
+    },
+    role: {
+      ...baseRoutes(`${roleRoot}`),
+    },
+    branch: {
+      ...baseRoutes(`${branchRoot}`),
+    },
+    position: {
+      ...baseRoutes(`${positionRoot}`),
+    },
+    form: {
+      ...baseRoutes(`${formRoot}`),
+    },
+    formDescription: {
+      ...baseRoutes(`${formDescriptionRoot}`),
+    },
+    formDescriptionFiter: {
+      ...baseRoutes(`${formDescriptionRoot}/filter`),
+    },
+    userBranch: {
+      ...baseRoutes(`${userBranchRoot}`),
+    },
+    userContract: {
+      ...baseRoutes(`${userContractRoot}`),
+      detail: `/${userContractRoot}/:id`,
+      byUserCode: `/${userContractRoot}/by-user-code/:userCode`,
+    },
+    workingSchedule: {
+      ...baseRoutes(`${workingScheduleRoot}`),
+    },
   },
-  role: {
-    ...baseRoutes(`${roleRoot}`),
-  },
-  branch: {
-    ...baseRoutes(`${branchRoot}`),
-  },
-  position: {
-    ...baseRoutes(`${positionRoot}`),
-  },
-  form: {
-    ...baseRoutes(`${formRoot}`),
-  },
-  formDescription: {
-    ...baseRoutes(`${formDescriptionRoot}`),
-  },
-  formDescriptionFiter: {
-    ...baseRoutes(`${formDescriptionRoot}/filter`),
-  },
-  userBranch: {
-    ...baseRoutes(`${userBranchRoot}`),
-  },
-  userContract: {
-    ...baseRoutes(`${userContractRoot}`),
-    detail: `/${userContractRoot}/:id`,
-    byUserCode: `/${userContractRoot}/by-user-code/:userCode`,
+  // #endregion
+  // #region Bussiness Logic
+  businessLogic: {
+    user: {
+      ...baseRoutes(`${businessRoot}/get-user-with-active-contract`),
+    },
+    userBranch: {
+      ...baseRoutes(`${userBranchRoot}`),
+    },
+    userContract: {
+      ...baseRoutes(`${userContractRoot}`),
+    },
   },
   // #endregion
   // #region Dropdown

@@ -22,6 +22,8 @@ import { DropDownModule } from './modules/dropdown/dropdown.module';
 import { UserBranchModule } from './modules/user-branch/user-branch.module';
 import { UserContractModule } from './modules/user-contract/user-contract.module';
 import { PositionModule } from './modules/position/position.module';
+import { WorkingScheduleModule } from './modules/working-schedule/working-schedule.module';
+import { BsUserModule } from './apps/bs_user/bs-user.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -76,6 +78,10 @@ const interceptors = [
     FormDescriptionModule,
     UserBranchModule,
     UserContractModule,
+    WorkingScheduleModule,
+
+    // Business
+    BsUserModule,
   ],
   controllers: [],
   providers: [

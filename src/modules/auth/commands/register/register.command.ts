@@ -13,8 +13,6 @@ export class RegisterCommand extends Command {
   readonly typeOfWork?: string | null;
   readonly roleCode: string;
   readonly addressCode?: string | null;
-  readonly managedBy?: string | null; // Added for contract creation
-  readonly positionCode?: string | null; // Added for contract creation
   readonly createdBy: string;
 
   constructor(props: CommandProps<RegisterCommand>) {

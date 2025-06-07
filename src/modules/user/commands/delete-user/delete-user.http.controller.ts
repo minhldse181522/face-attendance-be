@@ -50,7 +50,7 @@ export class DeleteUserHttpController {
   })
   @AuthPermission(resourcesV1.USER.name, resourceScopes.DELETE)
   @UseGuards(JwtAuthGuard)
-  @Delete(routesV1.user.delete)
+  @Delete(routesV1.tacVu.user.delete)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') userId: bigint): Promise<void> {
     const command = new DeleteUserCommand({ userId });

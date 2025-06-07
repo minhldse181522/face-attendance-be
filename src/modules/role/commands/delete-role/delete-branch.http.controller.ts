@@ -51,7 +51,7 @@ export class DeleteRoleHttpController {
   })
   @AuthPermission(resourcesV1.ROLE.name, resourceScopes.DELETE)
   @UseGuards(JwtAuthGuard)
-  @Delete(routesV1.role.delete)
+  @Delete(routesV1.tacVu.role.delete)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') roleId: bigint): Promise<void> {
     const command = new DeleteRoleCommand({ roleId });

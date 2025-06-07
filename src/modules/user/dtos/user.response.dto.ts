@@ -75,12 +75,6 @@ export class UserResponseDto extends ResponseBase<any> {
   addressCode?: string | null;
 
   @ApiProperty({
-    example: 'SEP',
-    description: 'Mã vị trí',
-  })
-  positionCode?: string | null;
-
-  @ApiProperty({
     example: 'admin',
     description: 'Quản lý bởi',
   })
@@ -91,10 +85,4 @@ export class UserResponseDto extends ResponseBase<any> {
     description: 'Đang hoạt động',
   })
   isActive?: boolean | null;
-
-  @ApiProperty({
-    example: 'HCM Branch, Hanoi Branch',
-    description: 'Tên chi nhánh',
-  })
-  branchName: string;
 }

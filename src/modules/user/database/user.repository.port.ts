@@ -15,4 +15,7 @@ export interface UserRepositoryPort extends RepositoryPort<UserEntity> {
     // branchCode?: string,
     roleCode?: string,
   ): Promise<DropDownResult[]>;
+  findUserWithActiveContract(
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+  ): Promise<Paginated<UserEntity>>;
 }

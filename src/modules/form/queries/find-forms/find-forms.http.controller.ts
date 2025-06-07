@@ -41,7 +41,7 @@ export class FindFormHttpController {
   })
   @AuthPermission(resourcesV1.FORM.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.form.root)
+  @Get(routesV1.tacVu.form.root)
   async findForm(
     @Query(
       new DirectFilterPipe<any, Prisma.FormWhereInput>([

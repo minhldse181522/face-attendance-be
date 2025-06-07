@@ -70,7 +70,7 @@ export class UpdatePositionHttpController {
   })
   @AuthPermission(resourcesV1.POSITION.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.position.update)
+  @Put(routesV1.tacVu.position.update)
   async update(
     @ReqUser() user: RequestUser,
     @Param('id') positionId: bigint,

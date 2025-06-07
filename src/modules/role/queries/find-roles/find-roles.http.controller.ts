@@ -32,7 +32,7 @@ export class FindRoleHttpController {
   })
   @AuthPermission(resourcesV1.ROLE.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.role.root)
+  @Get(routesV1.tacVu.role.root)
   async findRole(
     @Query(new DirectFilterPipe<any, Prisma.RoleWhereInput>([]))
     queryParams: FindRoleRequestDto,

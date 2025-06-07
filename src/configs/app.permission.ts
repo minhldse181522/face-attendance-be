@@ -6,26 +6,41 @@ export const resourceScopes = {
 };
 
 export const resourcesV1 = {
-  //#region HUMAN
+  //#region TÁC VỤ
   USER: {
     name: 'user', // định danh nội bộ
     displayName: 'Nhân sự', // tên hiển thị trên SWAGGER
-    parent: 'Nhân sự', // nhóm parent
+    parent: 'Tác vụ', // nhóm parent
   },
   ROLE: {
     name: 'role',
     displayName: 'Vai trò',
-    parent: 'Vai trò trong hệ thống',
+    parent: 'Tác vụ',
   },
   BRANCH: {
     name: 'branch',
     displayName: 'Chi nhánh',
-    parent: 'Công ty',
+    parent: 'Tác vụ',
   },
   POSITION: {
     name: 'position',
     displayName: 'Chức vụ',
-    parent: 'Vị trí trong công ty',
+    parent: 'Tác vụ',
+  },
+  USER_BRANCH: {
+    name: 'USER_BRANCH',
+    displayName: 'User Branch Management',
+    parent: 'Tác vụ',
+  },
+  USER_CONTRACT: {
+    name: 'USER_CONTRACT',
+    displayName: 'User Contract Management',
+    parent: 'Tác vụ',
+  },
+  WORKING_SCHEDULE: {
+    name: 'WORKING_SCHEDULE',
+    displayName: 'Lịch làm việc',
+    parent: 'Tác vụ',
   },
   //#endregion
   //#region DROPDOWN
@@ -54,16 +69,15 @@ export const resourcesV1 = {
     parent: 'Quản lý Đơn',
   },
   //#endregion
-  //#region USER_BRANCH
-  USER_BRANCH: {
-    name: 'USER_BRANCH',
-    displayName: 'User Branch Management',
-    parent: 'Reference Data',
+  //#region NGHIỆP VỤ
+  BS_USER: {
+    name: 'user',
+    displayName: 'Nhân sự',
+    parent: 'Nghiệp vụ',
   },
-  USER_CONTRACT: {
-    name: 'USER_CONTRACT',
-    displayName: 'User Contract Management',
-    parent: 'Reference Data',
+  BS_USER_BRANCH: {
+    name: 'user branch',
+    displayName: 'Mã nhân viên thuộc chi nhánh',
+    parent: 'Nghiệp vụ',
   },
-  //#endregion
 };

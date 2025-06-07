@@ -44,7 +44,7 @@ export class FindBranchsHttpController {
   })
   @AuthPermission(resourcesV1.BRANCH.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.branch.root)
+  @Get(routesV1.tacVu.branch.root)
   async findBranchs(
     @Query(
       new DirectFilterPipe<any, Prisma.BranchWhereInput>([

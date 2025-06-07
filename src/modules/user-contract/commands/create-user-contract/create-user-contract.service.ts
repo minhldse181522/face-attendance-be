@@ -24,17 +24,12 @@ export class CreateUserContractService
   async execute(
     command: CreateUserContractCommand,
   ): Promise<CreateUserContractServiceResult> {
-    const { branchCodes, ...contractProps } =
-      command.getExtendedProps<CreateUserContractCommand>();
-    const userContract = UserContractEntity.create(contractProps);
+    const userContract = UserContractEntity.create({
+      ...command.getExtendedProps<CreateUserContractCommand>(),
+    });
 
     try {
-      // Use the repository's method to create the contract with branches
-      const createdContract = await this.userContractRepo.createWithBranches(
-        userContract,
-        branchCodes || [],
-        command.createdBy,
-      );
+      const createdContract = await this.userContractRepo.insert(userContract);
 
       return Ok(createdContract);
     } catch (error: any) {

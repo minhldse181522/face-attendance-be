@@ -68,7 +68,7 @@ export class UpdateBranchHttpController {
   })
   @AuthPermission(resourcesV1.BRANCH.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.branch.update)
+  @Put(routesV1.tacVu.branch.update)
   async update(
     @ReqUser() user: RequestUser,
     @Param('id') branchId: bigint,

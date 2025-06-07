@@ -44,7 +44,7 @@ export class FindUserBranchesHttpController {
   })
   @AuthPermission(resourcesV1.USER_BRANCH.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.userBranch.root)
+  @Get(routesV1.tacVu.userBranch.root)
   async findUserBranches(
     @Query(
       new DirectFilterPipe<any, Prisma.UserBranchWhereInput>([

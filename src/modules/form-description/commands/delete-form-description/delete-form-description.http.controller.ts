@@ -53,7 +53,7 @@ export class DeleteFormDescriptionHttpController {
   })
   @AuthPermission(resourcesV1.FORM_DESCRIPTION.name, resourceScopes.DELETE)
   @UseGuards(JwtAuthGuard)
-  @Delete(routesV1.formDescription.delete)
+  @Delete(routesV1.tacVu.formDescription.delete)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') formDescriptionId: bigint): Promise<void> {
     const command = new DeleteFormDescriptionCommand({ formDescriptionId });

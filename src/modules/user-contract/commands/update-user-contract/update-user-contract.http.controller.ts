@@ -70,7 +70,7 @@ export class UpdateUserContractHttpController {
   })
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.userContract.update)
+  @Put(routesV1.tacVu.userContract.update)
   async update(
     @ReqUser() user: RequestUser,
     @Param('id') userContractId: bigint,

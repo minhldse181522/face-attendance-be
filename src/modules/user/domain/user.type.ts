@@ -1,4 +1,6 @@
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
+import { UserContractEntity } from '@src/modules/user-contract/domain/user-contract.entity';
+import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 
 export enum RoleEnum {
   ADMIN = 'R1',
@@ -29,9 +31,9 @@ export interface UserProps {
   inUseCount?: number;
 
   role?: RoleEntity;
-  branchName?: string;
-  managedBy?: string | null;
-  positionCode?: string | null;
+  userContracts?: UserContractEntity[];
+  managedContracts?: UserContractEntity[];
+  workingSchedules?: WorkingScheduleEntity[];
 }
 
 export interface RegisterUserProps {

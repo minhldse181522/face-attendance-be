@@ -20,6 +20,7 @@ model UserContract {
 
   user          User?     @relation(fields: [userCode], references: [code], onUpdate: Cascade)
   manager       User?     @relation("ManagedContracts", fields: [managedBy], references: [userName], onUpdate: Cascade)
+  position      Position? @relation(fields: [positionCode], references: [code], onUpdate: Cascade)
 
   userBranches  UserBranch[]
   workingSchedules WorkingSchedule[]

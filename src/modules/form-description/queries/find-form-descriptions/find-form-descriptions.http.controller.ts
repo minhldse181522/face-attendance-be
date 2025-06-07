@@ -46,7 +46,7 @@ export class FindFormDescriptionHttpController {
   })
   @AuthPermission(resourcesV1.FORM_DESCRIPTION.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.formDescription.root)
+  @Get(routesV1.tacVu.formDescription.root)
   async findFormDescription(
     @Query(
       new DirectFilterPipe<any, Prisma.FormDescriptionWhereInput>([

@@ -9,8 +9,8 @@ import { UpdateBranchHttpController } from './commands/update-branch/update-bran
 import { UpdateBranchService } from './commands/update-branch/update-branch.service';
 import { PrismaBranchRepository } from './database/branch.repository.prisma';
 import { BranchMapper } from './mappers/branch.mapper';
-import { FindBranchsHttpController } from './queries/find-roles/find-branches.http.controller';
-import { FindBranchsQueryHandler } from './queries/find-roles/find-branches.query-handler';
+import { FindBranchsHttpController } from './queries/find-branches/find-branches.http.controller';
+import { FindBranchsQueryHandler } from './queries/find-branches/find-branches.query-handler';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
 
 const httpControllers = [

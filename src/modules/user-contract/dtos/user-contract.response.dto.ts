@@ -78,26 +78,4 @@ export class UserContractResponseDto extends ResponseBase<any> {
     nullable: true,
   })
   positionCode?: string | null;
-
-  @ApiProperty({
-    example: ['BRANCH001', 'BRANCH002'],
-    description: 'Mảng mã chi nhánh',
-    nullable: true,
-    isArray: true,
-    type: String,
-  })
-  branchCodes?: string[] | null;
-
-  @ApiProperty({
-    example: 'Chi nhánh A, Chi nhánh B',
-    description: 'Tên các chi nhánh',
-    nullable: true,
-  })
-  branchNames?: string | null;
-  @ApiProperty({
-    example: 'Pham Van A',
-    description: 'Tên đầy đủ của người dùng',
-    nullable: true,
-  })
-  fullName?: string | null;
 }

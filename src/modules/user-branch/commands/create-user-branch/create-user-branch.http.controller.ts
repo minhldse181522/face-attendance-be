@@ -54,7 +54,7 @@ export class CreateUserBranchHttpController {
   })
   @AuthPermission(resourcesV1.USER_BRANCH.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
-  @Post(routesV1.userBranch.root)
+  @Post(routesV1.tacVu.userBranch.root)
   async create(
     @ReqUser() user: RequestUser,
     @Body() body: CreateUserBranchRequestDto,

@@ -25,6 +25,49 @@ export class PrismaUserRepository
     super(manager, mapper);
   }
 
+  async findUserWithActiveContract(
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+  ) {
+    const client = await this._getClient();
+    const { limit, offset, page, where = {}, orderBy } = params;
+
+    const [data, count] = await Promise.all([
+      client.user.findMany({
+        skip: offset,
+        take: limit,
+        where: {
+          ...where,
+        },
+        include: {
+          userContracts: {
+            where: { status: 'ACTIVE' },
+            include: {
+              userBranches: {
+                include: {
+                  branch: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy,
+      }),
+
+      client.user.count({
+        where: {
+          ...where,
+        },
+      }),
+    ]);
+
+    return new Paginated({
+      data: count > 0 ? data.map((item) => this.mapper.toDomain(item)) : [],
+      count,
+      limit,
+      page,
+    });
+  }
+
   async findByUsername(userName: string): Promise<UserEntity | null> {
     const client = await this._getClient();
 

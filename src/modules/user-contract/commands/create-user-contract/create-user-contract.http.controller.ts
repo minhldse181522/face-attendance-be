@@ -56,7 +56,7 @@ export class CreateUserContractHttpController {
   })
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
-  @Post(routesV1.userContract.root)
+  @Post(routesV1.tacVu.userContract.root)
   async create(
     @ReqUser() user: RequestUser,
     @Body() body: CreateUserContractRequestDto,
@@ -65,7 +65,6 @@ export class CreateUserContractHttpController {
       ...body,
       startTime: body.startTime ? new Date(body.startTime) : undefined,
       endTime: body.endTime ? new Date(body.endTime) : undefined,
-      branchCodes: body.branchCodes, // Add the branch codes array
       createdBy: user.userName,
     });
 

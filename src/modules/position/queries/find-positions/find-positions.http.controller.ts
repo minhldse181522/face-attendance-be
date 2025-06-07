@@ -34,7 +34,7 @@ export class FindPositionHttpController {
   })
   @AuthPermission(resourcesV1.POSITION.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.position.root)
+  @Get(routesV1.tacVu.position.root)
   async findPosition(
     @Query(new DirectFilterPipe<any, Prisma.PositionWhereInput>([]))
     queryParams: FindPositionRequestDto,

@@ -1,14 +1,8 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import {
-  User as UserModel,
-  Role as RoleModel,
-  Branch as BranchModel,
-  UserContract as UserContractModel,
-} from '@prisma/client';
+import { User as UserModel } from '@prisma/client';
 import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
-import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 // Mapper là nơi chuyển đổi qua lại giữa 3 tầng dữ liệu
 // Domain Entity ←→ Persistence Model (Prisma)
@@ -50,56 +44,7 @@ export class UserMapper
 
   // Chuyển từ Prisma record => Domain Entity (để dùng trong logic nghiệp vụ)
   // DB model → Entity
-  toDomain(
-    record: UserModel & {
-      role: RoleModel;
-      userContracts?: Array<
-        UserContractModel & {
-          userBranches?: Array<{
-            branch?: BranchModel;
-          }>;
-        }
-      >;
-    },
-  ): UserEntity {
-    // Khởi tạo các biến để lưu thông tin từ hợp đồng
-    let branchName = '';
-    let managedBy: string | null = null;
-    let positionCode: string | null = null;
-
-    // Chỉ xử lý khi có dữ liệu hợp đồng
-    if (record.userContracts && record.userContracts.length > 0) {
-      // Lấy ra các hợp đồng đang hoạt động (status === 'ACTIVE') từ userCode hiện tại
-      const activeContracts = record.userContracts.filter(
-        (contract) =>
-          contract.status === 'ACTIVE' && contract.userCode === record.code,
-      );
-
-      if (activeContracts.length > 0) {
-        // Danh sách để lưu tên của các chi nhánh
-        const branchNames: string[] = [];
-
-        // Duyệt qua từng hợp đồng hoạt động và lấy thông tin chi nhánh
-        activeContracts.forEach((contract) => {
-          if (contract.userBranches && contract.userBranches.length > 0) {
-            contract.userBranches.forEach((userBranch) => {
-              if (userBranch.branch && userBranch.branch.branchName) {
-                branchNames.push(userBranch.branch.branchName);
-              }
-            });
-          }
-        });
-
-        // Ghép các tên chi nhánh lại thành một chuỗi
-        branchName = branchNames.join(', ');
-        // Lấy thông tin quản lý và vị trí từ hợp đồng mới nhất
-        const latestActiveContract = activeContracts[0];
-        managedBy = latestActiveContract.managedBy ?? null;
-        positionCode = latestActiveContract.positionCode ?? null;
-      }
-    }
-
-    // Tạo entity với đầy đủ thông tin đã thu thập
+  toDomain(record: UserModel): UserEntity {
     return new UserEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -117,24 +62,11 @@ export class UserMapper
         gender: record.gender,
         phone: record.phone,
         typeOfWork: record.typeOfWork,
-        managedBy: managedBy,
         isActive: record.isActive,
-        positionCode: positionCode,
         roleCode: record.roleCode,
         addressCode: record.addressCode,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
-        branchName: branchName, // Gán tên chi nhánh đã được xử lý
-        role: record.role
-          ? new RoleEntity({
-              id: record.role.id,
-              props: {
-                roleCode: record.role.roleCode,
-                roleName: record.role.roleName,
-                createdBy: record.role.createdBy,
-              },
-            })
-          : undefined,
       },
       skipValidation: true,
     });
@@ -158,9 +90,6 @@ export class UserMapper
     response.typeOfWork = props.typeOfWork;
     response.roleCode = props.roleCode;
     response.addressCode = props.addressCode;
-    response.positionCode = props.positionCode;
-    response.managedBy = props.managedBy;
-    response.branchName = props.branchName ?? '';
     response.isActive = props.isActive;
     return response;
   }

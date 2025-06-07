@@ -54,7 +54,7 @@ export class FindUserContractByIdHttpController {
   })
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.userContract.detail)
+  @Get(routesV1.tacVu.userContract.detail)
   async findById(@Param('id') id: bigint): Promise<UserContractResponseDto> {
     const query = new FindUserContractByIdQuery(id);
     const result = await this.queryBus.execute(query);

@@ -16,5 +16,5 @@ export class CreateUserBranchRequestDto {
   })
   @IsOptional()
   @MaxLength(50)
-  userContractCode?: string;
+  userContractCode: string;
 }

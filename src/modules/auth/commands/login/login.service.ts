@@ -40,9 +40,9 @@ export class LoginService
       phone: user.getProps().phone,
       typeOfWork: user.getProps().typeOfWork,
       isActive: user.getProps().isActive,
-      managedBy: user.getProps().managedBy,
+      // managedBy: user.getProps().managedBy,
       roleCode: user.getProps().roleCode,
-      positionCode: user.getProps().positionCode,
+      // positionCode: user.getProps().positionCode,
       addressCode: user.getProps().addressCode,
     };
 
@@ -66,11 +66,11 @@ export class LoginService
       dob: userProps.dob,
       phone: userProps.phone,
       typeOfWork: userProps.typeOfWork || null,
-      managedBy: userProps.managedBy,
+      // managedBy: userProps.managedBy,
       isActive: userProps.isActive,
       roleCode: userProps.roleCode,
       addressCode: userProps.addressCode,
-      postionCode: userProps.positionCode,
+      // postionCode: userProps.positionCode,
     };
 
     return {

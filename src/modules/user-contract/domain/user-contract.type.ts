@@ -1,3 +1,7 @@
+import { UserBranchEntity } from '@src/modules/user-branch/domain/user-branch.entity';
+import { UserEntity } from '@src/modules/user/domain/user.entity';
+import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
+
 export interface UserContractProps {
   id?: bigint;
   code?: string | null;
@@ -14,9 +18,11 @@ export interface UserContractProps {
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
-  branchNames?: string; // Add branch information field
-  branchCodes?: string[]; // Add branchCodes as an array of strings
-  fullName?: string;
+
+  user?: UserEntity;
+  manager?: UserEntity;
+  userBranches?: UserBranchEntity[];
+  workingSchedule?: WorkingScheduleEntity[];
 }
 
 export interface CreateUserContractProps {

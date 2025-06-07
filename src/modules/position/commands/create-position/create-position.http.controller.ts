@@ -56,7 +56,7 @@ export class CreatePositionHttpController {
   })
   @AuthPermission(resourcesV1.POSITION.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
-  @Post(routesV1.position.root)
+  @Post(routesV1.tacVu.position.root)
   async create(
     @ReqUser() user: RequestUser,
     @Body() body: CreatePositionRequestDto,

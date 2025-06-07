@@ -17,5 +17,7 @@ model Position {
 
   rolePosition   Role    @relation(fields: [role], references: [roleCode], onUpdate: Cascade)
 
+  userContracts  UserContract[]
+
   @@map("dt_position")
 }

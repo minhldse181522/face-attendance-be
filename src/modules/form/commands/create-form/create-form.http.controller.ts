@@ -54,7 +54,7 @@ export class CreateFormHttpController {
   })
   @AuthPermission(resourcesV1.FORM.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
-  @Post(routesV1.form.root)
+  @Post(routesV1.tacVu.form.root)
   async create(
     @ReqUser() user: RequestUser,
     @Body() body: CreateFormRequestDto,

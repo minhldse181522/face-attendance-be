@@ -54,7 +54,7 @@ export class CreateRoleHttpController {
   })
   @AuthPermission(resourcesV1.ROLE.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
-  @Post(routesV1.role.root)
+  @Post(routesV1.tacVu.role.root)
   async create(
     @ReqUser() user: RequestUser,
     @Body() body: CreateRoleRequestDto,
