@@ -13,7 +13,10 @@ import { DropDownResponseDto } from '../dtos/dropdown.response.dto';
 import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator';
 import { DropDownTypeEnum } from '../database/dropdown.repository.prisma';
 import { FindDropdownQuery } from './find-dropdown.query-handler';
-import { FindUserByBranchRequestDto } from './find-dropdown.request.dto';
+import {
+  FindPositionByRoleRequestDto,
+  FindUserByBranchRequestDto,
+} from './find-dropdown.request.dto';
 
 @Controller(routesV1.version)
 @ApiTags(
@@ -38,6 +41,7 @@ export class DropDownHttpController {
     return this.queryBus.execute(
       new FindDropdownQuery({
         type: DropDownTypeEnum.USER,
+        branchCode: queryDto.branchCode,
         roleCode: queryDto.roleCode,
       }),
     );
@@ -62,25 +66,25 @@ export class DropDownHttpController {
   }
 
   // Position
-  //   @ApiOperation({ summary: 'Danh sách vị trí' })
-  //   @ApiBearerAuth()
-  //   @ApiResponse({
-  //     status: HttpStatus.OK,
-  //     type: DropDownResponseDto,
-  //   })
-  //   @AuthPermission(resourcesV1.DROP_DOWN_DATA.name, resourceScopes.VIEW)
-  //   @UseGuards(JwtAuthGuard)
-  //   @Get(routesV1.dropdown.position.root)
-  //   async getPositionDropdown(
-  //     @Query() query: FindPositionByRoleRequestDto,
-  //   ): Promise<DropDownResponseDto> {
-  //     return this.queryBus.execute(
-  //       new FindDropdownQuery({
-  //         type: DropDownTypeEnum.POSITION,
-  //         roleCode: query.roleCode,
-  //       }),
-  //     );
-  //   }
+  @ApiOperation({ summary: 'Danh sách vị trí' })
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DropDownResponseDto,
+  })
+  @AuthPermission(resourcesV1.DROP_DOWN_DATA.name, resourceScopes.VIEW)
+  @UseGuards(JwtAuthGuard)
+  @Get(routesV1.dropdown.position.root)
+  async getPositionDropdown(
+    @Query() query: FindPositionByRoleRequestDto,
+  ): Promise<DropDownResponseDto> {
+    return this.queryBus.execute(
+      new FindDropdownQuery({
+        type: DropDownTypeEnum.POSITION,
+        roleCode: query.roleCode,
+      }),
+    );
+  }
 
   // Branch
   @ApiOperation({ summary: 'Danh sách chi nhánh' })

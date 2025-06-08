@@ -177,11 +177,10 @@ export class PrismaUserRepository
   }
 
   async findUserDropDown(
-    // branchCode?: string,
+    branchCode?: string[],
     roleCode?: string,
   ): Promise<DropDownResult[]> {
     const client = await this._getClient();
-
     //Nếu là admin + manager load list admin
     //Nêu là HR => load list manager, nếu là STAFF => load list HR
     const roleFilter: Prisma.UserWhereInput = {};
@@ -205,14 +204,34 @@ export class PrismaUserRepository
       }
     }
 
+    // Tạo điều kiện where cho truy vấn
+    const whereCondition: Prisma.UserWhereInput = { ...roleFilter };
+
+    // Nếu có branchCode, thêm điều kiện vào whereCondition
+    if (branchCode && branchCode.length > 0) {
+      whereCondition.userContracts = {
+        some: {
+          status: 'ACTIVE',
+          userBranches: {
+            some: {
+              branchCode: {
+                in: branchCode,
+              },
+            },
+          },
+        },
+      };
+    }
+
     const result = await client.user.findMany({
       select: {
         userName: true,
         firstName: true,
         lastName: true,
       },
-      where: { ...roleFilter },
+      where: whereCondition,
     });
+
     return result.map((item) => ({
       label: `${item.firstName} ${item.lastName}`,
       value: item.userName,

@@ -12,7 +12,7 @@ export interface UserRepositoryPort extends RepositoryPort<UserEntity> {
     isActive?: boolean,
   ): Promise<Paginated<UserEntity>>;
   findUserDropDown(
-    // branchCode?: string,
+    branchCode?: string[],
     roleCode?: string,
   ): Promise<DropDownResult[]>;
   findUserWithActiveContract(

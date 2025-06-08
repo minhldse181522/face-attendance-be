@@ -13,6 +13,9 @@ import { PrismaDropDownRepository } from './database/dropdown.repository.prisma'
 import { DROPDOWN_REPOSITORY } from './dropdown.di-tokens';
 import { DropDownHttpController } from './find-dropdown/find-dropdown.http.controller';
 import { FindDropdownQueryHandler } from './find-dropdown/find-dropdown.query-handler';
+import { POSITION_REPOSITORY } from '../position/position.di-tokens';
+import { PrismaPositionRepository } from '../position/database/position.repository.prisma';
+import { PositionModule } from '../position/position.module';
 
 const httpControllers = [DropDownHttpController];
 
@@ -34,6 +37,10 @@ const repositories: Provider[] = [
     useClass: PrismaRoleRepository,
   },
   {
+    provide: POSITION_REPOSITORY,
+    useClass: PrismaPositionRepository,
+  },
+  {
     provide: USER_REPOSITORY,
     useClass: PrismaUserRepository,
   },
@@ -44,7 +51,7 @@ const repositories: Provider[] = [
 ];
 
 @Module({
-  imports: [CqrsModule, BranchModule, UserModule, RoleModule],
+  imports: [CqrsModule, BranchModule, UserModule, RoleModule, PositionModule],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
     Logger,

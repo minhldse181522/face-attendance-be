@@ -21,9 +21,12 @@ export class PrismaPositionRepository
     super(manager, mapper);
   }
 
-  async findPositionDropDown(): Promise<DropDownResult[]> {
+  async findPositionDropDown(roleCode: string): Promise<DropDownResult[]> {
     const client = await this._getClient();
     const result = await client.position.findMany({
+      where: {
+        role: roleCode,
+      },
       select: {
         code: true,
         positionName: true,
