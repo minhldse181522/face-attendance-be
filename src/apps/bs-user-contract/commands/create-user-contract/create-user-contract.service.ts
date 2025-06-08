@@ -4,7 +4,7 @@ import { Err, Ok, Result } from 'oxide.ts';
 import { UserContractRepositoryPort } from '../../database/user-contract.repository.port';
 import { UserContractEntity } from '../../domain/user-contract.entity';
 import { UserContractAlreadyExistsError } from '../../domain/user-contract.error';
-import { USER_CONTRACT_REPOSITORY } from '../../user-contract.di-tokens';
+import { BS_USER_CONTRACT_REPOSITORY } from '../../user-contract.di-tokens';
 import { CreateUserContractCommand } from './create-user-contract.command';
 
 export type CreateUserContractServiceResult = Result<
@@ -17,7 +17,7 @@ export class CreateUserContractService
   implements ICommandHandler<CreateUserContractCommand>
 {
   constructor(
-    @Inject(USER_CONTRACT_REPOSITORY)
+    @Inject(BS_USER_CONTRACT_REPOSITORY)
     protected readonly userContractRepo: UserContractRepositoryPort,
   ) {}
 

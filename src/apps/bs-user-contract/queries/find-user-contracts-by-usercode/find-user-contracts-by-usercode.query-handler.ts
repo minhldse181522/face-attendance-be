@@ -4,7 +4,7 @@ import { Ok, Result } from 'oxide.ts';
 import { UserContractRepositoryPort } from '../../database/user-contract.repository.port';
 import { UserContractEntity } from '../../domain/user-contract.entity';
 import { UserContractNotFoundError } from '../../domain/user-contract.error';
-import { USER_CONTRACT_REPOSITORY } from '../../user-contract.di-tokens';
+import { BS_USER_CONTRACT_REPOSITORY } from '../../user-contract.di-tokens';
 
 export class FindUserContractsByUserCodeQuery {
   constructor(public readonly userCode: string) {}
@@ -20,7 +20,7 @@ export class FindUserContractsByUserCodeQueryHandler
   implements IQueryHandler<FindUserContractsByUserCodeQuery>
 {
   constructor(
-    @Inject(USER_CONTRACT_REPOSITORY)
+    @Inject(BS_USER_CONTRACT_REPOSITORY)
     protected readonly userContractRepo: UserContractRepositoryPort,
   ) {}
 

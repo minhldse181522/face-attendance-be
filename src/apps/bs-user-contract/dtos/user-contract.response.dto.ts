@@ -1,5 +1,5 @@
 import { ResponseBase } from '@libs/api/response.base';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UserContractResponseDto extends ResponseBase<any> {
   @ApiProperty({
@@ -88,16 +88,21 @@ export class UserContractResponseDto extends ResponseBase<any> {
   })
   branchCodes?: string[] | null;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Chi nhánh A, Chi nhánh B',
     description: 'Tên các chi nhánh',
     nullable: true,
   })
   branchNames?: string | null;
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Pham Van A',
     description: 'Tên đầy đủ của người dùng',
     nullable: true,
   })
   fullName?: string | null;
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Lương cơ bản',
+  })
+  baseSalary?: number | null;
 }

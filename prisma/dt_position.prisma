@@ -1,7 +1,7 @@
 model Position {
   id BigInt @id @default(autoincrement())
 
-  code           String?   @unique @map("code") @db.VarChar(10)
+  code           String?   @unique @map("code") @db.VarChar(50)
   positionName   String?   @map("position_name") @db.VarChar(100)
   role           String    @map("role") @db.VarChar(5)
   description    String?   @map("description") @db.VarChar(200)

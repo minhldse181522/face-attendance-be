@@ -35,6 +35,20 @@ export class PrismaUserContractRepository
     return count > 0;
   }
 
+  // Helper method to transform Prisma response to match expected type structure
+  private transformPrismaResponse(contract: any): any {
+    return {
+      ...contract,
+      user: contract.user || undefined,
+      position: contract.position || undefined,
+      userBranches:
+        contract.userBranches?.map((ub) => ({
+          ...ub,
+          branch: ub.branch || undefined,
+        })) || undefined,
+    };
+  }
+
   async createWithBranches(
     entity: UserContractEntity,
     branchCodes: string[],
@@ -100,11 +114,12 @@ export class PrismaUserContractRepository
         );
       }
 
-      // Sử dụng ép kiểu rõ ràng hoặc chuyển đổi sang cấu trúc dự kiến
-      return this.mapper.toDomain({
-        ...completeContract,
-        // Thêm bất kỳ trường thiếu nào với giá trị mặc định nếu cần
-      });
+      // Transform the response to match expected types
+      const transformedContract =
+        this.transformPrismaResponse(completeContract);
+
+      // Return the domain entity
+      return this.mapper.toDomain(transformedContract);
     } catch (error) {
       // Kiểm tra vi phạm ràng buộc khóa ngoại cụ thể cho chi nhánh
       if (
@@ -128,6 +143,11 @@ export class PrismaUserContractRepository
       },
       include: {
         user: true, // Include user information
+        position: {
+          include: {
+            rolePosition: true,
+          },
+        },
         userBranches: {
           include: {
             branch: true,
@@ -142,6 +162,9 @@ export class PrismaUserContractRepository
       throw new UserContractNotFoundError(undefined, { userCode });
     }
 
-    return this.mapper.toDomain(contracts[0]);
+    // Transform the response to match expected types
+    const transformedContract = this.transformPrismaResponse(contracts[0]);
+
+    return this.mapper.toDomain(transformedContract);
   }
 }

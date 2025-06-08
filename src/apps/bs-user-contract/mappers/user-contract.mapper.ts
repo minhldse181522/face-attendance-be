@@ -2,17 +2,29 @@ import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
 import {
   UserContract as UserContractModel,
-  Branch,
-  UserBranch,
+  Branch as BranchModel,
+  UserBranch as UserBranchModel,
   User as UserModel,
+  Position as PositionModel,
+  Role as RoleModel,
 } from '@prisma/client';
 import { UserContractResponseDto } from '../dtos/user-contract.response.dto';
 import { UserContractEntity } from '../domain/user-contract.entity';
+import { UserBranchEntity } from '@src/modules/user-branch/domain/user-branch.entity';
+import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
+import { RoleEntity } from '@src/modules/role/domain/role.entity';
+import { UserEntity } from '@src/modules/user/domain/user.entity';
 
 type UserContractWithRelations = UserContractModel & {
-  userBranches?: (UserBranch & {
-    branch?: Branch | null;
-  })[];
+  userBranches?: Array<
+    UserBranchModel & {
+      branch?: BranchModel;
+    }
+  >;
+  position?: PositionModel & {
+    rolePosition?: RoleModel;
+  };
   user?: UserModel | null; // Add user relationship
 };
 
@@ -46,26 +58,6 @@ export class UserContractMapper
   }
 
   toDomain(record: UserContractWithRelations): UserContractEntity {
-    // Extract branch information if available
-    const branchNames =
-      record.userBranches
-        ?.map((ub) => ub.branch?.branchName || 'Unknown')
-        .join(', ') || '';
-
-    // Extract branch codes
-    const branchCodes =
-      record.userBranches
-        ?.filter((ub) => ub.branchCode)
-        .map((ub) => ub.branchCode) || [];
-
-    // Extract user full name from related user record
-    let fullName: string | undefined;
-    if (record.user) {
-      fullName = `${record.user.firstName} ${record.user.lastName}`.trim();
-    } else if (record.userCode) {
-      fullName = record.userCode; // Fallback to userCode if user object not available
-    }
-
     // Create the entity with all available properties
     return new UserContractEntity({
       id: record.id,
@@ -80,15 +72,88 @@ export class UserContractMapper
         duration: record.duration,
         contractPdf: record.contractPdf,
         status: record.status,
-        userCode: record.userCode,
         managedBy: record.managedBy,
-        positionCode: record.positionCode,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
-        // Add branch information from the relationship
-        branchNames: branchNames,
-        branchCodes: branchCodes,
-        fullName: fullName,
+        user: record.user
+          ? new UserEntity({
+              id: record.user.id,
+              createdAt: record.user.createdAt,
+              updatedAt: record.user.updatedAt,
+              props: {
+                code: record.user.code,
+                userName: record.user.userName,
+                password: record.user.password,
+                firstName: record.user.firstName,
+                lastName: record.user.lastName,
+                email: record.user.email,
+                faceImg: record.user.faceImg || null, // Handle null case
+                dob: record.user.dob,
+                gender: record.user.gender,
+                phone: record.user.phone,
+                isActive: record.user.isActive,
+                roleCode: record.user.roleCode,
+                createdBy: record.user.createdBy,
+              },
+            })
+          : undefined,
+        userBranch: record.userBranches
+          ? record.userBranches.map(
+              (ub) =>
+                new UserBranchEntity({
+                  id: ub.id,
+                  createdAt: ub.createdAt,
+                  updatedAt: ub.updatedAt,
+                  props: {
+                    code: ub.code,
+                    branchCode: ub.branchCode,
+                    userContractCode: ub.userContractCode,
+                    createdBy: ub.createdBy,
+                    updatedBy: ub.updatedBy,
+                    branch: ub.branch
+                      ? new BranchEntity({
+                          id: ub.branch.id,
+                          props: {
+                            code: ub.branch.code,
+                            branchName: ub.branch.branchName,
+                            addressLine: ub.branch.addressLine,
+                            placeId: ub.branch.placeId,
+                            city: ub.branch.city,
+                            district: ub.branch.district,
+                            lat: ub.branch.lat,
+                            long: ub.branch.long,
+                            companyCode: ub.branch.companyCode,
+                            createdBy: ub.branch.createdBy,
+                          },
+                        })
+                      : undefined,
+                  },
+                }),
+            )
+          : undefined,
+        position: record.position
+          ? new PositionEntity({
+              id: record.position.id,
+              props: {
+                code: record.position.code,
+                positionName: record.position.positionName,
+                description: record.position.description,
+                baseSalary: record.position.baseSalary,
+                rolePosition: record.position.rolePosition
+                  ? new RoleEntity({
+                      id: record.position.rolePosition.id,
+                      props: {
+                        roleCode: record.position.rolePosition.roleCode,
+                        roleName: record.position.rolePosition.roleName,
+                        createdBy: record.position.rolePosition.createdBy,
+                      },
+                    })
+                  : undefined,
+                role: record.position.role ?? null,
+                createdBy: record.position.createdBy ?? null,
+              },
+            })
+          : undefined,
       },
       skipValidation: true,
     });
@@ -97,6 +162,20 @@ export class UserContractMapper
   toResponse(entity: UserContractEntity): UserContractResponseDto {
     const props = entity.getProps();
     const response = new UserContractResponseDto(entity);
+    const branchName: string[] = [];
+    const branchCodes: string[] = []; // Create an array to store branch codes
+
+    entity.getProps().userBranch?.forEach((uc) => {
+      const branchProps = uc.getProps();
+      if (branchProps.branch && branchProps.branch !== null) {
+        branchName.push(branchProps.branch.getProps().branchName);
+        // Also collect the branch codes
+        if (branchProps.branch.getProps().code) {
+          branchCodes.push(branchProps.branch.getProps().code);
+        }
+      }
+    });
+
     response.code = props.code;
     response.title = props.title;
     response.description = props.description;
@@ -108,9 +187,16 @@ export class UserContractMapper
     response.userCode = props.userCode;
     response.managedBy = props.managedBy;
     response.positionCode = props.positionCode;
-    response.branchNames = props.branchNames;
-    response.branchCodes = props.branchCodes;
-    response.fullName = props.fullName;
+    response.branchNames = branchName.length > 0 ? branchName.join(', ') : null;
+    response.branchCodes = branchCodes; // Assign the collected branch codes
+    // Set fullName property by combining firstName and lastName from user entity if available
+    response.fullName = props.user
+      ? `${props.user.getProps().firstName || ''} ${props.user.getProps().lastName || ''}`.trim()
+      : null;
+    response.baseSalary = props.position
+      ? props.position.getProps().baseSalary || null
+      : null;
+
     return response;
   }
 }

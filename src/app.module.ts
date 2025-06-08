@@ -24,6 +24,7 @@ import { UserContractModule } from './modules/user-contract/user-contract.module
 import { PositionModule } from './modules/position/position.module';
 import { WorkingScheduleModule } from './modules/working-schedule/working-schedule.module';
 import { BsUserModule } from './apps/bs_user/bs-user.module';
+import { BsUserContractModule } from './apps/bs-user-contract/user-contract.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -82,6 +83,7 @@ const interceptors = [
 
     // Business
     BsUserModule,
+    BsUserContractModule,
   ],
   controllers: [],
   providers: [

@@ -1,3 +1,7 @@
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
+import { UserBranchEntity } from '@src/modules/user-branch/domain/user-branch.entity';
+import { UserEntity } from '@src/modules/user/domain/user.entity';
+
 export interface UserContractProps {
   id?: bigint;
   code?: string | null;
@@ -14,9 +18,10 @@ export interface UserContractProps {
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
-  branchNames?: string; // Add branch information field
-  branchCodes?: string[]; // Add branchCodes as an array of strings
-  fullName?: string;
+
+  userBranch?: UserBranchEntity[] | null;
+  user?: UserEntity | null;
+  position?: PositionEntity | null;
 }
 
 export interface CreateUserContractProps {

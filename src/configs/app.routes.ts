@@ -66,7 +66,6 @@ export const routesV1 = {
     userContract: {
       ...baseRoutes(`${userContractRoot}`),
       detail: `/${userContractRoot}/:id`,
-      byUserCode: `/${userContractRoot}/by-user-code/:userCode`,
     },
     workingSchedule: {
       ...baseRoutes(`${workingScheduleRoot}`),
@@ -83,6 +82,8 @@ export const routesV1 = {
     },
     userContract: {
       ...baseRoutes(`${userContractRoot}`),
+      byUserCode: `/${businessRoot}/by-user-code/:userCode`,
+      createContract: `/${businessRoot}/create-contract-with-branch`,
     },
   },
   // #endregion
