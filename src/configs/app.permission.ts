@@ -92,7 +92,7 @@ export const resourcesV1 = {
   },
   BS_LICH_LAM_VIEC: {
     name: 'Lịch làm việc',
-    displayName: 'Tạo Lịch làm việc cho nhân viên',
+    displayName: 'Lịch làm việc cho nhân viên',
     parent: 'Nghiệp vụ',
   },
 };

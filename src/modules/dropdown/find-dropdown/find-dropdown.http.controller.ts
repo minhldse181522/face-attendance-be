@@ -103,4 +103,21 @@ export class DropDownHttpController {
       }),
     );
   }
+
+  @ApiOperation({ summary: 'Danh sách ca làm' })
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DropDownResponseDto,
+  })
+  @AuthPermission(resourcesV1.DROP_DOWN_DATA.name, resourceScopes.VIEW)
+  @UseGuards(JwtAuthGuard)
+  @Get(routesV1.dropdown.shift.root)
+  async getShiftDropDown(): Promise<DropDownResponseDto> {
+    return this.queryBus.execute(
+      new FindDropdownQuery({
+        type: DropDownTypeEnum.SHIFT,
+      }),
+    );
+  }
 }
