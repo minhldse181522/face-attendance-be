@@ -101,6 +101,12 @@ export class UserContractResponseDto extends ResponseBase<any> {
   })
   fullName?: string | null;
   @ApiPropertyOptional({
+    example: 'Pham Van A',
+    description: 'Tên đầy đủ của người dùng',
+    nullable: true,
+  })
+  fullNameManager?: string | null;
+  @ApiPropertyOptional({
     example: '',
     description: 'Lương cơ bản',
   })

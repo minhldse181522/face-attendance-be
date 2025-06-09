@@ -61,10 +61,12 @@ export class PrismaUserContractRepository
       const ctCode = await this.generateCode.generateCode('CONTRACT', 4);
       // Sử dụng transaction để đảm bảo tất cả các hoạt động thành công hoặc thất bại cùng nhau
       const result = await client.$transaction(async (tx) => {
+        const { id, ...dataWithoutId } = data;
+
         // Đầu tiên tạo hợp đồng người dùng
         const createdContract = await tx.userContract.create({
           data: {
-            ...data,
+            ...dataWithoutId,
             code: ctCode,
             status: data.status || 'ACTIVE', // Mặc định là trạng thái hoạt động
           },
@@ -121,6 +123,14 @@ export class PrismaUserContractRepository
       // Return the domain entity
       return this.mapper.toDomain(transformedContract);
     } catch (error) {
+      // Add specific handling for unique constraint violations
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new Error(`Unique constraint violation: ${error.message}`);
+      }
+
       // Kiểm tra vi phạm ràng buộc khóa ngoại cụ thể cho chi nhánh
       if (
         error instanceof PrismaClientKnownRequestError &&
@@ -139,10 +149,11 @@ export class PrismaUserContractRepository
     const contracts = await client.userContract.findMany({
       where: {
         userCode,
-        status: 'ACTIVE', // Only fetch contracts with ACTIVE status
+        status: 'ACTIVE',
       },
       include: {
-        user: true, // Include user information
+        user: true,
+        manager: true,
         position: {
           include: {
             rolePosition: true,

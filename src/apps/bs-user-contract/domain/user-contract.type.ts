@@ -21,6 +21,7 @@ export interface UserContractProps {
 
   userBranch?: UserBranchEntity[] | null;
   user?: UserEntity | null;
+  manager?: UserEntity | null;
   position?: PositionEntity | null;
 }
 

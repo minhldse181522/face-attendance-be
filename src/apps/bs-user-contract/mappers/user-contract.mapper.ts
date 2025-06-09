@@ -26,6 +26,7 @@ type UserContractWithRelations = UserContractModel & {
     rolePosition?: RoleModel;
   };
   user?: UserModel | null; // Add user relationship
+  manager?: UserModel | null; // Add managedBy field
 };
 
 @Injectable()
@@ -72,9 +73,32 @@ export class UserContractMapper
         duration: record.duration,
         contractPdf: record.contractPdf,
         status: record.status,
+        positionCode: record.positionCode,
         managedBy: record.managedBy,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+        manager: record.manager
+          ? new UserEntity({
+              id: record.manager.id,
+              createdAt: record.manager.createdAt,
+              updatedAt: record.manager.updatedAt,
+              props: {
+                code: record.manager.code,
+                userName: record.manager.userName,
+                password: record.manager.password,
+                firstName: record.manager.firstName,
+                lastName: record.manager.lastName,
+                email: record.manager.email,
+                faceImg: record.manager.faceImg || null, // Handle null case
+                dob: record.manager.dob,
+                gender: record.manager.gender,
+                phone: record.manager.phone,
+                isActive: record.manager.isActive,
+                roleCode: record.manager.roleCode,
+                createdBy: record.manager.createdBy,
+              },
+            })
+          : undefined,
         user: record.user
           ? new UserEntity({
               id: record.user.id,
@@ -192,6 +216,9 @@ export class UserContractMapper
     // Set fullName property by combining firstName and lastName from user entity if available
     response.fullName = props.user
       ? `${props.user.getProps().firstName || ''} ${props.user.getProps().lastName || ''}`.trim()
+      : null;
+    response.fullNameManager = props.manager
+      ? `${props.manager.getProps().firstName || ''} ${props.manager.getProps().lastName || ''}`.trim()
       : null;
     response.baseSalary = props.position
       ? props.position.getProps().baseSalary || null
