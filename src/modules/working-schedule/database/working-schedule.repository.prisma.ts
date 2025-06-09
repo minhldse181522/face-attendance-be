@@ -8,8 +8,12 @@ import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { WorkingScheduleEntity } from '../domain/working-schedule.entity';
 import { WorkingScheduleMapper } from '../mappers/working-schedule.mapper';
 import { WorkingScheduleRepositoryPort } from './working-schedule.repository.port';
-import { PrismaQueryBase } from '@src/libs/ddd/prisma-query.base';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { None, Option, Some } from 'oxide.ts';
+import { Paginated } from '@src/libs/ddd';
 
 @Injectable()
 export class PrismaWorkingScheduleRepository
@@ -21,10 +25,7 @@ export class PrismaWorkingScheduleRepository
 {
   protected modelName = 'workingSchedule';
 
-  constructor(
-    manager: PrismaClientManager,
-    public mapper: WorkingScheduleMapper,
-  ) {
+  constructor(manager: PrismaClientManager, mapper: WorkingScheduleMapper) {
     super(manager, mapper);
   }
 
@@ -38,5 +39,51 @@ export class PrismaWorkingScheduleRepository
       orderBy,
     });
     return result ? Some(this.mapper.toDomain(result)) : None;
+  }
+
+  async findLichLamViecByParam(
+    params: PrismaPaginatedQueryBase<Prisma.WorkingScheduleWhereInput>,
+    fromDate: Date,
+    toDate: Date,
+    userCode?: string,
+  ): Promise<Paginated<WorkingScheduleEntity>> {
+    const client = await this._getClient();
+
+    const { limit, offset, page } = params;
+
+    const [data, count] = await Promise.all([
+      client.workingSchedule.findMany({
+        skip: offset,
+        take: limit,
+        where: {
+          AND: [
+            { date: { gte: fromDate } },
+            {
+              date: { lte: toDate },
+            },
+          ],
+          userCode,
+        },
+      }),
+
+      client.workingSchedule.count({
+        where: {
+          AND: [
+            { date: { gte: fromDate } },
+            {
+              date: { lte: toDate },
+            },
+          ],
+          userCode,
+        },
+      }),
+    ]);
+
+    return new Paginated({
+      data: data.map(this.mapper.toDomain),
+      count,
+      limit,
+      page,
+    });
   }
 }

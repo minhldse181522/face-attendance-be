@@ -1,8 +1,18 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { WorkingSchedule as WorkingScheduleModel } from '@prisma/client';
+import {
+  WorkingSchedule as WorkingScheduleModel,
+  User as UserModel,
+  UserContract as UserContractModel,
+  Shift as ShiftModel,
+  TimeKeeping as TimeKeepingModel,
+} from '@prisma/client';
 import { WorkingScheduleEntity } from '../domain/working-schedule.entity';
 import { WorkingScheduleResponseDto } from '../dtos/working-schedule.response.dto';
+import { UserEntity } from '@src/modules/user/domain/user.entity';
+import { UserContractEntity } from '@src/modules/user-contract/domain/user-contract.entity';
+import { ShiftEntity } from '@src/modules/shift/domain/shift.entity';
+import { TimeKeepingEntity } from '@src/modules/time-keeping/domain/time-keeping.entity';
 
 @Injectable()
 export class WorkingScheduleMapper
@@ -31,7 +41,14 @@ export class WorkingScheduleMapper
     return record;
   }
 
-  toDomain(record: WorkingScheduleModel): WorkingScheduleEntity {
+  toDomain(
+    record: WorkingScheduleModel & {
+      user?: UserModel;
+      userContract?: UserContractModel;
+      shift?: ShiftModel;
+      timeKeeping?: TimeKeepingModel;
+    },
+  ): WorkingScheduleEntity {
     return new WorkingScheduleEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -42,9 +59,75 @@ export class WorkingScheduleMapper
         userContractCode: record.userContractCode || null,
         date: record.date || null,
         shiftCode: record.shiftCode || null,
-
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+        user: record.user
+          ? new UserEntity({
+              id: record.user.id,
+              props: {
+                code: record.user.code,
+                userName: record.user.userName,
+                password: record.user.password,
+                firstName: record.user.firstName,
+                lastName: record.user.lastName,
+                email: record.user.email,
+                gender: record.user.gender,
+                dob: record.user.dob,
+                phone: record.user.phone,
+                isActive: record.user.isActive,
+                roleCode: record.user.roleCode,
+                createdBy: record.user.createdBy,
+              },
+            })
+          : undefined,
+        userContract: record.userContract
+          ? new UserContractEntity({
+              id: record.userContract.id,
+              props: {
+                code: record.userContract.code,
+                title: record.userContract.title,
+                description: record.userContract.description,
+                startTime: record.userContract.startTime,
+                endTime: record.userContract.endTime,
+                duration: record.userContract.duration,
+                contractPdf: record.userContract.contractPdf,
+                status: record.userContract.status,
+                userCode: record.userContract.userCode,
+                managedBy: record.userContract.managedBy,
+                positionCode: record.userContract.positionCode,
+                createdBy: record.userContract.createdBy,
+              },
+            })
+          : undefined,
+        shift: record.shift
+          ? new ShiftEntity({
+              id: record.shift.id,
+              props: {
+                code: record.shift.code,
+                name: record.shift.name,
+                startTime: record.shift.startTime,
+                endTime: record.shift.endTime,
+                workingHours: record.shift.workingHours,
+                delayTime: record.shift.delayTime,
+                createdBy: record.shift.createdBy,
+              },
+            })
+          : undefined,
+        timeKeeping: record.timeKeeping
+          ? new TimeKeepingEntity({
+              id: record.timeKeeping.id,
+              props: {
+                code: record.timeKeeping.code,
+                checkInTime: record.timeKeeping.checkInTime,
+                checkOutTime: record.timeKeeping.checkOutTime,
+                date: record.timeKeeping.date,
+                status: record.timeKeeping.status,
+                userCode: record.timeKeeping.userCode,
+                workingScheduleCode: record.timeKeeping.workingScheduleCode,
+                createdBy: record.timeKeeping.createdBy,
+              },
+            })
+          : undefined,
       },
       skipValidation: true,
     });

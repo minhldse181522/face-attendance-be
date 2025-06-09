@@ -94,7 +94,7 @@ export const routesV1 = {
       createContract: `/${businessRoot}/create-contract-with-branch`,
     },
     lichLamViec: {
-      ...baseRoutes(`${businessRoot}/create-working-schedule`),
+      ...baseRoutes(`${businessRoot}/bs-working-schedule`),
     },
   },
   // #endregion
@@ -111,6 +111,9 @@ export const routesV1 = {
     },
     branch: {
       ...baseRoutes(`${dropdown}/dropdown-branch`),
+    },
+    shift: {
+      ...baseRoutes(`${dropdown}/dropdown-shift`),
     },
   },
   // #endregion

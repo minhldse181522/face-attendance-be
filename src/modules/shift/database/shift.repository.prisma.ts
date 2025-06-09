@@ -7,6 +7,7 @@ import { ShiftMapper } from '../mappers/shift.mapper';
 import { ShiftRepositoryPort } from './shift.repository.port';
 import { PrismaQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { None, Option, Some } from 'oxide.ts';
+import { DropDownResult } from '@src/libs/utils/dropdown.util';
 
 @Injectable()
 export class PrismaShiftRepository
@@ -32,5 +33,20 @@ export class PrismaShiftRepository
       orderBy,
     });
     return result ? Some(this.mapper.toDomain(result)) : None;
+  }
+
+  async findShiftDropDown(): Promise<DropDownResult[]> {
+    const client = await this._getClient();
+    const result = await client.shift.findMany({
+      select: {
+        code: true,
+        name: true,
+      },
+      orderBy: { code: 'asc' },
+    });
+    return result.map((item) => ({
+      label: item.name ?? '',
+      value: item.code ?? '',
+    }));
   }
 }
