@@ -1,8 +1,12 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { Shift as ShiftModel } from '@prisma/client';
+import {
+  Shift as ShiftModel,
+  WorkingSchedule as WorkingScheduleModel,
+} from '@prisma/client';
 import { ShiftEntity } from '../domain/shift.entity';
 import { ShiftResponseDto } from '../dtos/shift.response.dto';
+import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 
 @Injectable()
 export class ShiftMapper
@@ -27,7 +31,11 @@ export class ShiftMapper
     return record;
   }
 
-  toDomain(record: ShiftModel): ShiftEntity {
+  toDomain(
+    record: ShiftModel & {
+      workingSchedules?: WorkingScheduleModel[];
+    },
+  ): ShiftEntity {
     return new ShiftEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -39,10 +47,30 @@ export class ShiftMapper
         endTime: record.endTime || null,
         workingHours: record.workingHours || null,
         delayTime: record.delayTime || null,
-
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+
+        workingSchedules: record.workingSchedules
+          ? record.workingSchedules.map(
+              (ws) =>
+                new WorkingScheduleEntity({
+                  id: ws.id,
+                  createdAt: ws.createdAt,
+                  updatedAt: ws.updatedAt,
+                  props: {
+                    code: ws.code,
+                    userCode: ws.userCode,
+                    userContractCode: ws.userContractCode,
+                    date: ws.date,
+                    shiftCode: ws.shiftCode,
+                    createdBy: ws.createdBy,
+                    updatedBy: ws.updatedBy,
+                  },
+                }),
+            )
+          : undefined,
       },
+
       skipValidation: true,
     });
   }

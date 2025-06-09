@@ -13,6 +13,7 @@ import { WorkingScheduleMapper } from './mappers/working-schedule.mapper';
 import { FindWorkingScheduleHttpController } from './queries/find-working-schedules/find-working-schedules.http.controller';
 import { FindWorkingScheduleQueryHandler } from './queries/find-working-schedules/find-wroking-schedules.query-handler';
 import { WORKING_SCHEDULE_REPOSITORY } from './working-schedule.di-tokens';
+import { FindWorkingScheduleByParamsQueryHandler } from './queries/find-working-schedule-by-params/find-working-schedule-by-params.query-handler';
 
 const httpControllers = [
   FindWorkingScheduleHttpController,
@@ -33,7 +34,10 @@ const commandHandlers: Provider[] = [
   DeleteWorkingScheduleService,
 ];
 
-const queryHandlers: Provider[] = [FindWorkingScheduleQueryHandler];
+const queryHandlers: Provider[] = [
+  FindWorkingScheduleQueryHandler,
+  FindWorkingScheduleByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [WorkingScheduleMapper];
 
@@ -59,6 +63,6 @@ const utilities: Provider[] = [GenerateCode];
     ...mappers,
     ...utilities,
   ],
-  exports: [...repositories, ...mappers],
+  exports: [...repositories, ...mappers, ...queryHandlers],
 })
 export class WorkingScheduleModule {}

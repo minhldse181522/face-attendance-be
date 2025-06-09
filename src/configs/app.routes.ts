@@ -93,6 +93,9 @@ export const routesV1 = {
       byUserCode: `/${businessRoot}/by-user-code/:userCode`,
       createContract: `/${businessRoot}/create-contract-with-branch`,
     },
+    lichLamViec: {
+      ...baseRoutes(`${businessRoot}/create-working-schedule`),
+    },
   },
   // #endregion
   // #region Dropdown

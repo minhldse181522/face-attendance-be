@@ -27,6 +27,7 @@ import { BsUserModule } from './apps/bs_user/bs-user.module';
 import { BsUserContractModule } from './apps/bs-user-contract/user-contract.module';
 import { ShiftModule } from './modules/shift/shift.module';
 import { TimeKeepingModule } from './modules/time-keeping/time-keeping.module';
+import { LichLamViecModule } from './apps/bs_lich_lam_viec/lich-lam-viec.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -88,6 +89,7 @@ const interceptors = [
     // Business
     BsUserModule,
     BsUserContractModule,
+    LichLamViecModule,
   ],
   controllers: [],
   providers: [

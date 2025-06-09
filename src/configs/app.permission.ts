@@ -90,4 +90,9 @@ export const resourcesV1 = {
     displayName: 'Mã nhân viên thuộc chi nhánh',
     parent: 'Nghiệp vụ',
   },
+  BS_LICH_LAM_VIEC: {
+    name: 'Lịch làm việc',
+    displayName: 'Tạo Lịch làm việc cho nhân viên',
+    parent: 'Nghiệp vụ',
+  },
 };

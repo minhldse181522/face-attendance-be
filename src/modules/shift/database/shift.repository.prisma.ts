@@ -1,10 +1,12 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
-import { Shift as ShiftModel } from '@prisma/client';
+import { Prisma, Shift as ShiftModel } from '@prisma/client';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { ShiftEntity } from '../domain/shift.entity';
 import { ShiftMapper } from '../mappers/shift.mapper';
 import { ShiftRepositoryPort } from './shift.repository.port';
+import { PrismaQueryBase } from '@src/libs/ddd/prisma-query.base';
+import { None, Option, Some } from 'oxide.ts';
 
 @Injectable()
 export class PrismaShiftRepository
@@ -18,5 +20,17 @@ export class PrismaShiftRepository
     public mapper: ShiftMapper,
   ) {
     super(manager, mapper);
+  }
+
+  async findShiftByParams(
+    params: PrismaQueryBase<Prisma.ShiftWhereInput>,
+  ): Promise<Option<ShiftEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.shift.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
   }
 }

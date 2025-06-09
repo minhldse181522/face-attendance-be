@@ -13,6 +13,7 @@ import { ShiftMapper } from './mappers/shift.mapper';
 import { FindShiftHttpController } from './queries/find-shifts/find-shifts.http.controller';
 import { FindShiftQueryHandler } from './queries/find-shifts/find-shifts.query-handler';
 import { SHIFT_REPOSITORY } from './shift.di-tokens';
+import { FindShiftByParamsQueryHandler } from './queries/find-shift-by-params/find-shift-by-params.query-handler';
 
 const httpControllers = [
   FindShiftHttpController,
@@ -33,7 +34,10 @@ const commandHandlers: Provider[] = [
   DeleteShiftService,
 ];
 
-const queryHandlers: Provider[] = [FindShiftQueryHandler];
+const queryHandlers: Provider[] = [
+  FindShiftQueryHandler,
+  FindShiftByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [ShiftMapper];
 
@@ -59,6 +63,6 @@ const utilities: Provider[] = [GenerateCode];
     ...mappers,
     ...utilities,
   ],
-  exports: [...repositories, ...mappers],
+  exports: [...repositories, ...mappers, ...queryHandlers],
 })
 export class ShiftModule {}

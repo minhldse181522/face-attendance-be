@@ -1,9 +1,11 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
+import { Prisma, UserContract as UserContractModel } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { UserContract as UserContractModel } from '@prisma/client';
+import { PrismaQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
+import { None, Option, Some } from 'oxide.ts';
 import { UserContractEntity } from '../domain/user-contract.entity';
 import {
   BranchNotFoundError,
@@ -25,6 +27,18 @@ export class PrismaUserContractRepository
     private readonly generateCode: GenerateCode,
   ) {
     super(manager, mapper);
+  }
+
+  async findUserContractByParams(
+    params: PrismaQueryBase<Prisma.UserContractWhereInput>,
+  ): Promise<Option<UserContractEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.userContract.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
   }
 
   async checkExist(userContractCode: string): Promise<boolean> {
@@ -143,5 +157,19 @@ export class PrismaUserContractRepository
     }
 
     return this.mapper.toDomain(contracts[0]);
+  }
+
+  async checkManagedBy(user: string): Promise<boolean> {
+    const client = await this._getClient();
+    const result = await client.userContract.findFirst({
+      where: {
+        managedBy: { equals: user },
+      },
+    });
+    if (result) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

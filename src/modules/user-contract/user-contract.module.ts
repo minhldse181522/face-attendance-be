@@ -15,6 +15,7 @@ import { FindUserContractByIdQueryHandler } from './queries/find-user-contract-b
 import { FindUserContractHttpController } from './queries/find-user-contracts/find-user-contracts.http.controller';
 import { FindUserContractQueryHandler } from './queries/find-user-contracts/find-user-contracts.query-handler';
 import { USER_CONTRACT_REPOSITORY } from './user-contract.di-tokens';
+import { FindUserContractByParamsQueryHandler } from './queries/find-user-contract-by-params/find-user-contract-by-params.query-handler';
 
 const httpControllers = [
   FindUserContractHttpController,
@@ -39,6 +40,7 @@ const commandHandlers: Provider[] = [
 const queryHandlers: Provider[] = [
   FindUserContractQueryHandler,
   FindUserContractByIdQueryHandler,
+  FindUserContractByParamsQueryHandler,
 ];
 
 const mappers: Provider[] = [UserContractMapper];
@@ -65,6 +67,6 @@ const utilities: Provider[] = [GenerateCode];
     ...mappers,
     ...utilities,
   ],
-  exports: [...repositories, ...mappers],
+  exports: [...repositories, ...mappers, ...queryHandlers],
 })
 export class UserContractModule {}

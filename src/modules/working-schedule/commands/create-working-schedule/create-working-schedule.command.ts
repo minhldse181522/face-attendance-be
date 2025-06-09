@@ -1,6 +1,7 @@
 import { Command, CommandProps } from '@src/libs/ddd';
 
 export class CreateWorkingScheduleCommand extends Command {
+  readonly code?: string | null;
   readonly userCode?: string | null;
   readonly userContractCode?: string | null;
   readonly date?: Date | null;
