@@ -7,7 +7,6 @@ model WorkingSchedule {
   date              DateTime?  @map("date") @db.Timestamptz(0)
   shiftCode         String?    @map("shift_code") @db.VarChar(50)
 
-
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)
   updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
@@ -15,6 +14,8 @@ model WorkingSchedule {
 
   user          User?         @relation(fields: [userCode], references: [code], onUpdate: Cascade)
   userContract  UserContract? @relation(fields: [userContractCode], references: [code], onUpdate: Cascade)
+  shift         Shift?        @relation(fields: [shiftCode], references: [code], onUpdate: Cascade)
+  timeKeeping   TimeKeeping?  @relation(fields: [code], references: [workingScheduleCode], onUpdate: Cascade)
 
   @@map("dt_working_schedule")
 }

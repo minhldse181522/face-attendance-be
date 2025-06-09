@@ -9,6 +9,8 @@ const formDescriptionRoot = 'form-description';
 const userBranchRoot = 'user-branch';
 const userContractRoot = 'user-contract';
 const workingScheduleRoot = 'working-schedule';
+const shiftRoot = 'shift';
+const timeKeepingRoot = 'time-keeping';
 const businessRoot = 'business';
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
@@ -69,6 +71,12 @@ export const routesV1 = {
     },
     workingSchedule: {
       ...baseRoutes(`${workingScheduleRoot}`),
+    },
+    shift: {
+      ...baseRoutes(`${shiftRoot}`),
+    },
+    timeKeeping: {
+      ...baseRoutes(`${timeKeepingRoot}`),
     },
   },
   // #endregion

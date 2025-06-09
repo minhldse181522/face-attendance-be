@@ -42,6 +42,16 @@ export const resourcesV1 = {
     displayName: 'Lịch làm việc',
     parent: 'Tác vụ',
   },
+  SHIFT: {
+    name: 'SHIFT',
+    displayName: 'Ca làm việc',
+    parent: 'Tác vụ',
+  },
+  TIME_KEEPING: {
+    name: 'TIME KEEPING',
+    displayName: 'Thời gian làm việc',
+    parent: 'Tác vụ',
+  },
   //#endregion
   //#region DROPDOWN
   DROP_DOWN_DATA: {

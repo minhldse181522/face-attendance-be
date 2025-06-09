@@ -25,6 +25,8 @@ import { PositionModule } from './modules/position/position.module';
 import { WorkingScheduleModule } from './modules/working-schedule/working-schedule.module';
 import { BsUserModule } from './apps/bs_user/bs-user.module';
 import { BsUserContractModule } from './apps/bs-user-contract/user-contract.module';
+import { ShiftModule } from './modules/shift/shift.module';
+import { TimeKeepingModule } from './modules/time-keeping/time-keeping.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -80,6 +82,8 @@ const interceptors = [
     UserBranchModule,
     UserContractModule,
     WorkingScheduleModule,
+    ShiftModule,
+    TimeKeepingModule,
 
     // Business
     BsUserModule,
