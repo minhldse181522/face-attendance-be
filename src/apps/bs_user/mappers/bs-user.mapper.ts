@@ -7,12 +7,14 @@ import {
   Branch as BranchModel,
   UserBranch as UserBranchModel,
   UserContract as UserContractModel,
+  Position as PositionModel,
 } from '@prisma/client';
 import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
 import { UserBranchEntity } from '@src/modules/user-branch/domain/user-branch.entity';
 import { UserEntity } from '@src/modules/user/domain/user.entity';
 import { BsUserResponseDto } from '../dtos/bs-user.response.dto';
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
 
 @Injectable()
 export class BsUserMapper
@@ -48,7 +50,9 @@ export class BsUserMapper
 
   toDomain(
     record: UserModel & {
-      role: RoleModel;
+      role: RoleModel & {
+        positions: Array<PositionModel>;
+      };
       userContracts: Array<
         UserContractModel & {
           userBranches?: Array<
@@ -89,6 +93,21 @@ export class BsUserMapper
                 roleCode: record.role.roleCode,
                 roleName: record.role.roleName,
                 createdBy: record.role.createdBy,
+                positions: record.role.positions
+                  ? record.role.positions.map(
+                      (pos) =>
+                        new PositionEntity({
+                          id: pos.id,
+                          props: {
+                            code: pos.code,
+                            positionName: pos.positionName,
+                            role: pos.role,
+                            description: pos.description,
+                            createdBy: pos.createdBy,
+                          },
+                        }),
+                    )
+                  : undefined,
               },
             })
           : undefined,
@@ -161,6 +180,16 @@ export class BsUserMapper
         }
       });
     });
+
+    let positionName: string | null | undefined;
+    const roleProps = props.role?.getProps();
+    if (roleProps?.positions && roleProps.positions.length > 0) {
+      const position = roleProps.positions[0];
+      if (position) {
+        positionName = position.getProps().positionName;
+      }
+    }
+    
     // Map entity properties to response DTO
     response.code = props.code;
     response.userName = props.userName;
@@ -176,6 +205,7 @@ export class BsUserMapper
     response.addressCode = props.addressCode;
     response.isActive = props.isActive;
     response.branchName = branchName.length > 0 ? branchName.join(', ') : null;
+    response.positionName = positionName;
     return response;
   }
 }

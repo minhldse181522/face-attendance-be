@@ -7,4 +7,11 @@ export interface BsUserRepositoryPort extends RepositoryPort<UserEntity> {
   findUserWithActiveContract(
     params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
   ): Promise<Paginated<UserEntity>>;
+  findFullUserInforByParam(
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+    role?: string,
+    isActive?: boolean,
+    position?: string,
+    branch?: string,
+  ): Promise<Paginated<UserEntity>>;
 }

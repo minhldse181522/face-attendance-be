@@ -7,6 +7,7 @@ import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { UserEntity } from '@src/modules/user/domain/user.entity';
 import { BsUserMapper } from '../mappers/bs-user.mapper';
 import { BsUserRepositoryPort } from './bs-user.repository.port';
+import { RoleEnum } from '@src/modules/user/domain/user.type';
 
 @Injectable()
 export class PrismaBsUserRepository
@@ -20,6 +21,109 @@ export class PrismaBsUserRepository
     mapper: BsUserMapper,
   ) {
     super(manager, mapper);
+  }
+
+  async findFullUserInforByParam(
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+    role?: string,
+    isActive?: boolean,
+    position?: string,
+    branch?: string,
+  ): Promise<Paginated<UserEntity>> {
+    const client = await this._getClient();
+    const { limit, offset, page, where = {}, orderBy } = params;
+
+    const roleFilter: Prisma.UserWhereInput = {};
+    if (role) {
+      switch (role) {
+        case RoleEnum.ADMIN:
+          roleFilter.roleCode = { equals: 'R1' };
+          break;
+
+        case RoleEnum.HR:
+          roleFilter.roleCode = { equals: 'R2' };
+          break;
+
+        case RoleEnum.MANAGER:
+          roleFilter.roleCode = { equals: 'R3' };
+          break;
+
+        case RoleEnum.STAFF:
+          roleFilter.roleCode = { equals: 'R4' };
+          break;
+      }
+    }
+
+    const branchFilter: Prisma.UserWhereInput = branch
+      ? {
+          userContracts: {
+            some: {
+              status: 'ACTIVE',
+              userBranches: {
+                some: {
+                  branch: {
+                    code: { equals: branch },
+                  },
+                },
+              },
+            },
+          },
+        }
+      : {};
+
+    // Gộp Điều kiện
+    const whereFilter: Prisma.UserWhereInput = {
+      ...where,
+      ...roleFilter,
+      ...branchFilter,
+      isActive: typeof isActive === 'string' ? isActive === 'true' : isActive,
+    };
+
+    const [data, count] = await Promise.all([
+      client.user.findMany({
+        skip: offset,
+        take: limit,
+        where: whereFilter,
+        orderBy,
+        include: {
+          role: {
+            include: {
+              positions: {
+                where: {
+                  code: position,
+                },
+              },
+            },
+          },
+          userContracts: {
+            where: {
+              status: 'ACTIVE',
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            include: {
+              userBranches: {
+                include: {
+                  branch: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+
+      client.user.count({
+        where: whereFilter,
+      }),
+    ]);
+
+    return new Paginated({
+      data: data.map(this.mapper.toDomain),
+      count,
+      limit,
+      page,
+    });
   }
 
   async findUserWithActiveContract(

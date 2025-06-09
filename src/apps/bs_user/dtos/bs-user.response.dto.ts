@@ -75,12 +75,6 @@ export class BsUserResponseDto extends ResponseBase<any> {
   addressCode?: string | null;
 
   @ApiProperty({
-    example: 'SEP',
-    description: 'Mã vị trí',
-  })
-  positionCode?: string | null;
-
-  @ApiProperty({
     example: 'admin',
     description: 'Quản lý bởi',
   })
@@ -97,4 +91,10 @@ export class BsUserResponseDto extends ResponseBase<any> {
     description: 'Tên chi nhánh',
   })
   branchName?: string | null;
+
+  @ApiProperty({
+    example: 'Admin',
+    description: 'Tên chức vụ',
+  })
+  positionName?: string | null;
 }

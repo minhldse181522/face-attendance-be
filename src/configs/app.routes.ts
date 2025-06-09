@@ -84,6 +84,7 @@ export const routesV1 = {
   businessLogic: {
     user: {
       ...baseRoutes(`${businessRoot}/get-user-with-active-contract`),
+      fullUserInfor: `${businessRoot}/get-user-with-full-infor`,
     },
     userBranch: {
       ...baseRoutes(`${userBranchRoot}`),

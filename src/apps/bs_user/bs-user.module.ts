@@ -5,8 +5,13 @@ import { PrismaBsUserRepository } from './database/bs-user.repository.prisma';
 import { BsUserMapper } from './mappers/bs-user.mapper';
 import { FindUserWithActiveContractHttpController } from './queries/find-user-with-active-contract/find-user-with-active-contract.http.controller';
 import { FindUserWithActiveContractQueryHandler } from './queries/find-user-with-active-contract/find-user-with-active-contract.query-handler';
+import { FindFullUserInforHttpController } from './queries/find-full-user/find-full-user.http.controller';
+import { FindFullUserInforQueryHandler } from './queries/find-full-user/find-full-user.query-handler';
 
-const httpControllers = [FindUserWithActiveContractHttpController];
+const httpControllers = [
+  FindUserWithActiveContractHttpController,
+  FindFullUserInforHttpController,
+];
 
 const messageControllers = [];
 
@@ -16,7 +21,10 @@ const graphqlResolvers: Provider[] = [];
 
 const commandHandlers: Provider[] = [];
 
-const queryHandlers: Provider[] = [FindUserWithActiveContractQueryHandler];
+const queryHandlers: Provider[] = [
+  FindUserWithActiveContractQueryHandler,
+  FindFullUserInforQueryHandler,
+];
 
 const mappers: Provider[] = [BsUserMapper];
 

@@ -1,3 +1,5 @@
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
+
 export interface RoleProps {
   id?: bigint;
   // Add properties here
@@ -6,6 +8,8 @@ export interface RoleProps {
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
+
+  positions?: PositionEntity[];
 }
 export interface CreateRoleProps {
   // Add properties here
