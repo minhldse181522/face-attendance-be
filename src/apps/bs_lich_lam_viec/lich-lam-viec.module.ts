@@ -13,10 +13,13 @@ import { LICH_LAM_VIEC_REPOSITORY } from './lich-lam-viec.di-tokens';
 import { FindLichLamViecHttpController } from './queries/find-lich-lam-viec/find-lich-lam-viec.http.controller';
 import { FindLichLamViecQueryHandler } from './queries/find-lich-lam-viec/find-lich-lam-viec.query-handler';
 import { LichLamViecMapper } from './mappers/lich-lam-viec.mapper';
+import { ChamCongHttpController } from './commands/cham-cong/cham-cong.http.controller';
+import { UpdateChamCongService } from './commands/cham-cong/cham-cong.service';
 
 const httpControllers = [
   FindLichLamViecHttpController,
   CreateLichLamViecHttpController,
+  ChamCongHttpController,
 ];
 
 const messageControllers = [];
@@ -25,7 +28,10 @@ const cliControllers: Provider[] = [];
 
 const graphqlResolvers: Provider[] = [];
 
-const commandHandlers: Provider[] = [CreateLichLamViecService];
+const commandHandlers: Provider[] = [
+  CreateLichLamViecService,
+  UpdateChamCongService,
+];
 
 const queryHandlers: Provider[] = [FindLichLamViecQueryHandler];
 

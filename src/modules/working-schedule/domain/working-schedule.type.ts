@@ -10,6 +10,7 @@ export interface WorkingScheduleProps {
   userContractCode?: string | null;
   date?: Date | null;
   shiftCode?: string | null;
+  status?: string | null;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
@@ -26,6 +27,7 @@ export interface CreateWorkingScheduleProps {
   userContractCode?: string | null;
   date?: Date | null;
   shiftCode?: string | null;
+  status?: string | null;
   createdBy: string;
 }
 
@@ -35,5 +37,6 @@ export interface UpdateWorkingScheduleProps {
   userContractCode?: string | null;
   date?: Date | null;
   shiftCode?: string | null;
+  status?: string | null;
   updatedBy: string | null;
 }

@@ -31,4 +31,10 @@ export class WorkingScheduleResponseDto extends ResponseBase<any> {
     description: 'Mã ca làm',
   })
   shiftCode?: string | null;
+
+  @ApiProperty({
+    example: 'ACTIVE',
+    description: 'Trạng thái',
+  })
+  status?: string | null;
 }

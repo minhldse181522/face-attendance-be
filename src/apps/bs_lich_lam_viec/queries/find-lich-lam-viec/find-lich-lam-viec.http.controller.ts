@@ -26,7 +26,7 @@ export class FindLichLamViecHttpController {
   @ApiTags(
     `${resourcesV1.BS_LICH_LAM_VIEC.parent} - ${resourcesV1.BS_LICH_LAM_VIEC.displayName}`,
   )
-  @ApiOperation({ summary: 'Lấy danh sách hợp đồng người dùng' })
+  @ApiOperation({ summary: 'Lấy danh sách lịch làm nhân viên' })
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
@@ -34,7 +34,7 @@ export class FindLichLamViecHttpController {
   })
   @AuthPermission(resourcesV1.BS_LICH_LAM_VIEC.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.businessLogic.lichLamViec.root)
+  @Get(routesV1.businessLogic.lichLamViec.workingSchedule)
   async findLichLamViec(
     @Query(new DirectFilterPipe<any, Prisma.WorkingScheduleWhereInput>([]))
     queryParams: FindLichLamViecRequestDto,

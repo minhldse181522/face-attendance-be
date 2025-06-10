@@ -94,7 +94,9 @@ export const routesV1 = {
       createContract: `/${businessRoot}/create-contract-with-branch`,
     },
     lichLamViec: {
-      ...baseRoutes(`${businessRoot}/bs-working-schedule`),
+      workingSchedule: `${businessRoot}/lich-lam`,
+      lichLam: `${businessRoot}/tao-lich-lam`,
+      chamCong: `${businessRoot}/cham-cong/:id`,
     },
   },
   // #endregion

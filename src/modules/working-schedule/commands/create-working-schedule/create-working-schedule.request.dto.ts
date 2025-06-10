@@ -33,4 +33,12 @@ export class CreateWorkingScheduleRequestDto {
   @IsOptional()
   @MaxLength(50)
   shiftCode?: string | null;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Trạng thái',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  status?: string | null;
 }

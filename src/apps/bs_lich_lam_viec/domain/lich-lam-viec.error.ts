@@ -30,3 +30,23 @@ export class WorkingDateAlreadyExistError extends ExceptionBase {
     super(WorkingDateAlreadyExistError.message, cause, metadata);
   }
 }
+
+export class ChamCongKhongDuDieuKienError extends ExceptionBase {
+  static readonly message = 'Condition is not enough';
+
+  public readonly code = 'CHAM_CONG.KHONG_DU_DIEU_KIEN';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(ChamCongKhongDuDieuKienError.message, cause, metadata);
+  }
+}
+
+export class CheckInTimeNotInContractError extends ExceptionBase {
+  static readonly message = 'Check in time is not in the period of contract';
+
+  public readonly code = 'CHECKIN_TIME.NOT_IN_CONTRACT';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(CheckInTimeNotInContractError.message, cause, metadata);
+  }
+}
