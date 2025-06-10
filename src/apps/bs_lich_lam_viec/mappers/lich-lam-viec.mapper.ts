@@ -12,14 +12,14 @@ export class LichLamViecMapper {
     response.userContractCode = props.userContractCode;
     response.status = props.status;
     response.date = props.date;
-    response.shiftCode = props.shiftCode;
     response.fullName =
       props.user?.getProps().firstName + ' ' + props.user?.getProps().lastName;
+    response.shiftCode = props.shiftCode;
     response.shiftName = props.shift?.getProps().name;
     response.startShiftTime = props.shift?.getProps().startTime;
     response.endShiftTime = props.shift?.getProps().endTime;
-    response.checkInTime = props.timeKeeping?.getProps().checkInTime;
-    response.checkOutTime = props.timeKeeping?.getProps().checkOutTime;
+    response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
+    response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
     return response;
   }
 }

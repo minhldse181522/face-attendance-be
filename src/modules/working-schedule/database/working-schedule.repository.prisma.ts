@@ -64,6 +64,11 @@ export class PrismaWorkingScheduleRepository
           ],
           userCode,
         },
+        include: {
+          user: true,
+          shift: true,
+          timeKeeping: true,
+        },
       }),
 
       client.workingSchedule.count({
