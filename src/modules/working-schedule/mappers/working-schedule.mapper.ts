@@ -32,6 +32,7 @@ export class WorkingScheduleMapper
       userContractCode: copy.userContractCode || null,
       date: copy.date || null,
       shiftCode: copy.shiftCode || null,
+      status: copy.status || null,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -59,6 +60,7 @@ export class WorkingScheduleMapper
         userContractCode: record.userContractCode || null,
         date: record.date || null,
         shiftCode: record.shiftCode || null,
+        status: record.status || null,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
         user: record.user
@@ -141,6 +143,7 @@ export class WorkingScheduleMapper
     response.userContractCode = props.userContractCode;
     response.date = props.date;
     response.shiftCode = props.shiftCode;
+    response.status = props.status;
     return response;
   }
 }

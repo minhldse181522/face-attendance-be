@@ -55,4 +55,16 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
     description: 'Thời gian kết thúc hợp đồng',
   })
   contractEndTime?: Date | null;
+
+  @ApiProperty({
+    example: new Date(),
+    description: 'Thời gian vào chấm công',
+  })
+  checkInTime?: Date | null;
+
+  @ApiProperty({
+    example: new Date(),
+    description: 'Thời gian ra chấm công',
+  })
+  checkOutTime?: Date | null;
 }

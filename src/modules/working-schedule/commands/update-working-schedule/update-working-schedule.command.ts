@@ -7,6 +7,7 @@ export class UpdateWorkingScheduleCommand extends Command {
   readonly userContractCode?: string | null;
   readonly date?: Date | null;
   readonly shiftCode?: string | null;
+  readonly status?: string | null;
   readonly updatedBy: string | null;
 
   constructor(props: CommandProps<UpdateWorkingScheduleCommand>) {

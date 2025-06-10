@@ -6,6 +6,7 @@ export class CreateWorkingScheduleCommand extends Command {
   readonly userContractCode?: string | null;
   readonly date?: Date | null;
   readonly shiftCode?: string | null;
+  readonly status?: string | null;
   readonly createdBy: string;
 
   constructor(props: CommandProps<CreateWorkingScheduleCommand>) {

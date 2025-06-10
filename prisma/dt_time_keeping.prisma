@@ -14,7 +14,7 @@ model TimeKeeping {
   updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
   updatedBy     String?   @map("modified_by") @db.VarChar(36)
 
-  WorkingSchedules WorkingSchedule[]
+  workingSchedule     WorkingSchedule? @relation("WorkingScheduleToTimeKeeping", fields: [workingScheduleCode], references: [code], onUpdate: Cascade)
 
   @@map("dt_time_keeping")
 }
