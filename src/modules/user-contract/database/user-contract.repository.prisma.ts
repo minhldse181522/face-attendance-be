@@ -36,6 +36,13 @@ export class PrismaUserContractRepository
     const { where = {}, orderBy } = params;
     const result = await client.userContract.findFirst({
       where: { ...where },
+      include: {
+        userBranches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
       orderBy,
     });
     return result ? Some(this.mapper.toDomain(result)) : None;

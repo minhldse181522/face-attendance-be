@@ -33,8 +33,14 @@ export class WorkingScheduleResponseDto extends ResponseBase<any> {
   shiftCode?: string | null;
 
   @ApiProperty({
-    example: 'ACTIVE',
+    example: 'NOTSTARTED',
     description: 'Trạng thái',
   })
   status?: string | null;
+
+  @ApiProperty({
+    example: '',
+    description: 'Mã chi nhánh',
+  })
+  branchCode?: string | null;
 }

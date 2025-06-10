@@ -28,6 +28,8 @@ import { BsUserContractModule } from './apps/bs-user-contract/user-contract.modu
 import { ShiftModule } from './modules/shift/shift.module';
 import { TimeKeepingModule } from './modules/time-keeping/time-keeping.module';
 import { LichLamViecModule } from './apps/bs_lich_lam_viec/lich-lam-viec.module';
+import { MinioModule } from './libs/minio/minio.module';
+import { minioConfig } from './configs/minio.config';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -67,9 +69,9 @@ const interceptors = [
         ...cacheConfig,
       }),
     }),
-    // MinioModule.forRootAsync({
-    //   useFactory: async () => minioConfig,
-    // }),
+    MinioModule.forRootAsync({
+      useFactory: async () => minioConfig,
+    }),
     // ApiLogModule,
     // WebSockmetModule,
     DropDownModule,

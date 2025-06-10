@@ -41,4 +41,12 @@ export class CreateWorkingScheduleRequestDto {
   @IsOptional()
   @MaxLength(50)
   status?: string | null;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Mã chi nhánh',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  branchCode?: string | null;
 }

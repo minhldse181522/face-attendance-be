@@ -50,3 +50,13 @@ export class CheckInTimeNotInContractError extends ExceptionBase {
     super(CheckInTimeNotInContractError.message, cause, metadata);
   }
 }
+
+export class BranchNotBelongToContractError extends ExceptionBase {
+  static readonly message = 'Chi nhánh không thuộc về chi nhánh trong hợp đồng';
+
+  public readonly code = 'BRANCH.NOT_BELONG_TO_CONTRACT';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(BranchNotBelongToContractError.message, cause, metadata);
+  }
+}
