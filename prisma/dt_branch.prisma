@@ -17,6 +17,7 @@ model Branch {
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
   userBranches UserBranch[]
+  workingSchedules WorkingSchedule[]
 
   @@map("dt_branch")
 }

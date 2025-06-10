@@ -52,9 +52,21 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
 
   @ApiProperty({
     example: 'HANOI',
+    description: 'Mã chi nhánh',
+  })
+  branchCode?: string | null;
+
+  @ApiProperty({
+    example: 'HANOI',
     description: 'Tên chi nhánh',
   })
   branchName?: string | null;
+
+  @ApiProperty({
+    example: 'HANOI',
+    description: 'Địa chỉ',
+  })
+  addressLine?: string | null;
 
   @ApiProperty({
     example: new Date(),

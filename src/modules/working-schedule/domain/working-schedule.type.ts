@@ -1,3 +1,4 @@
+import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
 import { ShiftEntity } from '@src/modules/shift/domain/shift.entity';
 import { TimeKeepingEntity } from '@src/modules/time-keeping/domain/time-keeping.entity';
 import { UserContractEntity } from '@src/modules/user-contract/domain/user-contract.entity';
@@ -20,6 +21,7 @@ export interface WorkingScheduleProps {
   userContract?: UserContractEntity;
   shift?: ShiftEntity;
   timeKeeping?: TimeKeepingEntity;
+  branch?: BranchEntity;
 }
 
 export interface CreateWorkingScheduleProps {

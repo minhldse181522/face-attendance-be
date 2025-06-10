@@ -16,6 +16,9 @@ export class LichLamViecMapper {
       props.user?.getProps().firstName + ' ' + props.user?.getProps().lastName;
     response.shiftCode = props.shiftCode;
     response.shiftName = props.shift?.getProps().name;
+    response.branchName = props.branch?.getProps().branchName;
+    response.branchCode = props.branch?.getProps().code;
+    response.addressLine = props.branch?.getProps().addressLine;
     response.startShiftTime = props.shift?.getProps().startTime;
     response.endShiftTime = props.shift?.getProps().endTime;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;

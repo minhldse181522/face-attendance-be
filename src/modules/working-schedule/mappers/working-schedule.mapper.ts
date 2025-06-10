@@ -6,6 +6,7 @@ import {
   UserContract as UserContractModel,
   Shift as ShiftModel,
   TimeKeeping as TimeKeepingModel,
+  Branch as BranchModel,
 } from '@prisma/client';
 import { WorkingScheduleEntity } from '../domain/working-schedule.entity';
 import { WorkingScheduleResponseDto } from '../dtos/working-schedule.response.dto';
@@ -13,6 +14,7 @@ import { UserEntity } from '@src/modules/user/domain/user.entity';
 import { UserContractEntity } from '@src/modules/user-contract/domain/user-contract.entity';
 import { ShiftEntity } from '@src/modules/shift/domain/shift.entity';
 import { TimeKeepingEntity } from '@src/modules/time-keeping/domain/time-keeping.entity';
+import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
 
 @Injectable()
 export class WorkingScheduleMapper
@@ -49,6 +51,7 @@ export class WorkingScheduleMapper
       userContract?: UserContractModel;
       shift?: ShiftModel;
       timeKeeping?: TimeKeepingModel;
+      branch?: BranchModel;
     },
   ): WorkingScheduleEntity {
     return new WorkingScheduleEntity({
@@ -129,6 +132,23 @@ export class WorkingScheduleMapper
                 userCode: record.timeKeeping.userCode,
                 workingScheduleCode: record.timeKeeping.workingScheduleCode,
                 createdBy: record.timeKeeping.createdBy,
+              },
+            })
+          : undefined,
+        branch: record.branch
+          ? new BranchEntity({
+              id: record.branch.id,
+              props: {
+                code: record.branch.code,
+                branchName: record.branch.branchName,
+                addressLine: record.branch.addressLine,
+                placeId: record.branch.placeId,
+                city: record.branch.city,
+                district: record.branch.district,
+                lat: record.branch.lat,
+                long: record.branch.long,
+                companyCode: record.branch.companyCode,
+                createdBy: record.branch.createdBy,
               },
             })
           : undefined,

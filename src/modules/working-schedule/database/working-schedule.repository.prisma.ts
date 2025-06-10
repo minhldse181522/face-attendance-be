@@ -68,6 +68,7 @@ export class PrismaWorkingScheduleRepository
           user: true,
           shift: true,
           timeKeeping: true,
+          branch: true,
         },
       }),
 

@@ -17,6 +17,7 @@ model WorkingSchedule {
   user          User?         @relation(fields: [userCode], references: [code], onUpdate: Cascade)
   userContract  UserContract? @relation(fields: [userContractCode], references: [code], onUpdate: Cascade)
   shift         Shift?        @relation(fields: [shiftCode], references: [code], onUpdate: Cascade)
+  branch        Branch?       @relation(fields: [branchCode], references: [code], onUpdate: Cascade)
   timeKeeping   TimeKeeping?  @relation("WorkingScheduleToTimeKeeping")
 
   @@map("dt_working_schedule")
