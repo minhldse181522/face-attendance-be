@@ -86,6 +86,8 @@ datasource db {
 // From dt_branch.prisma
 
 // From dt_branch.prisma
+
+// From dt_branch.prisma
 model Branch {
   id           BigInt  @id @default(autoincrement())
 
@@ -339,6 +341,7 @@ model WorkingSchedule {
   date              DateTime?  @map("date") @db.Timestamptz(0)
   shiftCode         String?    @map("shift_code") @db.VarChar(50)
   status            String?    @map("status") @db.VarChar(50)
+  branchCode        String?    @map("branch_code") @db.VarChar(50)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)

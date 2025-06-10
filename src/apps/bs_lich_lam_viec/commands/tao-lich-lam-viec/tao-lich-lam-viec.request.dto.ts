@@ -24,4 +24,12 @@ export class CreateLichLamViecRequestDto {
   @IsNotEmpty()
   @MaxLength(50)
   shiftCode: string;
+
+  @ApiProperty({
+    example: 'SHIFT001',
+    description: 'Mã ca làm',
+  })
+  @IsNotEmpty()
+  @MaxLength(50)
+  branchCode: string;
 }

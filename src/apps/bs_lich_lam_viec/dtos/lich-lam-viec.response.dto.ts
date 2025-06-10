@@ -33,6 +33,12 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
   shiftCode?: string | null;
 
   @ApiProperty({
+    example: 'NOTSTARTED',
+    description: 'Trạng thái',
+  })
+  status?: string | null;
+
+  @ApiProperty({
     example: 'HEHE',
     description: 'Tên nhân viên',
   })
@@ -45,16 +51,22 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
   shiftName?: string | null;
 
   @ApiProperty({
-    example: new Date(),
-    description: 'Thời gian bắt đầu hợp đồng',
+    example: 'HANOI',
+    description: 'Tên chi nhánh',
   })
-  contractStartTime?: Date | null;
+  branchName?: string | null;
 
   @ApiProperty({
     example: new Date(),
-    description: 'Thời gian kết thúc hợp đồng',
+    description: 'Thời gian vào ca làm',
   })
-  contractEndTime?: Date | null;
+  startShiftTime?: Date | null;
+
+  @ApiProperty({
+    example: new Date(),
+    description: 'Thời gian ra ca làm',
+  })
+  endShiftTime?: Date | null;
 
   @ApiProperty({
     example: new Date(),

@@ -4,7 +4,7 @@ export class CreateLichLamViecCommand extends Command {
   readonly userCode: string;
   readonly date: Date;
   readonly shiftCode: string;
-  readonly status: string;
+  readonly branchCode: string;
 
   readonly createdBy: string;
 

@@ -66,7 +66,6 @@ export class CreateLichLamViecHttpController {
     const command = new CreateLichLamViecCommand({
       ...body,
       createdBy: user.userName,
-      status: 'PENDING',
     });
 
     const result: CreateLichLamViecServiceResult =

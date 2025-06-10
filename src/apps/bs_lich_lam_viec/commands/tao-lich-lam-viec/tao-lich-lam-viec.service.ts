@@ -16,12 +16,9 @@ import { USER_CONTRACT_REPOSITORY } from '@src/modules/user-contract/user-contra
 import { CreateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/create-working-schedule/create-working-schedule.command';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
-import {
-  FindWorkingScheduleByParamsQuery,
-  FindWorkingScheduleByParamsQueryResult,
-} from '@src/modules/working-schedule/queries/find-working-schedule-by-params/find-working-schedule-by-params.query-handler';
 import { Err, Ok, Result } from 'oxide.ts';
 import {
+  BranchNotBelongToContractError,
   ManagerNotAssignToUserError,
   UserContractDoesNotExistError,
   WorkingDateAlreadyExistError,
@@ -39,6 +36,7 @@ export type CreateLichLamViecServiceResult = Result<
   | UserContractDoesNotExistError
   | ShiftNotFoundError
   | WorkingDateAlreadyExistError
+  | BranchNotBelongToContractError
 >;
 
 @CommandHandler(CreateLichLamViecCommand)
@@ -79,6 +77,19 @@ export class CreateLichLamViecService
         return Err(new UserContractDoesNotExistError());
       }
       const userContractProps = checkValidUserContract.unwrap().getProps();
+      console.log(userContractProps);
+
+      // check chi nhánh nằm trong chuỗi chi nhánh của hợp đồng
+      // const allowedBranchCodes =
+      //   userContractProps.userBranches?.map(
+      //     (branch) => branch.getProps().branchCode,
+      //   ) ?? [];
+
+      // console.log('Allowed branch codes:', allowedBranchCodes);
+
+      // if (!allowedBranchCodes?.includes(command.branchCode)) {
+      //   return Err(new BranchNotBelongToContractError());
+      // }
 
       // check ca làm có tồn tại
       const checkExistShift: FindShiftByParamsQueryResult =
@@ -93,20 +104,6 @@ export class CreateLichLamViecService
         return Err(new ShiftNotFoundError());
       }
 
-      // Kiểm tra trùng lịch cho user
-      const duplicateWorkDate: FindWorkingScheduleByParamsQueryResult =
-        await this.queryBus.execute(
-          new FindWorkingScheduleByParamsQuery({
-            where: {
-              userCode: command.userCode,
-              date: command.date,
-            },
-          }),
-        );
-      if (duplicateWorkDate.isErr()) {
-        return Err(new WorkingDateAlreadyExistError());
-      }
-
       try {
         const createdWorkingSchedule = await this.commandBus.execute(
           new CreateWorkingScheduleCommand({
@@ -114,11 +111,13 @@ export class CreateLichLamViecService
             userCode: command.userCode,
             userContractCode: userContractProps.code,
             date: command.date,
+            status: 'NOTSTARTED',
             shiftCode: command.shiftCode,
+            branchCode: command.branchCode,
             createdBy: command.createdBy,
           }),
         );
-        return Ok(createdWorkingSchedule);
+        return Ok(createdWorkingSchedule.unwrap());
       } catch (error) {
         return Err(new WorkingScheduleNotFoundError());
       }
