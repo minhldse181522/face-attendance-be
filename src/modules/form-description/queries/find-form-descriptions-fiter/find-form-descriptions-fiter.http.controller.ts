@@ -49,7 +49,7 @@ export class FindFormDescriptionFilterHttpController {
   })
   @AuthPermission(resourcesV1.FORM_DESCRIPTION.name, resourceScopes.VIEW) // Yêu cầu quyền xem form description
   @UseGuards(JwtAuthGuard) // Sử dụng JWT guard để xác thực
-  @Get(routesV1.formDescriptionFiter.root) // Định nghĩa đường dẫn API
+  @Get(routesV1.tacVu.formDescriptionFiter.root) // Định nghĩa đường dẫn API
   async findFormDescription(
     @ReqUser() user: RequestUser, // Lấy thông tin người dùng từ token
     @Query(

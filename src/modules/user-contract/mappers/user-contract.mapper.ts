@@ -1,8 +1,8 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
 import { UserContract as UserContractModel } from '@prisma/client';
-import { UserContractResponseDto } from '../dtos/user-contract.response.dto';
 import { UserContractEntity } from '../domain/user-contract.entity';
+import { UserContractResponseDto } from '../dtos/user-contract.response.dto';
 
 @Injectable()
 export class UserContractMapper
@@ -22,7 +22,8 @@ export class UserContractMapper
       contractPdf: copy.contractPdf || null,
       status: copy.status || null,
       userCode: copy.userCode || null,
-      userBranchCode: copy.userBranchCode || null,
+      managedBy: copy.managedBy || null,
+      positionCode: copy.positionCode || null,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -38,16 +39,18 @@ export class UserContractMapper
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
       props: {
-        code: record.code,
-        title: record.title,
-        description: record.description,
-        startTime: record.startTime,
-        endTime: record.endTime,
-        duration: record.duration,
-        contractPdf: record.contractPdf,
-        status: record.status,
-        userCode: record.userCode,
-        userBranchCode: record.userBranchCode,
+        code: record.code || null,
+        title: record.title || null,
+        description: record.description || null,
+        startTime: record.startTime || null,
+        endTime: record.endTime || null,
+        duration: record.duration || null,
+        contractPdf: record.contractPdf || null,
+        status: record.status || null,
+        userCode: record.userCode || null,
+        managedBy: record.managedBy || null,
+        positionCode: record.positionCode || null,
+
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
       },
@@ -67,7 +70,8 @@ export class UserContractMapper
     response.contractPdf = props.contractPdf;
     response.status = props.status;
     response.userCode = props.userCode;
-    response.userBranchCode = props.userBranchCode;
+    response.managedBy = props.managedBy;
+    response.positionCode = props.positionCode;
     return response;
   }
 }

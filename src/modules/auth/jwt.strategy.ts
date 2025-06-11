@@ -28,10 +28,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       gender: payload.gender,
       phone: payload.phone,
       typeOfWork: payload.typeOfWork,
-      managedBy: payload.managedBy,
+      managedBy: payload.managedBy, // Will be populated from userContract in login.service.ts
       isActive: payload.isActive,
       roleCode: payload.roleCode,
-      positionCode: payload.positionCode,
+      positionCode: payload.positionCode, // Will be populated from userContract in login.service.ts
       addressCode: payload.addressCode,
     };
   }

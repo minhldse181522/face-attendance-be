@@ -1,20 +1,24 @@
 model WorkingSchedule {
   id             BigInt  @id @default(autoincrement())
 
-  code           String?    @unique @map("code") @db.VarChar(50)
-  userCode       String?    @map("user_code") @db.VarChar(200)
-  userContractCode  String?    @map("user_branch_code") @db.VarChar(200)
-  date           DateTime?  @map("date") @db.Timestamptz(0)
-  shiftCode      String?   @map("shift_code") @db.VarChar(50)
-
+  code              String?    @unique @map("code") @db.VarChar(50)
+  userCode          String?    @map("user_code") @db.VarChar(200)
+  userContractCode  String?    @map("user_contract_code") @db.VarChar(200)
+  date              DateTime?  @map("date") @db.Timestamptz(0)
+  shiftCode         String?    @map("shift_code") @db.VarChar(50)
+  status            String?    @map("status") @db.VarChar(50)
+  branchCode        String?    @map("branch_code") @db.VarChar(50)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)
   updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
   updatedBy     String?   @map("modified_by") @db.VarChar(36)
 
-  user          User?       @relation(fields: [userCode], references: [code], onUpdate: Cascade)
+  user          User?         @relation(fields: [userCode], references: [code], onUpdate: Cascade)
   userContract  UserContract? @relation(fields: [userContractCode], references: [code], onUpdate: Cascade)
+  shift         Shift?        @relation(fields: [shiftCode], references: [code], onUpdate: Cascade)
+  branch        Branch?       @relation(fields: [branchCode], references: [code], onUpdate: Cascade)
+  timeKeeping   TimeKeeping?  @relation("WorkingScheduleToTimeKeeping")
 
   @@map("dt_working_schedule")
 }

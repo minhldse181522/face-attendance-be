@@ -9,9 +9,9 @@ model Role {
   updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
   updatedBy String?   @map("modified_by") @db.VarChar(36)
 
-  user     User[]
-  forms    Form[]   
-  
+  user      User[]
+  forms     Form[]
+  positions Position[]
 
   @@map("dt_role")
 }

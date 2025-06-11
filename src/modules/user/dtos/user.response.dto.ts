@@ -72,19 +72,13 @@ export class UserResponseDto extends ResponseBase<any> {
     example: 'HAC',
     description: 'Mã chi nhánh',
   })
-  addressCode: string;
-
-  @ApiProperty({
-    example: 'SEP',
-    description: 'Mã vị trí',
-  })
-  positionCode: string;
+  addressCode?: string | null;
 
   @ApiProperty({
     example: 'admin',
     description: 'Quản lý bởi',
   })
-  managedBy: string;
+  managedBy?: string | null;
 
   @ApiPropertyOptional({
     example: true,

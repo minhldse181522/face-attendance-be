@@ -75,14 +75,6 @@ export class UpdateUserRequestDto {
   typeOfWork?: string | null;
 
   @ApiPropertyOptional({
-    example: 'admin',
-    description: 'Quản lý bởi',
-  })
-  @IsOptional()
-  @MaxLength(50)
-  managedBy?: string | null;
-
-  @ApiPropertyOptional({
     example: true,
     description: 'Trạng thái hoạt động',
   })
@@ -104,12 +96,4 @@ export class UpdateUserRequestDto {
   @IsOptional()
   @MaxLength(20)
   addressCode?: string | null;
-
-  @ApiPropertyOptional({
-    example: 'SEP',
-    description: 'Mã vị trí',
-  })
-  @IsOptional()
-  @MaxLength(20)
-  positionCode?: string | null;
 }

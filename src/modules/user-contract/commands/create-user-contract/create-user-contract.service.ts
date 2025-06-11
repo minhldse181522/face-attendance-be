@@ -29,9 +29,9 @@ export class CreateUserContractService
     });
 
     try {
-      const createdUserContract =
-        await this.userContractRepo.insert(userContract);
-      return Ok(createdUserContract);
+      const createdContract = await this.userContractRepo.insert(userContract);
+
+      return Ok(createdContract);
     } catch (error: any) {
       if (error instanceof ConflictException) {
         return Err(new UserContractAlreadyExistsError());

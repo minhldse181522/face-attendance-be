@@ -21,6 +21,16 @@ import { BranchModule } from './modules/branch/branch.module';
 import { DropDownModule } from './modules/dropdown/dropdown.module';
 import { UserBranchModule } from './modules/user-branch/user-branch.module';
 import { UserContractModule } from './modules/user-contract/user-contract.module';
+import { PositionModule } from './modules/position/position.module';
+import { WorkingScheduleModule } from './modules/working-schedule/working-schedule.module';
+import { BsUserModule } from './apps/bs_user/bs-user.module';
+import { BsUserContractModule } from './apps/bs-user-contract/user-contract.module';
+import { ShiftModule } from './modules/shift/shift.module';
+import { TimeKeepingModule } from './modules/time-keeping/time-keeping.module';
+import { LichLamViecModule } from './apps/bs_lich_lam_viec/lich-lam-viec.module';
+import { MinioModule } from './libs/minio/minio.module';
+import { minioConfig } from './configs/minio.config';
+import { UploadModule } from './modules/upload/upload.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -60,12 +70,14 @@ const interceptors = [
         ...cacheConfig,
       }),
     }),
-    // MinioModule.forRootAsync({
-    //   useFactory: async () => minioConfig,
-    // }),
+    MinioModule.forRootAsync({
+      useFactory: async () => minioConfig,
+    }),
     // ApiLogModule,
     // WebSockmetModule,
+    UploadModule,
     DropDownModule,
+    PositionModule,
     BranchModule,
     RoleModule,
     UserModule,
@@ -74,6 +86,14 @@ const interceptors = [
     FormDescriptionModule,
     UserBranchModule,
     UserContractModule,
+    WorkingScheduleModule,
+    ShiftModule,
+    TimeKeepingModule,
+
+    // Business
+    BsUserModule,
+    BsUserContractModule,
+    LichLamViecModule,
   ],
   controllers: [],
   providers: [

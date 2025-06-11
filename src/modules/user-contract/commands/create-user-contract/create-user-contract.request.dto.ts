@@ -1,15 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, MaxLength, IsISO8601 } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateUserContractRequestDto {
-  @ApiProperty({
-    example: 'CONTRACT001',
-    description: 'Mã hợp đồng',
-  })
-  @IsNotEmpty()
-  @MaxLength(50)
-  code: string;
-
   @ApiProperty({
     example: 'Hợp đồng lao động',
     description: 'Tiêu đề hợp đồng',
@@ -24,23 +21,23 @@ export class CreateUserContractRequestDto {
   })
   @IsOptional()
   @MaxLength(2000)
-  description?: string;
+  description?: string | null;
 
   @ApiPropertyOptional({
     example: '2023-01-01T00:00:00.000Z',
     description: 'Thời gian bắt đầu',
   })
   @IsOptional()
-  @IsISO8601()
-  startTime?: string;
+  @IsDateString()
+  startTime?: string | null;
 
   @ApiPropertyOptional({
     example: '2024-01-01T00:00:00.000Z',
     description: 'Thời gian kết thúc',
   })
   @IsOptional()
-  @IsISO8601()
-  endTime?: string;
+  @IsDateString()
+  endTime?: string | null;
 
   @ApiPropertyOptional({
     example: '1 năm',
@@ -48,7 +45,7 @@ export class CreateUserContractRequestDto {
   })
   @IsOptional()
   @MaxLength(50)
-  duration?: string;
+  duration?: string | null;
 
   @ApiPropertyOptional({
     example: '/uploads/contracts/contract001.pdf',
@@ -56,7 +53,7 @@ export class CreateUserContractRequestDto {
   })
   @IsOptional()
   @MaxLength(200)
-  contractPdf?: string;
+  contractPdf?: string | null;
 
   @ApiPropertyOptional({
     example: 'ACTIVE',
@@ -64,7 +61,7 @@ export class CreateUserContractRequestDto {
   })
   @IsOptional()
   @MaxLength(50)
-  status?: string;
+  status?: string | null;
 
   @ApiPropertyOptional({
     example: 'USER001',
@@ -72,13 +69,21 @@ export class CreateUserContractRequestDto {
   })
   @IsOptional()
   @MaxLength(200)
-  userCode?: string;
+  userCode?: string | null;
 
   @ApiPropertyOptional({
-    example: 'BRANCH001',
-    description: 'Mã chi nhánh người dùng',
+    example: 'admin',
+    description: 'Người quản lý (userCode)',
   })
   @IsOptional()
-  @MaxLength(200)
-  userBranchCode?: string;
+  @MaxLength(50)
+  managedBy?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'MGR',
+    description: 'Mã vị trí',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  positionCode?: string | null;
 }

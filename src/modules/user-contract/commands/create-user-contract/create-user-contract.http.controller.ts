@@ -56,7 +56,7 @@ export class CreateUserContractHttpController {
   })
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
-  @Post(routesV1.userContract.root)
+  @Post(routesV1.tacVu.userContract.root)
   async create(
     @ReqUser() user: RequestUser,
     @Body() body: CreateUserContractRequestDto,

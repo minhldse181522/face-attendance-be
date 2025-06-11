@@ -13,6 +13,12 @@ import { PrismaDropDownRepository } from './database/dropdown.repository.prisma'
 import { DROPDOWN_REPOSITORY } from './dropdown.di-tokens';
 import { DropDownHttpController } from './find-dropdown/find-dropdown.http.controller';
 import { FindDropdownQueryHandler } from './find-dropdown/find-dropdown.query-handler';
+import { POSITION_REPOSITORY } from '../position/position.di-tokens';
+import { PrismaPositionRepository } from '../position/database/position.repository.prisma';
+import { PositionModule } from '../position/position.module';
+import { SHIFT_REPOSITORY } from '../shift/shift.di-tokens';
+import { PrismaShiftRepository } from '../shift/database/shift.repository.prisma';
+import { ShiftModule } from '../shift/shift.module';
 
 const httpControllers = [DropDownHttpController];
 
@@ -34,6 +40,10 @@ const repositories: Provider[] = [
     useClass: PrismaRoleRepository,
   },
   {
+    provide: POSITION_REPOSITORY,
+    useClass: PrismaPositionRepository,
+  },
+  {
     provide: USER_REPOSITORY,
     useClass: PrismaUserRepository,
   },
@@ -41,10 +51,21 @@ const repositories: Provider[] = [
     provide: BRANCH_REPOSITORY,
     useClass: PrismaBranchRepository,
   },
+  {
+    provide: SHIFT_REPOSITORY,
+    useClass: PrismaShiftRepository,
+  },
 ];
 
 @Module({
-  imports: [CqrsModule, BranchModule, UserModule, RoleModule],
+  imports: [
+    CqrsModule,
+    BranchModule,
+    UserModule,
+    RoleModule,
+    PositionModule,
+    ShiftModule,
+  ],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
     Logger,

@@ -1,0 +1,40 @@
+import { ResponseBase } from '@libs/api/response.base';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class ShiftResponseDto extends ResponseBase<any> {
+  @ApiProperty({
+    example: 'SHIFT001',
+    description: 'Mã ca làm',
+  })
+  code?: string | null;
+
+  @ApiProperty({
+    example: 'Ca sáng',
+    description: 'Ca làm',
+  })
+  name?: string | null;
+
+  @ApiProperty({
+    example: '2023-01-01T07:00:00.000Z',
+    description: 'Thời gian bắt đầu',
+  })
+  startTime?: Date | null;
+
+  @ApiProperty({
+    example: '2023-01-01T18:00:00.000Z',
+    description: 'Thời gian kết thúc',
+  })
+  endTime?: Date | null;
+
+  @ApiProperty({
+    example: 7,
+    description: 'Thời gian làm việc',
+  })
+  workingHours?: number | null;
+
+  @ApiProperty({
+    example: '2023-01-01T18:00:00.000Z',
+    description: 'Thời gian đi trễ',
+  })
+  delayTime?: Date | null;
+}

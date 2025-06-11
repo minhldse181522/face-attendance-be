@@ -1,4 +1,6 @@
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
+import { UserContractEntity } from '@src/modules/user-contract/domain/user-contract.entity';
+import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 
 export enum RoleEnum {
   ADMIN = 'R1',
@@ -21,16 +23,17 @@ export interface UserProps {
   dob: Date;
   phone: string;
   typeOfWork?: string | null;
-  managedBy: string;
   isActive: boolean;
   roleCode: string;
-  positionCode: string;
-  addressCode: string;
+  addressCode?: string | null;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
 
   role?: RoleEntity;
+  userContracts?: UserContractEntity[];
+  managedContracts?: UserContractEntity[];
+  workingSchedules?: WorkingScheduleEntity[];
 }
 
 export interface RegisterUserProps {
@@ -47,10 +50,8 @@ export interface RegisterUserProps {
   phone: string;
   typeOfWork?: string | null;
   isActive: boolean;
-  managedBy: string;
   roleCode: string;
-  addressCode: string;
-  positionCode: string;
+  addressCode?: string | null;
   createdBy: string;
 }
 
@@ -65,10 +66,8 @@ export interface UpdateUserProps {
   dob?: Date | null;
   phone?: string | null;
   typeOfWork?: string | null;
-  managedBy?: string | null;
   isActive?: boolean | null;
   roleCode?: string | null;
   addressCode?: string | null;
-  positionCode?: string | null;
   updatedBy: string | null;
 }

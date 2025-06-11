@@ -50,7 +50,7 @@ export class DeleteBranchHttpController {
   })
   @AuthPermission(resourcesV1.BRANCH.name, resourceScopes.DELETE)
   @UseGuards(JwtAuthGuard)
-  @Delete(routesV1.branch.delete)
+  @Delete(routesV1.tacVu.branch.delete)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') branchId: bigint): Promise<void> {
     const command = new DeleteBranchCommand({ branchId });

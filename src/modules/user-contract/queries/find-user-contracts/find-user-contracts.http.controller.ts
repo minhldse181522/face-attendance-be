@@ -34,7 +34,7 @@ export class FindUserContractHttpController {
   })
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
-  @Get(routesV1.userContract.root)
+  @Get(routesV1.tacVu.userContract.root)
   async findUserContract(
     @Query(new DirectFilterPipe<any, Prisma.UserContractWhereInput>([]))
     queryParams: FindUserContractRequestDto,

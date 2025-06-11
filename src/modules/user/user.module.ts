@@ -9,6 +9,7 @@ import { UserMapper } from './mappers/user.mapper';
 import { FindUserHttpController } from './queries/find-users/find-user.http.controller';
 import { FindUserQueryHandler } from './queries/find-users/find-user.query-handler';
 import { USER_REPOSITORY } from './user.di-tokens';
+import { FindUserByParamsQueryHandler } from './queries/find-user-by-params/find-user-by-params.query-handler';
 
 const httpControllers = [
   FindUserHttpController,
@@ -24,7 +25,10 @@ const graphqlResolvers: Provider[] = [];
 
 const commandHandlers: Provider[] = [UpdateUserService, DeleteUserService];
 
-const queryHandlers: Provider[] = [FindUserQueryHandler];
+const queryHandlers: Provider[] = [
+  FindUserQueryHandler,
+  FindUserByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [UserMapper];
 
@@ -47,6 +51,6 @@ const repositories: Provider[] = [
     ...queryHandlers,
     ...mappers,
   ],
-  exports: [...repositories, ...mappers],
+  exports: [...repositories, ...mappers, ...queryHandlers],
 })
 export class UserModule {}

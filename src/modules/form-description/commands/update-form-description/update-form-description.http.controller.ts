@@ -70,7 +70,7 @@ export class UpdateFormDescriptionHttpController {
   })
   @AuthPermission(resourcesV1.FORM_DESCRIPTION.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.formDescription.update)
+  @Put(routesV1.tacVu.formDescription.update)
   async update(
     @ReqUser() user: RequestUser,
     @Param('id') formDescriptionId: bigint,

@@ -68,7 +68,7 @@ export class UpdateRoleHttpController {
   })
   @AuthPermission(resourcesV1.ROLE.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.role.update)
+  @Put(routesV1.tacVu.role.update)
   async update(
     @ReqUser() user: RequestUser,
     @Param('id') roleId: bigint,

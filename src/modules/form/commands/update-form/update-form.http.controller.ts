@@ -68,7 +68,7 @@ export class UpdateFormHttpController {
   })
   @AuthPermission(resourcesV1.FORM.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @Put(routesV1.form.update)
+  @Put(routesV1.tacVu.form.update)
   async update(
     @ReqUser() user: RequestUser,
     @Param('id') formId: bigint,

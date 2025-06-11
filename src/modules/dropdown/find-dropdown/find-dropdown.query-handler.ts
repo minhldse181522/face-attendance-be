@@ -5,12 +5,12 @@ import { DROPDOWN_REPOSITORY } from '../dropdown.di-tokens';
 
 export class FindDropdownQuery {
   readonly type: string;
-  readonly branchCode?: string;
+  readonly branchCode?: string[];
   readonly roleCode?: string;
 
   constructor(params: {
     type: string;
-    branchCode?: string;
+    branchCode?: string[];
     roleCode?: string;
   }) {
     this.type = params.type;

@@ -1,9 +1,8 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { User as UserModel, Role as RoleModel } from '@prisma/client';
+import { User as UserModel } from '@prisma/client';
 import { UserEntity } from '../domain/user.entity';
 import { UserResponseDto } from '../dtos/user.response.dto';
-import { RoleEntity } from '@src/modules/role/domain/role.entity';
 
 // Mapper là nơi chuyển đổi qua lại giữa 3 tầng dữ liệu
 // Domain Entity ←→ Persistence Model (Prisma)
@@ -31,11 +30,9 @@ export class UserMapper
       gender: copy.gender,
       phone: copy.phone,
       typeOfWork: copy.typeOfWork || null,
-      managedBy: copy.managedBy,
       roleCode: copy.roleCode,
       isActive: copy.isActive,
-      addressCode: copy.addressCode,
-      positionCode: copy.positionCode,
+      addressCode: copy.addressCode || null,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -47,11 +44,7 @@ export class UserMapper
 
   // Chuyển từ Prisma record => Domain Entity (để dùng trong logic nghiệp vụ)
   // DB model → Entity
-  toDomain(
-    record: UserModel & {
-      role: RoleModel;
-    },
-  ): UserEntity {
+  toDomain(record: UserModel): UserEntity {
     return new UserEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -69,23 +62,11 @@ export class UserMapper
         gender: record.gender,
         phone: record.phone,
         typeOfWork: record.typeOfWork,
-        managedBy: record.managedBy,
         isActive: record.isActive,
-        positionCode: record.positionCode,
         roleCode: record.roleCode,
         addressCode: record.addressCode,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
-        role: record.role
-          ? new RoleEntity({
-              id: record.role.id,
-              props: {
-                roleCode: record.role.roleCode,
-                roleName: record.role.roleName,
-                createdBy: record.role.createdBy,
-              },
-            })
-          : undefined,
       },
       skipValidation: true,
     });
@@ -109,8 +90,6 @@ export class UserMapper
     response.typeOfWork = props.typeOfWork;
     response.roleCode = props.roleCode;
     response.addressCode = props.addressCode;
-    response.positionCode = props.positionCode;
-    response.managedBy = props.managedBy;
     response.isActive = props.isActive;
     return response;
   }

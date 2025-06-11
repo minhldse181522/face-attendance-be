@@ -1,3 +1,5 @@
+import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
+
 export interface UserBranchProps {
   id?: bigint;
   code: string;
@@ -7,12 +9,14 @@ export interface UserBranchProps {
   createdBy: string;
   updatedAt?: Date | null;
   updatedBy?: string | null;
+
+  branch?: BranchEntity;
 }
 
 export interface CreateUserBranchProps {
   code: string;
   branchCode: string;
-  userContractCode: string | null;
+  userContractCode: string;
 
   createdBy: string;
 }
