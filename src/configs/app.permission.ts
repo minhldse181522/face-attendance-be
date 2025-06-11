@@ -7,6 +7,11 @@ export const resourceScopes = {
 
 export const resourcesV1 = {
   //#region TÁC VỤ
+  DT_PATH_FILE: {
+    name: 'path_file',
+    displayName: 'Đường dẫn file',
+    parent: 'Tác vụ',
+  },
   USER: {
     name: 'user', // định danh nội bộ
     displayName: 'Nhân sự', // tên hiển thị trên SWAGGER
@@ -50,6 +55,11 @@ export const resourcesV1 = {
   TIME_KEEPING: {
     name: 'TIME KEEPING',
     displayName: 'Thời gian làm việc',
+    parent: 'Tác vụ',
+  },
+  UPLOAD: {
+    name: 'UPLOAD',
+    displayName: 'Xử lý ảnh',
     parent: 'Tác vụ',
   },
   //#endregion

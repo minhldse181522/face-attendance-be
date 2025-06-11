@@ -30,6 +30,7 @@ import { TimeKeepingModule } from './modules/time-keeping/time-keeping.module';
 import { LichLamViecModule } from './apps/bs_lich_lam_viec/lich-lam-viec.module';
 import { MinioModule } from './libs/minio/minio.module';
 import { minioConfig } from './configs/minio.config';
+import { UploadModule } from './modules/upload/upload.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -74,6 +75,7 @@ const interceptors = [
     }),
     // ApiLogModule,
     // WebSockmetModule,
+    UploadModule,
     DropDownModule,
     PositionModule,
     BranchModule,

@@ -12,6 +12,8 @@ const workingScheduleRoot = 'working-schedule';
 const shiftRoot = 'shift';
 const timeKeepingRoot = 'time-keeping';
 const businessRoot = 'business';
+const uploadRoot = 'upload';
+const dtRoot = 'tac-vu';
 /**
  * Tạo các route cơ bản (GET one, UPDATE, DELETE) theo root truyền vào.
  * @param root - Đường dẫn gốc của resource (ví dụ: 'human/get-salary')
@@ -78,6 +80,9 @@ export const routesV1 = {
     timeKeeping: {
       ...baseRoutes(`${timeKeepingRoot}`),
     },
+    dtPathFile: {
+      ...baseRoutes(`${dtRoot}/dt-path-file`),
+    },
   },
   // #endregion
   // #region Bussiness Logic
@@ -120,6 +125,26 @@ export const routesV1 = {
     },
   },
   // #endregion
+  //#region upload
+  upload: {
+    root: uploadRoot,
+
+    directUpload: `/${uploadRoot}/direct-upload`,
+    download: `/${uploadRoot}/download`,
+
+    createSignedUrl: `/${uploadRoot}/create-signed-url`,
+    getObject: `/${uploadRoot}/get-object`,
+    moveObject: `/${uploadRoot}/move-object`,
+    deleteObject: `/${uploadRoot}/delete-object`,
+
+    // createImageStorage: `/${uploadRoot}/create-image-storage`,
+    // updateImageStorage: `/${uploadRoot}/update-image-storage/:id`,
+    // deleteImageStorage: `/${uploadRoot}/delete-image-storage/:id`,
+    // getOneImageStorage: `/${uploadRoot}/get-one-image-storage/:id`,
+    // getAllImageStorages: `/${uploadRoot}/get-all-image-storages`,
+  },
+  //#endregion
+
   // Specific
   auth: {
     root: authRoot,

@@ -1,8 +1,12 @@
 import { Paginated, RepositoryPort } from '@libs/ddd';
 import { Prisma } from '@prisma/client';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
-import { UserEntity } from '../domain/user.entity';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { DropDownResult } from '@src/libs/utils/dropdown.util';
+import { Option } from 'oxide.ts';
+import { UserEntity } from '../domain/user.entity';
 
 export interface UserRepositoryPort extends RepositoryPort<UserEntity> {
   findByUsername(userName: string): Promise<UserEntity | null>;
@@ -18,4 +22,7 @@ export interface UserRepositoryPort extends RepositoryPort<UserEntity> {
   findUserWithActiveContract(
     params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
   ): Promise<Paginated<UserEntity>>;
+  findUserByParams(
+    params: PrismaQueryBase<Prisma.UserWhereInput>,
+  ): Promise<Option<UserEntity>>;
 }
