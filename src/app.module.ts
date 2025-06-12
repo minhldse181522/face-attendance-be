@@ -31,6 +31,7 @@ import { LichLamViecModule } from './apps/bs_lich_lam_viec/lich-lam-viec.module'
 import { MinioModule } from './libs/minio/minio.module';
 import { minioConfig } from './configs/minio.config';
 import { UploadModule } from './modules/upload/upload.module';
+import { FaceReferenceModule } from './modules/face-reference/face-reference.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -89,6 +90,7 @@ const interceptors = [
     WorkingScheduleModule,
     ShiftModule,
     TimeKeepingModule,
+    FaceReferenceModule,
 
     // Business
     BsUserModule,

@@ -7,7 +7,6 @@ export interface ShiftProps {
   startTime?: Date | null;
   endTime?: Date | null;
   workingHours?: number | null;
-  delayTime?: Date | null;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
@@ -21,7 +20,6 @@ export interface CreateShiftProps {
   startTime?: Date | null;
   endTime?: Date | null;
   workingHours?: number | null;
-  delayTime?: Date | null;
   createdBy: string;
 }
 
@@ -31,6 +29,5 @@ export interface UpdateShiftProps {
   startTime?: Date | null;
   endTime?: Date | null;
   workingHours?: number | null;
-  delayTime?: Date | null;
   updatedBy: string | null;
 }

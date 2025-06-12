@@ -24,10 +24,37 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
   async execute(
     command: CreateShiftCommand,
   ): Promise<CreateShiftServiceResult> {
-    const code = await this.generateCode.generateCode('WS', 4);
+    const code = await this.generateCode.generateCode('SHIFT', 4);
+
+    let workingHours: number | null = null;
+    let start: Date | null = null;
+    let end: Date | null = null;
+
+    if (command.startTime && command.endTime) {
+      start = new Date(command.startTime);
+      end = new Date(command.endTime);
+
+      const startMs = start.getTime();
+      const endMs = end.getTime();
+
+      if (endMs < startMs) {
+        // Trường hợp ca làm việc qua đêm
+        workingHours =
+          (endMs + 24 * 60 * 60 * 1000 - startMs) / (1000 * 60 * 60);
+      } else {
+        workingHours = (endMs - startMs) / (1000 * 60 * 60);
+      }
+
+      workingHours = Math.round(workingHours * 100) / 100;
+    }
+
     const shift = ShiftEntity.create({
       code: code,
-      ...command.getExtendedProps<CreateShiftCommand>(),
+      name: command.name ?? null,
+      startTime: start,
+      endTime: end,
+      workingHours: workingHours,
+      createdBy: command.createdBy,
     });
 
     try {

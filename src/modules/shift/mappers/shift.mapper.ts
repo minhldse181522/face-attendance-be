@@ -21,7 +21,6 @@ export class ShiftMapper
       startTime: copy.startTime || null,
       endTime: copy.endTime || null,
       workingHours: copy.workingHours || null,
-      delayTime: copy.delayTime || null,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -46,7 +45,6 @@ export class ShiftMapper
         startTime: record.startTime || null,
         endTime: record.endTime || null,
         workingHours: record.workingHours || null,
-        delayTime: record.delayTime || null,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
 
@@ -83,7 +81,6 @@ export class ShiftMapper
     response.startTime = props.startTime;
     response.endTime = props.endTime;
     response.workingHours = props.workingHours;
-    response.delayTime = props.delayTime;
     return response;
   }
 }

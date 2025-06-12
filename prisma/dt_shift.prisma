@@ -6,7 +6,6 @@ model Shift {
   startTime      DateTime?  @map("start_time") @db.Time(0)
   endTime        DateTime?  @map("end_time") @db.Time(0)
   workingHours   Int?       @map("working_hours") @db.Integer()
-  delayTime      DateTime?  @map("delay_time") @db.Timestamptz(0)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)

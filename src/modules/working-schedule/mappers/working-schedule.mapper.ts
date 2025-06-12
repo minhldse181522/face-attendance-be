@@ -150,7 +150,6 @@ export class WorkingScheduleMapper
                 startTime: record.shift.startTime,
                 endTime: record.shift.endTime,
                 workingHours: record.shift.workingHours,
-                delayTime: record.shift.delayTime,
                 createdBy: record.shift.createdBy,
               },
             })

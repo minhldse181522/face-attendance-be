@@ -25,20 +25,4 @@ export class CreateShiftRequestDto {
   @IsOptional()
   @IsDateString()
   endTime?: Date | null;
-
-  @ApiPropertyOptional({
-    example: 7,
-    description: 'Thời gian làm',
-  })
-  @IsOptional()
-  @MaxLength(100)
-  workingHours?: number | null;
-
-  @ApiPropertyOptional({
-    example: '2023-01-01T18:00:00.000Z',
-    description: 'Thời gian đi trễ',
-  })
-  @IsOptional()
-  @IsDateString()
-  delayTime?: Date | null;
 }

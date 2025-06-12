@@ -80,8 +80,8 @@ export const routesV1 = {
     timeKeeping: {
       ...baseRoutes(`${timeKeepingRoot}`),
     },
-    dtPathFile: {
-      ...baseRoutes(`${dtRoot}/dt-path-file`),
+    faceReference: {
+      ...baseRoutes(`${dtRoot}/face-reference`),
     },
   },
   // #endregion

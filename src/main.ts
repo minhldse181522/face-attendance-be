@@ -41,6 +41,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'https://he-thong-cham-cong-admin.vercel.app',
   'http://128.199.119.151:3001',
+  'http://localhost:8081',
 ];
 
 async function bootstrap() {

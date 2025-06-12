@@ -5,8 +5,6 @@ export class CreateShiftCommand extends Command {
   readonly name?: string | null;
   readonly startTime?: Date | null;
   readonly endTime?: Date | null;
-  readonly workingHours?: number | null;
-  readonly delayTime?: Date | null;
   readonly createdBy: string;
 
   constructor(props: CommandProps<CreateShiftCommand>) {
