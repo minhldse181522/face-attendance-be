@@ -6,6 +6,7 @@ import {
   UserContract as UserContractModel,
   Shift as ShiftModel,
   TimeKeeping as TimeKeepingModel,
+  Position as PositionModel,
   Branch as BranchModel,
 } from '@prisma/client';
 import { WorkingScheduleEntity } from '../domain/working-schedule.entity';
@@ -15,6 +16,7 @@ import { UserContractEntity } from '@src/modules/user-contract/domain/user-contr
 import { ShiftEntity } from '@src/modules/shift/domain/shift.entity';
 import { TimeKeepingEntity } from '@src/modules/time-keeping/domain/time-keeping.entity';
 import { BranchEntity } from '@src/modules/branch/domain/branch.entity';
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
 
 @Injectable()
 export class WorkingScheduleMapper
@@ -48,7 +50,10 @@ export class WorkingScheduleMapper
   toDomain(
     record: WorkingScheduleModel & {
       user?: UserModel;
-      userContract?: UserContractModel;
+      userContract?: UserContractModel & {
+        position: PositionModel;
+        manager: UserModel;
+      };
       shift?: ShiftModel;
       timeKeeping?: TimeKeepingModel;
       branch?: BranchModel;
@@ -103,6 +108,36 @@ export class WorkingScheduleMapper
                 managedBy: record.userContract.managedBy,
                 positionCode: record.userContract.positionCode,
                 createdBy: record.userContract.createdBy,
+                manager: record.userContract.manager
+                  ? new UserEntity({
+                      id: record.userContract.manager.id,
+                      props: {
+                        code: record.userContract.manager.code,
+                        userName: record.userContract.manager.userName,
+                        password: record.userContract.manager.password,
+                        firstName: record.userContract.manager.firstName,
+                        lastName: record.userContract.manager.lastName,
+                        email: record.userContract.manager.email,
+                        gender: record.userContract.manager.gender,
+                        dob: record.userContract.manager.dob,
+                        phone: record.userContract.manager.phone,
+                        isActive: record.userContract.manager.isActive,
+                        roleCode: record.userContract.manager.roleCode,
+                        createdBy: record.userContract.manager.createdBy,
+                      },
+                    })
+                  : undefined,
+                position: record.userContract.position
+                  ? new PositionEntity({
+                      id: record.userContract.position.id,
+                      props: {
+                        code: record.userContract.position.code,
+                        positionName: record.userContract.position.positionName,
+                        role: record.userContract.position.role,
+                        createdBy: record.userContract.position.createdBy,
+                      },
+                    })
+                  : undefined,
               },
             })
           : undefined,

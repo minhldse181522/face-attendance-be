@@ -1,4 +1,5 @@
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
+import { UserContractEntity } from '@src/modules/user-contract/domain/user-contract.entity';
 
 export interface PositionProps {
   id?: bigint;
@@ -16,6 +17,7 @@ export interface PositionProps {
   inUseCount?: number;
 
   rolePosition?: RoleEntity;
+  userContract?: UserContractEntity[];
 }
 export interface CreatePositionProps {
   // Add properties here

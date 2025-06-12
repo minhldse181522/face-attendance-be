@@ -23,6 +23,13 @@ export class LichLamViecMapper {
     response.endShiftTime = props.shift?.getProps().endTime;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
+    response.positionName = props.userContract
+      ?.getProps()
+      .position?.getProps().positionName;
+    response.managerFullName =
+      props.userContract?.getProps().manager?.getProps().firstName +
+      ' ' +
+      props.userContract?.getProps().manager?.getProps().lastName;
     return response;
   }
 }

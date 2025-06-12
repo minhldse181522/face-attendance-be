@@ -75,6 +75,18 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
   startShiftTime?: Date | null;
 
   @ApiProperty({
+    example: 'Giám Đốc Chi Nhánh',
+    description: 'Tên chức vụ',
+  })
+  positionName?: string | null;
+
+  @ApiProperty({
+    example: 'Phụ Anh Tám',
+    description: 'Tên người quản lý',
+  })
+  managerFullName?: string | null;
+
+  @ApiProperty({
     example: new Date(),
     description: 'Thời gian ra ca làm',
   })
