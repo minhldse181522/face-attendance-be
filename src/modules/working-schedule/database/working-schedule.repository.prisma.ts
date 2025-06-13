@@ -69,6 +69,12 @@ export class PrismaWorkingScheduleRepository
           shift: true,
           timeKeeping: true,
           branch: true,
+          userContract: {
+            include: {
+              manager: true,
+              position: true,
+            },
+          },
         },
       }),
 
