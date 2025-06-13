@@ -1,4 +1,4 @@
-import { IsNotEmpty, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateLichLamViecRequestDto {
@@ -32,4 +32,12 @@ export class CreateLichLamViecRequestDto {
   @IsNotEmpty()
   @MaxLength(50)
   branchCode: string;
+
+  @ApiProperty({
+    enum: ['NGAY', 'TUAN', 'THANG'],
+    example: 'NGAY',
+  })
+  @IsNotEmpty()
+  @IsEnum(['NGAY', 'TUAN', 'THANG'])
+  optionCreate: 'NGAY' | 'TUAN' | 'THANG';
 }

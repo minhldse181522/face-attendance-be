@@ -8,6 +8,7 @@ import {
   Controller,
   HttpStatus,
   NotFoundException,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -62,7 +64,7 @@ export class CreateLichLamViecHttpController {
   async create(
     @ReqUser() user: RequestUser,
     @Body() body: CreateLichLamViecRequestDto,
-  ): Promise<WorkingScheduleResponseDto> {
+  ): Promise<WorkingScheduleResponseDto[]> {
     const command = new CreateLichLamViecCommand({
       ...body,
       createdBy: user.userName,
@@ -72,8 +74,8 @@ export class CreateLichLamViecHttpController {
       await this.commandBus.execute(command);
 
     return match(result, {
-      Ok: (workingSchedule: WorkingScheduleEntity) =>
-        this.mapper.toResponse(workingSchedule),
+      Ok: (workingSchedule: WorkingScheduleEntity[]) =>
+        workingSchedule.map((ws) => this.mapper.toResponse(ws)),
       Err: (error: Error) => {
         if (
           error instanceof ManagerNotAssignToUserError ||

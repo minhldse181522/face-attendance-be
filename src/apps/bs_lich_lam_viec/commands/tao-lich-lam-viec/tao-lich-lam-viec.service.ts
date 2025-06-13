@@ -28,9 +28,10 @@ import {
   FindUserContractByParamsQueryResult,
 } from './../../../../modules/user-contract/queries/find-user-contract-by-params/find-user-contract-by-params.query-handler';
 import { CreateLichLamViecCommand } from './tao-lich-lam-viec.command';
+import { GenerateWorkingDate } from '@src/libs/utils/generate-working-dates.util';
 
 export type CreateLichLamViecServiceResult = Result<
-  WorkingScheduleEntity,
+  WorkingScheduleEntity[],
   | WorkingScheduleNotFoundError
   | ManagerNotAssignToUserError
   | UserContractDoesNotExistError
@@ -47,6 +48,7 @@ export class CreateLichLamViecService
     @Inject(USER_CONTRACT_REPOSITORY)
     protected readonly userContractRepo: UserContractRepositoryPort,
     protected readonly generateCode: GenerateCode,
+    protected readonly generateWorkingDate: GenerateWorkingDate,
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
   ) {}
@@ -105,19 +107,30 @@ export class CreateLichLamViecService
       }
 
       try {
-        const createdWorkingSchedule = await this.commandBus.execute(
-          new CreateWorkingScheduleCommand({
-            code: code,
-            userCode: command.userCode,
-            userContractCode: userContractProps.code,
-            date: command.date,
-            status: 'NOTSTARTED',
-            shiftCode: command.shiftCode,
-            branchCode: command.branchCode,
-            createdBy: command.createdBy,
-          }),
+        const workingDates = await this.generateWorkingDate.generateWorkingDate(
+          command.date,
+          command.optionCreate,
         );
-        return Ok(createdWorkingSchedule.unwrap());
+        const results: WorkingScheduleEntity[] = [];
+
+        for (const date of workingDates) {
+          const createdWorkingSchedule = await this.commandBus.execute(
+            new CreateWorkingScheduleCommand({
+              code: code,
+              userCode: command.userCode,
+              userContractCode: userContractProps.code,
+              date: date,
+              status: 'NOTSTARTED',
+              shiftCode: command.shiftCode,
+              branchCode: command.branchCode,
+              createdBy: command.createdBy,
+            }),
+          );
+
+          results.push(createdWorkingSchedule.unwrap());
+        }
+
+        return Ok(results);
       } catch (error) {
         return Err(new WorkingScheduleNotFoundError());
       }

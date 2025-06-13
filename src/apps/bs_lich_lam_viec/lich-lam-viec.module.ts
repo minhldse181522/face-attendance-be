@@ -15,6 +15,7 @@ import { FindLichLamViecQueryHandler } from './queries/find-lich-lam-viec/find-l
 import { LichLamViecMapper } from './mappers/lich-lam-viec.mapper';
 import { ChamCongHttpController } from './commands/cham-cong/cham-cong.http.controller';
 import { UpdateChamCongService } from './commands/cham-cong/cham-cong.service';
+import { GenerateWorkingDate } from '@src/libs/utils/generate-working-dates.util';
 
 const httpControllers = [
   FindLichLamViecHttpController,
@@ -48,7 +49,7 @@ const repositories: Provider[] = [
   },
 ];
 
-const utilities: Provider[] = [GenerateCode];
+const utilities: Provider[] = [GenerateCode, GenerateWorkingDate];
 
 @Module({
   imports: [CqrsModule, UserContractModule, ShiftModule, WorkingScheduleModule],
