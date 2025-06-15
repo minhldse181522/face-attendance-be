@@ -37,6 +37,7 @@ export class PrismaDropDownRepository {
     type: string,
     branchCode?: string[],
     roleCode?: string,
+    userCode?: string,
   ): Promise<any[]> {
     switch (type) {
       case DropDownTypeEnum.USER:
@@ -46,7 +47,7 @@ export class PrismaDropDownRepository {
       case DropDownTypeEnum.POSITION:
         return this.positionRepo.findPositionDropDown(roleCode);
       case DropDownTypeEnum.BRANCH:
-        return this.branchRepo.findBranchDropDown();
+        return this.branchRepo.findBranchDropDown(userCode);
       case DropDownTypeEnum.SHIFT:
         return this.shiftRepo.findShiftDropDown();
       default:

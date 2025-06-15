@@ -28,3 +28,13 @@ export class FindPositionByRoleRequestDto {
   @MaxLength(20)
   roleCode: string;
 }
+
+export class FindBranchByUserCodeRequestDto {
+  @ApiProperty({
+    example: 'R1',
+    description: 'Filter theo user code',
+  })
+  @IsNotEmpty()
+  @MaxLength(20)
+  userCode?: string;
+}

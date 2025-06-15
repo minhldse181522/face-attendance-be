@@ -5,7 +5,7 @@ import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { Prisma } from '@prisma/client';
 
 export interface BranchRepositoryPort extends RepositoryPort<BranchEntity> {
-  findBranchDropDown(): Promise<DropDownResult[]>;
+  findBranchDropDown(userCode?: string): Promise<DropDownResult[]>;
   checkExist(branchCode: string): Promise<boolean>;
   findPaginatedWithQuickSearch(
     params: PrismaPaginatedQueryBase<Prisma.BranchWhereInput> & {
