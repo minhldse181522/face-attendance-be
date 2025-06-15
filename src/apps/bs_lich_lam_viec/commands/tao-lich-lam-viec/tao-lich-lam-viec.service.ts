@@ -56,8 +56,6 @@ export class CreateLichLamViecService
   async execute(
     command: CreateLichLamViecCommand,
   ): Promise<CreateLichLamViecServiceResult> {
-    const code = await this.generateCode.generateCode('WS', 4);
-
     // Đảm bảo người tạo là quản lý của nhân viên đó
     const checkManager = await this.userContractRepo.checkManagedBy(
       command.createdBy,
@@ -79,7 +77,6 @@ export class CreateLichLamViecService
         return Err(new UserContractDoesNotExistError());
       }
       const userContractProps = checkValidUserContract.unwrap().getProps();
-      console.log(userContractProps);
 
       // check chi nhánh nằm trong chuỗi chi nhánh của hợp đồng
       // const allowedBranchCodes =
@@ -110,10 +107,12 @@ export class CreateLichLamViecService
         const workingDates = await this.generateWorkingDate.generateWorkingDate(
           command.date,
           command.optionCreate,
+          command.holidayMode ?? [],
         );
         const results: WorkingScheduleEntity[] = [];
 
         for (const date of workingDates) {
+          const code = await this.generateCode.generateCode('WS', 4);
           const createdWorkingSchedule = await this.commandBus.execute(
             new CreateWorkingScheduleCommand({
               code: code,
@@ -132,6 +131,7 @@ export class CreateLichLamViecService
 
         return Ok(results);
       } catch (error) {
+        console.error('🔥 Lỗi thực sự xảy ra:', error);
         return Err(new WorkingScheduleNotFoundError());
       }
     } else {

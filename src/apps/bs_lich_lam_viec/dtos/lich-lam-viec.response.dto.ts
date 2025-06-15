@@ -72,7 +72,7 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
     example: new Date(),
     description: 'Thời gian vào ca làm',
   })
-  startShiftTime?: Date | null;
+  startShiftTime?: string | null;
 
   @ApiProperty({
     example: 'Giám Đốc Chi Nhánh',
@@ -90,7 +90,7 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
     example: new Date(),
     description: 'Thời gian ra ca làm',
   })
-  endShiftTime?: Date | null;
+  endShiftTime?: string | null;
 
   @ApiProperty({
     example: new Date(),
@@ -103,4 +103,10 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
     description: 'Thời gian ra chấm công',
   })
   checkOutTime?: Date | null;
+
+  @ApiProperty({
+    example: '',
+    description: 'Trạng thái chấm công',
+  })
+  statusTimeKeeping?: string | null;
 }

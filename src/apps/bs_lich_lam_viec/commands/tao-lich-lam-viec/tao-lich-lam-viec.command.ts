@@ -2,6 +2,7 @@ import { Command, CommandProps } from '@libs/ddd';
 
 export class CreateLichLamViecCommand extends Command {
   readonly optionCreate: 'NGAY' | 'TUAN' | 'THANG';
+  readonly holidayMode?: string[];
   readonly userCode: string;
   readonly date: Date;
   readonly shiftCode: string;

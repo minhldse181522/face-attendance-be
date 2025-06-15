@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 import { LichLamViecResponseDto } from '../dtos/lich-lam-viec.response.dto';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class LichLamViecMapper {
@@ -19,10 +20,15 @@ export class LichLamViecMapper {
     response.branchName = props.branch?.getProps().branchName;
     response.branchCode = props.branch?.getProps().code;
     response.addressLine = props.branch?.getProps().addressLine;
-    response.startShiftTime = props.shift?.getProps().startTime;
-    response.endShiftTime = props.shift?.getProps().endTime;
+    response.startShiftTime = dayjs(props.shift?.getProps().startTime).format(
+      'HH:mm',
+    );
+    response.endShiftTime = dayjs(props.shift?.getProps().endTime).format(
+      'HH:mm',
+    );
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
+    response.statusTimeKeeping = props.timeKeeping?.getProps().status ?? null;
     response.positionName = props.userContract
       ?.getProps()
       .position?.getProps().positionName;
