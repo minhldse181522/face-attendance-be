@@ -100,6 +100,7 @@ export const routesV1 = {
       createContract: `/${businessRoot}/create-contract-with-branch`,
     },
     lichLamViec: {
+      userByManagement: `${businessRoot}/user-by-management`,
       workingSchedule: `${businessRoot}/lich-lam`,
       lichLam: `${businessRoot}/tao-lich-lam`,
       chamCong: `${businessRoot}/cham-cong/:id`,

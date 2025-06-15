@@ -7,6 +7,8 @@ import { FindUserWithActiveContractHttpController } from './queries/find-user-wi
 import { FindUserWithActiveContractQueryHandler } from './queries/find-user-with-active-contract/find-user-with-active-contract.query-handler';
 import { FindFullUserInforHttpController } from './queries/find-full-user/find-full-user.http.controller';
 import { FindFullUserInforQueryHandler } from './queries/find-full-user/find-full-user.query-handler';
+import { FindLichLamViecHttpController } from '../bs_lich_lam_viec/queries/find-lich-lam-viec/find-lich-lam-viec.http.controller';
+import { FindUserByManagementQueryHandler } from '../bs_lich_lam_viec/queries/find-user-by-management/find-user-by-management.query-handler';
 
 const httpControllers = [
   FindUserWithActiveContractHttpController,

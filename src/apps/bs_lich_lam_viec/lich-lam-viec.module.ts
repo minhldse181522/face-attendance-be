@@ -16,11 +16,17 @@ import { LichLamViecMapper } from './mappers/lich-lam-viec.mapper';
 import { ChamCongHttpController } from './commands/cham-cong/cham-cong.http.controller';
 import { UpdateChamCongService } from './commands/cham-cong/cham-cong.service';
 import { GenerateWorkingDate } from '@src/libs/utils/generate-working-dates.util';
+import { FindUserByManagementHttpController } from './queries/find-user-by-management/find-user-by-management.http.controller';
+import { FindUserByManagementQueryHandler } from './queries/find-user-by-management/find-user-by-management.query-handler';
+import { BS_USER_REPOSITORY } from '../bs_user/bs-user.di-tokens';
+import { PrismaBsUserRepository } from '../bs_user/database/bs-user.repository.prisma';
+import { BsUserMapper } from '../bs_user/mappers/bs-user.mapper';
 
 const httpControllers = [
   FindLichLamViecHttpController,
   CreateLichLamViecHttpController,
   ChamCongHttpController,
+  FindUserByManagementHttpController,
 ];
 
 const messageControllers = [];
@@ -32,11 +38,12 @@ const graphqlResolvers: Provider[] = [];
 const commandHandlers: Provider[] = [
   CreateLichLamViecService,
   UpdateChamCongService,
+  FindUserByManagementQueryHandler,
 ];
 
 const queryHandlers: Provider[] = [FindLichLamViecQueryHandler];
 
-const mappers: Provider[] = [LichLamViecMapper];
+const mappers: Provider[] = [LichLamViecMapper, BsUserMapper];
 
 const repositories: Provider[] = [
   {
@@ -46,6 +53,10 @@ const repositories: Provider[] = [
   {
     provide: WORKING_SCHEDULE_REPOSITORY,
     useClass: PrismaWorkingScheduleRepository,
+  },
+  {
+    provide: BS_USER_REPOSITORY,
+    useClass: PrismaBsUserRepository,
   },
 ];
 
