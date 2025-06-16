@@ -93,7 +93,7 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
           createdBy: command.updatedBy,
         }),
       );
-      return Ok(createdTimeKeeping);
+      return Ok(createdTimeKeeping.unwrap());
     } else {
       return Err(new ChamCongKhongDuDieuKienError());
     }
