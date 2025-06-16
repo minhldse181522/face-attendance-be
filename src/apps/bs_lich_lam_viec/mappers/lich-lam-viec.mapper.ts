@@ -26,6 +26,9 @@ export class LichLamViecMapper {
     response.endShiftTime = dayjs(props.shift?.getProps().endTime).format(
       'HH:mm',
     );
+    response.workingHours = props.shift?.getProps().workingHours
+      ? props.shift?.getProps().workingHours
+      : props.status;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
     response.statusTimeKeeping = props.timeKeeping?.getProps().status ?? null;
