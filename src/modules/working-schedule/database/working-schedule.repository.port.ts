@@ -18,4 +18,9 @@ export interface WorkingScheduleRepositoryPort
     toDate: Date,
     userCode?: string,
   ): Promise<Paginated<WorkingScheduleEntity>>;
+  findWorkingSchedulesByUserAndDateRange(
+    userCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<WorkingScheduleEntity[]>;
 }

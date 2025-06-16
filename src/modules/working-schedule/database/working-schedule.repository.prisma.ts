@@ -98,4 +98,38 @@ export class PrismaWorkingScheduleRepository
       page,
     });
   }
+
+  async findWorkingSchedulesByUserAndDateRange(
+    userCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<WorkingScheduleEntity[]> {
+    const client = await this._getClient();
+
+    const result = await client.workingSchedule.findMany({
+      where: {
+        userCode,
+        date: {
+          gte: fromDate,
+          lte: toDate,
+        },
+      },
+    });
+    return result.map(
+      (item) =>
+        new WorkingScheduleEntity({
+          props: {
+            code: item.code!,
+            userCode: item.userCode!,
+            userContractCode: item.userContractCode!,
+            date: item.date!,
+            shiftCode: item.shiftCode!,
+            status: item.status!,
+            branchCode: item.branchCode!,
+            createdBy: item.createdBy,
+          },
+          id: item.id,
+        }),
+    );
+  }
 }
