@@ -25,4 +25,12 @@ export class CreateShiftRequestDto {
   @IsOptional()
   @IsDateString()
   endTime?: Date | null;
+
+  @ApiPropertyOptional({
+    example: '2023-01-01T18:00:00.000Z',
+    description: 'Giờ nghỉ trưa',
+  })
+  @IsOptional()
+  @IsDateString()
+  lunchBreak?: Date | null;
 }

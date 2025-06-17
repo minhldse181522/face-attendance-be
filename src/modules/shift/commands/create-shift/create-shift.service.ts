@@ -29,23 +29,35 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
     let workingHours: number | null = null;
     let start: Date | null = null;
     let end: Date | null = null;
+    let lunchbreak: Date | null = null;
 
-    if (command.startTime && command.endTime) {
+    if (command.startTime && command.endTime && command.lunchBreak) {
       start = new Date(command.startTime);
       end = new Date(command.endTime);
+      lunchbreak = new Date(command.lunchBreak);
+
+      let durationMs: number;
 
       const startMs = start.getTime();
       const endMs = end.getTime();
 
       if (endMs < startMs) {
-        // Trường hợp ca làm việc qua đêm
-        workingHours =
-          (endMs + 24 * 60 * 60 * 1000 - startMs) / (1000 * 60 * 60);
+        // Ca làm việc qua đêm (end nhỏ hơn start)
+        durationMs = endMs + 24 * 60 * 60 * 1000 - startMs;
       } else {
-        workingHours = (endMs - startMs) / (1000 * 60 * 60);
+        durationMs = endMs - startMs;
       }
 
-      workingHours = Math.round(workingHours * 100) / 100;
+      let lunchMs = 0;
+      if (lunchbreak) {
+        // lunchBreak là một "thời lượng", tính số milliseconds dựa vào thời điểm gốc 1970-01-01T00:00:00
+        const hours = lunchbreak.getUTCHours();
+        const minutes = lunchbreak.getUTCMinutes();
+        lunchMs = (hours * 60 + minutes) * 60 * 1000;
+      }
+
+      workingHours = (durationMs - lunchMs) / (1000 * 60 * 60); // đổi sang giờ
+      workingHours = Math.round(workingHours * 100) / 100; // làm tròn 2 chữ số thập phân
     }
 
     const shift = ShiftEntity.create({
@@ -53,6 +65,7 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
       name: command.name ?? null,
       startTime: start,
       endTime: end,
+      lunchBreak: lunchbreak,
       workingHours: workingHours,
       createdBy: command.createdBy,
     });
