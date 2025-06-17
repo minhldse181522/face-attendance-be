@@ -8,6 +8,7 @@ export class LichLamViecMapper {
   toLichLamViecResponse(entity: WorkingScheduleEntity): LichLamViecResponseDto {
     const props = entity.getProps();
     const response = new LichLamViecResponseDto(entity);
+    response.timeKeepingId = props.timeKeeping?.id.toString() ?? null;
     response.code = props.code;
     response.userCode = props.userCode;
     response.userContractCode = props.userContractCode;

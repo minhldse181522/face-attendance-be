@@ -3,6 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LichLamViecResponseDto extends ResponseBase<any> {
   @ApiProperty({
+    example: 'Time Keeping ID',
+    description: 'ID của TimeKeeping',
+  })
+  timeKeepingId?: string | null;
+
+  @ApiProperty({
     example: 'WS001',
     description: 'Mã lịch làm',
   })
