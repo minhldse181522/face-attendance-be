@@ -14,6 +14,7 @@ import {
 } from '@src/libs/ddd/prisma-query.base';
 import { None, Option, Some } from 'oxide.ts';
 import { Paginated } from '@src/libs/ddd';
+import { endOfDay, startOfDay } from 'date-fns';
 
 @Injectable()
 export class PrismaWorkingScheduleRepository
@@ -110,8 +111,8 @@ export class PrismaWorkingScheduleRepository
       where: {
         userCode,
         date: {
-          gte: fromDate,
-          lte: toDate,
+          gte: startOfDay(fromDate), // 00:00:00
+          lte: endOfDay(toDate), // 23:59:59.999
         },
       },
     });

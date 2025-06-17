@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { addDays, endOfMonth, format, isSameMonth } from 'date-fns';
+import { addDays, endOfMonth, endOfWeek, format, isSameMonth } from 'date-fns';
+
+function normalizeDate(date: Date | string): string {
+  return format(new Date(date), 'yyyy-MM-dd');
+}
 
 @Injectable()
 export class GenerateWorkingDate {
   private readonly weekdayMap: Record<string, number> = {
+    CN: 0,
     T2: 1,
     T3: 2,
     T4: 3,
     T5: 4,
     T6: 5,
     T7: 6,
-    CN: 0,
   };
   async generateWorkingDate(
     startDate: Date,
@@ -19,11 +23,11 @@ export class GenerateWorkingDate {
     alreadyGeneratedDates: Date[] = [],
   ): Promise<Date[]> {
     const dates: Date[] = [];
-    const realStartDate = new Date(startDate);
+    const realStartDate = new Date(normalizeDate(startDate));
 
     // Danh sách ngày đã tạo trước đó, dưới dạng chuỗi YYYY-MM-DD
     const createdSet = new Set(
-      alreadyGeneratedDates.map((d) => format(d, 'yyyy-MM-dd')),
+      alreadyGeneratedDates.map((d) => normalizeDate(d)),
     );
 
     // Danh sách các weekday cần loại trừ (nếu holidayMode có)
@@ -32,8 +36,8 @@ export class GenerateWorkingDate {
       .filter((d) => d !== undefined);
 
     const addValidDate = (d: Date) => {
+      const key = normalizeDate(d);
       const weekday = d.getDay();
-      const key = format(d, 'yyyy-MM-dd');
 
       // Nếu chưa được tạo và không nằm trong ngày nghỉ
       if (!createdSet.has(key) && !holidayWeekdays.includes(weekday)) {
@@ -47,18 +51,22 @@ export class GenerateWorkingDate {
     }
 
     if (option === 'TUAN') {
-      for (let i = 0; i < 7; i++) {
-        const next = addDays(realStartDate, i);
-        addValidDate(next);
+      const endOfWeekDate = endOfWeek(new Date(realStartDate), {
+        weekStartsOn: 1,
+      });
+      let current = new Date(realStartDate);
+      while (current <= endOfWeekDate) {
+        addValidDate(current);
+        current = addDays(current, 1);
       }
     }
 
     if (option === 'THANG') {
-      let next = realStartDate;
       const end = endOfMonth(realStartDate);
-      while (next <= end) {
-        addValidDate(next);
-        next = addDays(next, 1);
+      let current = new Date(realStartDate);
+      while (current <= end) {
+        addValidDate(current);
+        current = addDays(current, 1);
       }
     }
 

@@ -6,6 +6,7 @@ import {
   QueryBus,
 } from '@nestjs/cqrs';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
+import { GenerateWorkingDate } from '@src/libs/utils/generate-working-dates.util';
 import { ShiftNotFoundError } from '@src/modules/shift/domain/shift.error';
 import {
   FindShiftByParamsQuery,
@@ -14,8 +15,12 @@ import {
 import { UserContractRepositoryPort } from '@src/modules/user-contract/database/user-contract.repository.port';
 import { USER_CONTRACT_REPOSITORY } from '@src/modules/user-contract/user-contract.di-tokens';
 import { CreateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/create-working-schedule/create-working-schedule.command';
+import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
+import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
+import { addDays, endOfMonth } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { Err, Ok, Result } from 'oxide.ts';
 import {
   BranchNotBelongToContractError,
@@ -28,11 +33,6 @@ import {
   FindUserContractByParamsQueryResult,
 } from './../../../../modules/user-contract/queries/find-user-contract-by-params/find-user-contract-by-params.query-handler';
 import { CreateLichLamViecCommand } from './tao-lich-lam-viec.command';
-import { GenerateWorkingDate } from '@src/libs/utils/generate-working-dates.util';
-import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
-import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
-import { addDays, endOfMonth } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
 
 export type CreateLichLamViecServiceResult = Result<
   WorkingScheduleEntity[],
@@ -129,7 +129,7 @@ export class CreateLichLamViecService
           toDate,
         );
 
-      const existingDates = existingSchedules
+      const existingDates: Date[] = existingSchedules
         .map((ws) => ws.getProps().date)
         .filter((d): d is Date => d instanceof Date);
 
@@ -149,7 +149,7 @@ export class CreateLichLamViecService
               code: code,
               userCode: command.userCode,
               userContractCode: userContractProps.code,
-              date: date,
+              date: new Date(date),
               status: 'NOTSTARTED',
               shiftCode: command.shiftCode,
               branchCode: command.branchCode,
@@ -162,7 +162,6 @@ export class CreateLichLamViecService
 
         return Ok(results);
       } catch (error) {
-        console.error('🔥 Lỗi thực sự xảy ra:', error);
         return Err(new WorkingScheduleNotFoundError());
       }
     } else {
