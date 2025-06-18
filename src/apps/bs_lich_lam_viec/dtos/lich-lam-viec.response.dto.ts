@@ -3,6 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LichLamViecResponseDto extends ResponseBase<any> {
   @ApiProperty({
+    example: 'Time Keeping ID',
+    description: 'ID của TimeKeeping',
+  })
+  timeKeepingId?: string | null;
+
+  @ApiProperty({
     example: 'WS001',
     description: 'Mã lịch làm',
   })
@@ -72,13 +78,31 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
     example: new Date(),
     description: 'Thời gian vào ca làm',
   })
-  startShiftTime?: Date | null;
+  startShiftTime?: string | null;
+
+  @ApiProperty({
+    example: 'Giám Đốc Chi Nhánh',
+    description: 'Tên chức vụ',
+  })
+  positionName?: string | null;
+
+  @ApiProperty({
+    example: 'Phụ Anh Tám',
+    description: 'Tên người quản lý',
+  })
+  managerFullName?: string | null;
 
   @ApiProperty({
     example: new Date(),
     description: 'Thời gian ra ca làm',
   })
-  endShiftTime?: Date | null;
+  endShiftTime?: string | null;
+
+  @ApiProperty({
+    example: 7,
+    description: 'Thời gian làm việc',
+  })
+  workingHours?: any | null;
 
   @ApiProperty({
     example: new Date(),
@@ -91,4 +115,10 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
     description: 'Thời gian ra chấm công',
   })
   checkOutTime?: Date | null;
+
+  @ApiProperty({
+    example: '',
+    description: 'Trạng thái chấm công',
+  })
+  statusTimeKeeping?: string | null;
 }

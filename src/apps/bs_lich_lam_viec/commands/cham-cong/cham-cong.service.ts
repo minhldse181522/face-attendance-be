@@ -87,13 +87,13 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
           checkInTime: command.checkInTime,
           checkOutTime: null,
           date: workingScheduleProps.date,
-          status: workingScheduleProps.status,
+          status: 'STARTED',
           userCode: workingScheduleProps.userCode,
           workingScheduleCode: workingScheduleProps.code,
           createdBy: command.updatedBy,
         }),
       );
-      return Ok(createdTimeKeeping);
+      return Ok(createdTimeKeeping.unwrap());
     } else {
       return Err(new ChamCongKhongDuDieuKienError());
     }

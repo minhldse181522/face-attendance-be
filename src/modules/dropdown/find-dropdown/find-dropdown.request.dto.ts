@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { RoleEnum } from '@src/modules/user/domain/user.type';
-import { IsNotEmpty, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 
 export class FindUserByBranchRequestDto {
   @ApiProperty({
@@ -27,4 +27,14 @@ export class FindPositionByRoleRequestDto {
   @IsNotEmpty()
   @MaxLength(20)
   roleCode: string;
+}
+
+export class FindBranchByUserCodeRequestDto {
+  @ApiPropertyOptional({
+    example: 'USERCODE123',
+    description: 'Filter theo user code',
+  })
+  @IsOptional()
+  @MaxLength(20)
+  userCode?: string;
 }

@@ -14,6 +14,7 @@ import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator'
 import { DropDownTypeEnum } from '../database/dropdown.repository.prisma';
 import { FindDropdownQuery } from './find-dropdown.query-handler';
 import {
+  FindBranchByUserCodeRequestDto,
   FindPositionByRoleRequestDto,
   FindUserByBranchRequestDto,
 } from './find-dropdown.request.dto';
@@ -96,10 +97,13 @@ export class DropDownHttpController {
   @AuthPermission(resourcesV1.DROP_DOWN_DATA.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
   @Get(routesV1.dropdown.branch.root)
-  async getBranchDropdown(): Promise<DropDownResponseDto> {
+  async getBranchDropdown(
+    @Query() query: FindBranchByUserCodeRequestDto,
+  ): Promise<DropDownResponseDto> {
     return this.queryBus.execute(
       new FindDropdownQuery({
         type: DropDownTypeEnum.BRANCH,
+        userCode: query.userCode,
       }),
     );
   }

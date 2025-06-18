@@ -23,7 +23,7 @@ export class CreateBranchRequestDto {
     description: 'Google Place ID của chi nhánh',
   })
   @IsNotEmpty()
-  @MaxLength(50)
+  @MaxLength(200)
   placeId: string;
 
   @ApiProperty({

@@ -28,6 +28,7 @@ model User {
   managedContracts UserContract[] @relation("ManagedContracts")
   submittedForms   FormDescription[] @relation("FormSubmitter")
   approvedForms    FormDescription[] @relation("FormApprover")
+  faceReference    FaceReference[]
 
   @@map("dt_user")
 }

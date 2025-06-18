@@ -4,7 +4,7 @@ model Branch {
   code         String  @unique @map("code") @db.VarChar(50)
   branchName   String  @map("branch_name") @db.VarChar(200)
   addressLine  String  @map("address_line") @db.VarChar(200)
-  placeId      String  @map("place_id") @db.VarChar(50)
+  placeId      String  @map("place_id") @db.VarChar(200)
   city         String  @map("city") @db.VarChar(50)
   district     String  @map("district") @db.VarChar(50)
   lat          Float   @map("lat") @db.DoublePrecision

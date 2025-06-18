@@ -57,6 +57,11 @@ export const resourcesV1 = {
     displayName: 'Thời gian làm việc',
     parent: 'Tác vụ',
   },
+  FACE_REFERENCE: {
+    name: 'FACE REFERENCE',
+    displayName: 'Lưu trữ khuôn mặt',
+    parent: 'Tác vụ',
+  },
   UPLOAD: {
     name: 'UPLOAD',
     displayName: 'Xử lý ảnh',

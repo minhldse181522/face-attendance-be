@@ -1,6 +1,7 @@
 import { Paginated, RepositoryPort } from '@libs/ddd';
 import { Prisma } from '@prisma/client';
 import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import { DropDownResponseDto } from '@src/modules/dropdown/dtos/dropdown.response.dto';
 import { UserEntity } from '@src/modules/user/domain/user.entity';
 
 export interface BsUserRepositoryPort extends RepositoryPort<UserEntity> {
@@ -14,4 +15,10 @@ export interface BsUserRepositoryPort extends RepositoryPort<UserEntity> {
     position?: string,
     branch?: string,
   ): Promise<Paginated<UserEntity>>;
+  findUserByManagement(
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput> & {
+      userCode: string;
+      quickSearch?: string | number;
+    },
+  ): Promise<Paginated<DropDownResponseDto>>;
 }

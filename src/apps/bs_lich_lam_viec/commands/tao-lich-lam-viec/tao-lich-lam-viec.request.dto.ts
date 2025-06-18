@@ -1,5 +1,5 @@
-import { IsNotEmpty, MaxLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsEnum, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateLichLamViecRequestDto {
   @ApiProperty({
@@ -32,4 +32,20 @@ export class CreateLichLamViecRequestDto {
   @IsNotEmpty()
   @MaxLength(50)
   branchCode: string;
+
+  @ApiProperty({
+    enum: ['NGAY', 'TUAN', 'THANG'],
+    example: 'NGAY',
+  })
+  @IsNotEmpty()
+  @IsEnum(['NGAY', 'TUAN', 'THANG'])
+  optionCreate: 'NGAY' | 'TUAN' | 'THANG';
+
+  @ApiPropertyOptional({
+    example: '[T2, T3, T4, T5, T6, T7, CN]',
+    description: 'Ngày nghỉ',
+  })
+  @IsOptional()
+  @IsArray()
+  holidayMode?: string[];
 }

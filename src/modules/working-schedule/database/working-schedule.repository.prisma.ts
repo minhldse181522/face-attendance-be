@@ -14,6 +14,7 @@ import {
 } from '@src/libs/ddd/prisma-query.base';
 import { None, Option, Some } from 'oxide.ts';
 import { Paginated } from '@src/libs/ddd';
+import { endOfDay, startOfDay } from 'date-fns';
 
 @Injectable()
 export class PrismaWorkingScheduleRepository
@@ -69,6 +70,12 @@ export class PrismaWorkingScheduleRepository
           shift: true,
           timeKeeping: true,
           branch: true,
+          userContract: {
+            include: {
+              manager: true,
+              position: true,
+            },
+          },
         },
       }),
 
@@ -91,5 +98,39 @@ export class PrismaWorkingScheduleRepository
       limit,
       page,
     });
+  }
+
+  async findWorkingSchedulesByUserAndDateRange(
+    userCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<WorkingScheduleEntity[]> {
+    const client = await this._getClient();
+
+    const result = await client.workingSchedule.findMany({
+      where: {
+        userCode,
+        date: {
+          gte: startOfDay(fromDate), // 00:00:00
+          lte: endOfDay(toDate), // 23:59:59.999
+        },
+      },
+    });
+    return result.map(
+      (item) =>
+        new WorkingScheduleEntity({
+          props: {
+            code: item.code!,
+            userCode: item.userCode!,
+            userContractCode: item.userContractCode!,
+            date: item.date!,
+            shiftCode: item.shiftCode!,
+            status: item.status!,
+            branchCode: item.branchCode!,
+            createdBy: item.createdBy,
+          },
+          id: item.id,
+        }),
+    );
   }
 }

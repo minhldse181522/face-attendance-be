@@ -6,6 +6,7 @@ import {
   QueryBus,
 } from '@nestjs/cqrs';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
+import { GenerateWorkingDate } from '@src/libs/utils/generate-working-dates.util';
 import { ShiftNotFoundError } from '@src/modules/shift/domain/shift.error';
 import {
   FindShiftByParamsQuery,
@@ -14,8 +15,12 @@ import {
 import { UserContractRepositoryPort } from '@src/modules/user-contract/database/user-contract.repository.port';
 import { USER_CONTRACT_REPOSITORY } from '@src/modules/user-contract/user-contract.di-tokens';
 import { CreateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/create-working-schedule/create-working-schedule.command';
+import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
+import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
+import { addDays, endOfMonth } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { Err, Ok, Result } from 'oxide.ts';
 import {
   BranchNotBelongToContractError,
@@ -30,7 +35,7 @@ import {
 import { CreateLichLamViecCommand } from './tao-lich-lam-viec.command';
 
 export type CreateLichLamViecServiceResult = Result<
-  WorkingScheduleEntity,
+  WorkingScheduleEntity[],
   | WorkingScheduleNotFoundError
   | ManagerNotAssignToUserError
   | UserContractDoesNotExistError
@@ -46,7 +51,10 @@ export class CreateLichLamViecService
   constructor(
     @Inject(USER_CONTRACT_REPOSITORY)
     protected readonly userContractRepo: UserContractRepositoryPort,
+    @Inject(WORKING_SCHEDULE_REPOSITORY)
+    protected readonly workingScheduleRepo: WorkingScheduleRepositoryPort,
     protected readonly generateCode: GenerateCode,
+    protected readonly generateWorkingDate: GenerateWorkingDate,
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
   ) {}
@@ -54,7 +62,9 @@ export class CreateLichLamViecService
   async execute(
     command: CreateLichLamViecCommand,
   ): Promise<CreateLichLamViecServiceResult> {
-    const code = await this.generateCode.generateCode('WS', 4);
+    const timeZone = 'Asia/Ho_Chi_Minh';
+    // Convert command.date (UTC) → về giờ Việt Nam
+    const localDate = toZonedTime(command.date, timeZone);
 
     // Đảm bảo người tạo là quản lý của nhân viên đó
     const checkManager = await this.userContractRepo.checkManagedBy(
@@ -67,8 +77,8 @@ export class CreateLichLamViecService
           new FindUserContractByParamsQuery({
             where: {
               userCode: command.userCode,
-              startTime: { lte: command.date },
-              endTime: { gte: command.date },
+              startTime: { lte: localDate },
+              endTime: { gte: localDate },
               status: 'ACTIVE',
             },
           }),
@@ -77,7 +87,6 @@ export class CreateLichLamViecService
         return Err(new UserContractDoesNotExistError());
       }
       const userContractProps = checkValidUserContract.unwrap().getProps();
-      console.log(userContractProps);
 
       // check chi nhánh nằm trong chuỗi chi nhánh của hợp đồng
       // const allowedBranchCodes =
@@ -104,20 +113,54 @@ export class CreateLichLamViecService
         return Err(new ShiftNotFoundError());
       }
 
-      try {
-        const createdWorkingSchedule = await this.commandBus.execute(
-          new CreateWorkingScheduleCommand({
-            code: code,
-            userCode: command.userCode,
-            userContractCode: userContractProps.code,
-            date: command.date,
-            status: 'NOTSTARTED',
-            shiftCode: command.shiftCode,
-            branchCode: command.branchCode,
-            createdBy: command.createdBy,
-          }),
+      const fromDate = localDate;
+      const toDate =
+        command.optionCreate === 'THANG'
+          ? endOfMonth(localDate)
+          : command.optionCreate === 'TUAN'
+            ? addDays(localDate, 6)
+            : localDate;
+
+      // Gọi truy vấn để lấy các ngày đã có
+      const existingSchedules =
+        await this.workingScheduleRepo.findWorkingSchedulesByUserAndDateRange(
+          command.userCode,
+          fromDate,
+          toDate,
         );
-        return Ok(createdWorkingSchedule.unwrap());
+
+      const existingDates: Date[] = existingSchedules
+        .map((ws) => ws.getProps().date)
+        .filter((d): d is Date => d instanceof Date);
+
+      try {
+        const workingDates = await this.generateWorkingDate.generateWorkingDate(
+          localDate,
+          command.optionCreate,
+          command.holidayMode ?? [],
+          existingDates,
+        );
+        const results: WorkingScheduleEntity[] = [];
+
+        for (const date of workingDates) {
+          const code = await this.generateCode.generateCode('WS', 4);
+          const createdWorkingSchedule = await this.commandBus.execute(
+            new CreateWorkingScheduleCommand({
+              code: code,
+              userCode: command.userCode,
+              userContractCode: userContractProps.code,
+              date: new Date(date),
+              status: 'NOTSTARTED',
+              shiftCode: command.shiftCode,
+              branchCode: command.branchCode,
+              createdBy: command.createdBy,
+            }),
+          );
+
+          results.push(createdWorkingSchedule.unwrap());
+        }
+
+        return Ok(results);
       } catch (error) {
         return Err(new WorkingScheduleNotFoundError());
       }

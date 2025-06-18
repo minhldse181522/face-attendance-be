@@ -27,14 +27,14 @@ export class ShiftResponseDto extends ResponseBase<any> {
   endTime?: Date | null;
 
   @ApiProperty({
+    example: '01:00',
+    description: 'Khoảng thời gian nghỉ trưa',
+  })
+  lunchBreak?: string | null;
+
+  @ApiProperty({
     example: 7,
     description: 'Thời gian làm việc',
   })
   workingHours?: number | null;
-
-  @ApiProperty({
-    example: '2023-01-01T18:00:00.000Z',
-    description: 'Thời gian đi trễ',
-  })
-  delayTime?: Date | null;
 }

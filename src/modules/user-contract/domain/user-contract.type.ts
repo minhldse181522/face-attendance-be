@@ -1,3 +1,4 @@
+import { PositionEntity } from '@src/modules/position/domain/position.entity';
 import { UserBranchEntity } from '@src/modules/user-branch/domain/user-branch.entity';
 import { UserEntity } from '@src/modules/user/domain/user.entity';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
@@ -21,6 +22,7 @@ export interface UserContractProps {
 
   user?: UserEntity;
   manager?: UserEntity;
+  position?: PositionEntity;
   userBranches?: UserBranchEntity[];
   workingSchedule?: WorkingScheduleEntity[];
 }

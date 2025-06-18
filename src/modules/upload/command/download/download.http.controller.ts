@@ -59,7 +59,9 @@ export class DownloadHttpController {
           .send(buffer);
       },
       Err: (error: Error) => {
-        throw new BadRequestException(error);
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: error.message || 'Download failed' });
       },
     });
   }

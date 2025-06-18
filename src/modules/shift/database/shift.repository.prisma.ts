@@ -41,11 +41,19 @@ export class PrismaShiftRepository
       select: {
         code: true,
         name: true,
+        startTime: true,
+        endTime: true,
       },
       orderBy: { code: 'asc' },
     });
     return result.map((item) => ({
-      label: item.name ?? '',
+      label: `${item.name} - ${item.startTime?.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })} - ${item.endTime?.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })}`,
       value: item.code ?? '',
     }));
   }

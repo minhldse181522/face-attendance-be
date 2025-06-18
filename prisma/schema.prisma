@@ -90,13 +90,23 @@ datasource db {
 // From dt_branch.prisma
 
 // From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
 model Branch {
   id           BigInt  @id @default(autoincrement())
 
   code         String  @unique @map("code") @db.VarChar(50)
   branchName   String  @map("branch_name") @db.VarChar(200)
   addressLine  String  @map("address_line") @db.VarChar(200)
-  placeId      String  @map("place_id") @db.VarChar(50)
+  placeId      String  @map("place_id") @db.VarChar(200)
   city         String  @map("city") @db.VarChar(50)
   district     String  @map("district") @db.VarChar(50)
   lat          Float   @map("lat") @db.DoublePrecision
@@ -112,6 +122,24 @@ model Branch {
   workingSchedules WorkingSchedule[]
 
   @@map("dt_branch")
+}
+
+// From dt_face_reference.prisma
+model FaceReference {
+  id             BigInt  @id @default(autoincrement())
+
+  code           String    @unique @map("code") @db.VarChar(50)
+  faceImg        String    @map("face_img") @db.VarChar(200)
+  userCode       String    @map("user_code") @db.VarChar(50)
+
+  createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy     String    @map("created_by") @db.VarChar(36)
+  updatedAt     DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy     String?   @map("modified_by") @db.VarChar(36)
+
+  user   User   @relation(fields: [userCode], references: [code], onUpdate: Cascade)
+
+  @@map("dt_face_reference")
 }
 
 // From dt_form.prisma
@@ -214,8 +242,8 @@ model Shift {
   name           String?    @map("name") @db.VarChar(200)
   startTime      DateTime?  @map("start_time") @db.Time(0)
   endTime        DateTime?  @map("end_time") @db.Time(0)
+  lunchBreak     String?    @map("lunch_break") @db.VarChar(10)
   workingHours   Int?       @map("working_hours") @db.Integer()
-  delayTime      DateTime?  @map("delay_time") @db.Timestamptz(0)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)
@@ -280,6 +308,7 @@ model User {
   managedContracts UserContract[] @relation("ManagedContracts")
   submittedForms   FormDescription[] @relation("FormSubmitter")
   approvedForms    FormDescription[] @relation("FormApprover")
+  faceReference    FaceReference[]
 
   @@map("dt_user")
 }
