@@ -39,7 +39,7 @@ function setupSwagger(nestApp: INestApplication) {
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://he-thong-cham-cong-admin.vercel.app',
+  'https://he-thong-cham-cong.vercel.app',
   'http://128.199.119.151:3001',
   'http://localhost:8081',
   'https://api.128-199-119-151.sslip.io',
