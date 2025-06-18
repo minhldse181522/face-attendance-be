@@ -1,50 +1,53 @@
 import {
+  CallHandler,
+  ExecutionContext,
   Injectable,
   NestInterceptor,
-  ExecutionContext,
-  CallHandler,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class BigIntSerializationInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle().pipe(
-      map((data) => {
-        return this.transformBigInt(data);
-      }),
-    );
+    return next.handle().pipe(map((data) => this.transformBigInt(data)));
   }
 
-  private transformBigInt(data: any): any {
-    if (data === null || data === undefined) {
-      return data;
+  private transformBigInt(obj: unknown, seen = new WeakSet()): any {
+    if (obj === null || obj === undefined) return obj;
+
+    if (typeof obj === 'bigint') {
+      return obj.toString();
     }
 
-    if (typeof data === 'bigint') {
-      return data.toString();
+    if (typeof obj !== 'object') {
+      return obj;
     }
 
-    // Handle Date objects properly
-    if (data instanceof Date) {
-      return data.toISOString();
+    if (obj instanceof Buffer || obj instanceof Date) {
+      return obj;
     }
 
-    if (Array.isArray(data)) {
-      return data.map((item) => this.transformBigInt(item));
+    // Avoid circular references
+    if (seen.has(obj)) {
+      return '[Circular]';
+    }
+    seen.add(obj);
+
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.transformBigInt(item, seen));
     }
 
-    if (typeof data === 'object') {
-      const result = {};
-      for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key)) {
-          result[key] = this.transformBigInt(data[key]);
+    const transformed: Record<string, any> = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        try {
+          transformed[key] = this.transformBigInt((obj as any)[key], seen);
+        } catch {
+          transformed[key] = '[Unserializable]';
         }
       }
-      return result;
     }
 
-    return data;
+    return transformed;
   }
 }

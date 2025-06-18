@@ -6,6 +6,7 @@ export class UpdateShiftCommand extends Command {
   readonly name?: string | null;
   readonly startTime?: Date | null;
   readonly endTime?: Date | null;
+  readonly lunchBreak?: string | null;
   readonly workingHours?: number | null;
   readonly delayTime?: Date | null;
   readonly updatedBy: string | null;

@@ -29,15 +29,13 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
     let workingHours: number | null = null;
     let start: Date | null = null;
     let end: Date | null = null;
-    let lunchbreak: Date | null = null;
+    let lunchBreak: string | null = null;
 
-    if (command.startTime && command.endTime && command.lunchBreak) {
+    if (command.startTime && command.endTime) {
       start = new Date(command.startTime);
       end = new Date(command.endTime);
-      lunchbreak = new Date(command.lunchBreak);
 
       let durationMs: number;
-
       const startMs = start.getTime();
       const endMs = end.getTime();
 
@@ -49,10 +47,11 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
       }
 
       let lunchMs = 0;
-      if (lunchbreak) {
-        // lunchBreak là một "thời lượng", tính số milliseconds dựa vào thời điểm gốc 1970-01-01T00:00:00
-        const hours = lunchbreak.getUTCHours();
-        const minutes = lunchbreak.getUTCMinutes();
+      if (command.lunchBreak) {
+        lunchBreak = command.lunchBreak;
+        const [hoursStr, minutesStr] = lunchBreak.split(':');
+        const hours = parseInt(hoursStr, 10);
+        const minutes = parseInt(minutesStr, 10);
         lunchMs = (hours * 60 + minutes) * 60 * 1000;
       }
 
@@ -65,7 +64,7 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
       name: command.name ?? null,
       startTime: start,
       endTime: end,
-      lunchBreak: lunchbreak,
+      lunchBreak: lunchBreak,
       workingHours: workingHours,
       createdBy: command.createdBy,
     });

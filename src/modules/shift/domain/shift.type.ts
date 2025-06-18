@@ -6,7 +6,7 @@ export interface ShiftProps {
   name?: string | null;
   startTime?: Date | null;
   endTime?: Date | null;
-  lunchBreak?: Date | null;
+  lunchBreak?: string | null;
   workingHours?: number | null;
   createdBy: string;
   updatedBy?: string | null;
@@ -20,7 +20,7 @@ export interface CreateShiftProps {
   name?: string | null;
   startTime?: Date | null;
   endTime?: Date | null;
-  lunchBreak?: Date | null;
+  lunchBreak?: string | null;
   workingHours?: number | null;
   createdBy: string;
 }
@@ -30,7 +30,7 @@ export interface UpdateShiftProps {
   name?: string | null;
   startTime?: Date | null;
   endTime?: Date | null;
-  lunchBreak?: Date | null;
+  lunchBreak?: string | null;
   workingHours?: number | null;
   updatedBy: string | null;
 }
