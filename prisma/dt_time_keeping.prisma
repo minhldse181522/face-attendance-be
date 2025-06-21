@@ -4,6 +4,7 @@ model TimeKeeping {
   code                String?    @unique @map("code") @db.VarChar(50)
   checkInTime         DateTime?  @map("check_in_time") @db.Timestamptz(0)
   checkOutTime        DateTime?  @map("check_out_time") @db.Timestamptz(0)
+  workingHourReal     String?    @map("working_hour_real") @db.VarChar(20)
   date                DateTime?  @map("date") @db.Timestamptz(0)
   status              String?    @map("status") @db.VarChar(50)
   userCode            String?    @map("user_code") @db.VarChar(50)
