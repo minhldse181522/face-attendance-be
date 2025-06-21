@@ -21,6 +21,12 @@ export class TimeKeepingResponseDto extends ResponseBase<any> {
   checkOutTime?: Date | null;
 
   @ApiProperty({
+    example: '8',
+    description: 'Giờ thực tế',
+  })
+  workingHourReal?: string | null;
+
+  @ApiProperty({
     example: '2023-01-01T18:00:00.000Z',
     description: 'Ngày',
   })

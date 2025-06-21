@@ -5,6 +5,7 @@ export interface TimeKeepingProps {
   code?: string | null;
   checkInTime?: Date | null;
   checkOutTime?: Date | null;
+  workingHourReal?: string | null;
   date?: Date | null;
   status?: string | null;
   userCode?: string | null;
@@ -20,6 +21,7 @@ export interface CreateTimeKeepingProps {
   code?: string | null;
   checkInTime?: Date | null;
   checkOutTime?: Date | null;
+  workingHourReal?: string | null;
   date?: Date | null;
   status?: string | null;
   userCode?: string | null;
@@ -31,6 +33,7 @@ export interface UpdateTimeKeepingProps {
   code?: string | null;
   checkInTime?: Date | null;
   checkOutTime?: Date | null;
+  workingHourReal?: string | null;
   date?: Date | null;
   status?: string | null;
   userCode?: string | null;

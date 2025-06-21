@@ -15,6 +15,7 @@ export class TimeKeepingMapper
       code: copy.code || null,
       checkInTime: copy.checkInTime || null,
       checkOutTime: copy.checkOutTime || null,
+      workingHourReal: copy.workingHourReal || null,
       date: copy.date || null,
       status: copy.status || null,
       userCode: copy.userCode || null,
@@ -37,6 +38,7 @@ export class TimeKeepingMapper
         code: record.code || null,
         checkInTime: record.checkInTime || null,
         checkOutTime: record.checkOutTime || null,
+        workingHourReal: record.workingHourReal || null,
         date: record.date || null,
         status: record.status || null,
         userCode: record.userCode || null,
@@ -55,6 +57,7 @@ export class TimeKeepingMapper
     response.code = props.code;
     response.checkInTime = props.checkInTime;
     response.checkOutTime = props.checkOutTime;
+    response.workingHourReal = props.workingHourReal;
     response.date = props.date;
     response.status = props.status;
     response.userCode = props.userCode;
