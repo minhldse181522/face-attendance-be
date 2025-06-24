@@ -103,6 +103,7 @@ export const routesV1 = {
       userByManagement: `${businessRoot}/user-by-management`,
       workingSchedule: `${businessRoot}/lich-lam`,
       lichLam: `${businessRoot}/tao-lich-lam`,
+      lichChamCong: `${businessRoot}/lich-cham-cong`,
       chamCong: `${businessRoot}/cham-cong/:id`,
     },
   },

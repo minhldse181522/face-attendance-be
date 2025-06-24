@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 import { LichLamViecResponseDto } from '../dtos/lich-lam-viec.response.dto';
 import dayjs from 'dayjs';
+import { TimeKeepingEntity } from '@src/modules/time-keeping/domain/time-keeping.entity';
+import { LichChamCongResponseDto } from '../dtos/lich-cham-cong.response.dto';
 
 @Injectable()
 export class LichLamViecMapper {
@@ -40,6 +42,27 @@ export class LichLamViecMapper {
       props.userContract?.getProps().manager?.getProps().firstName +
       ' ' +
       props.userContract?.getProps().manager?.getProps().lastName;
+    return response;
+  }
+
+  toLichChamCongResponse(entity: TimeKeepingEntity): LichChamCongResponseDto {
+    const props = entity.getProps();
+    const response = new LichChamCongResponseDto(entity);
+    response.code = props.code;
+    response.checkInTime = props.checkInTime;
+    response.checkOutTime = props.checkOutTime;
+    response.date = props.date;
+    response.status = props.status;
+    response.userCode = props.userCode;
+    response.workingScheduleCode = props.workingScheduleCode;
+
+    if (props.checkInTime && props.checkOutTime) {
+      const millis = props.checkOutTime.getTime() - props.checkInTime.getTime();
+      response.workingHourReal = (millis / (1000 * 60 * 60)).toFixed(2); // làm tròn 2 chữ số sau dấu thập phân
+    } else {
+      response.workingHourReal = null;
+    }
+
     return response;
   }
 }
