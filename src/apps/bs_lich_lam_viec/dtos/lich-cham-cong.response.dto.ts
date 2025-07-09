@@ -1,7 +1,7 @@
 import { ResponseBase } from '@libs/api/response.base';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class TimeKeepingResponseDto extends ResponseBase<any> {
+export class LichChamCongResponseDto extends ResponseBase<any> {
   @ApiProperty({
     example: '',
     description: '',

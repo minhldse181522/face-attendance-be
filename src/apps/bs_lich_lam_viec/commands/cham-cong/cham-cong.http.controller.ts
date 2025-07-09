@@ -30,8 +30,10 @@ import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/doma
 import { WorkingScheduleMapper } from '@src/modules/working-schedule/mappers/working-schedule.mapper';
 import { match } from 'oxide.ts';
 import {
+  AlreadyCheckInError,
   ChamCongKhongDuDieuKienError,
   CheckInTimeNotInContractError,
+  LateCheckInError,
 } from '../../domain/lich-lam-viec.error';
 import { ChamCongCommand } from './cham-cong.command';
 import { ChamCongRequestDto } from './cham-cong.request.dto';
@@ -67,7 +69,7 @@ export class ChamCongHttpController {
   @AuthPermission(resourcesV1.BS_LICH_LAM_VIEC.name, resourceScopes.UPDATE)
   @UseGuards(JwtAuthGuard)
   @Put(routesV1.businessLogic.lichLamViec.chamCong)
-  async apron(
+  async chamCong(
     @ReqUser() user: RequestUser,
     @Param('id') workingScheduleId: bigint,
     @Body() body: ChamCongRequestDto,
@@ -87,7 +89,9 @@ export class ChamCongHttpController {
       Err: (error: Error) => {
         if (
           error instanceof ChamCongKhongDuDieuKienError ||
-          error instanceof CheckInTimeNotInContractError
+          error instanceof CheckInTimeNotInContractError ||
+          error instanceof AlreadyCheckInError ||
+          error instanceof LateCheckInError
         ) {
           throw new BadRequestException({
             message: error.message,

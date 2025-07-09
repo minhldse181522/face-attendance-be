@@ -27,6 +27,10 @@ export class CreateTimeKeepingService
     command: CreateTimeKeepingCommand,
   ): Promise<CreateTimeKeepingServiceResult> {
     const code = await this.generateCode.generateCode('WS', 4);
+    // let workingHourReal: number;
+    // if (command.checkInTime && command.checkOutTime) {
+    //   workingHourReal = command.checkOutTime - command.checkInTime;
+    // }
     const TimeKeeping = TimeKeepingEntity.create({
       code: code,
       ...command.getExtendedProps<CreateTimeKeepingCommand>(),

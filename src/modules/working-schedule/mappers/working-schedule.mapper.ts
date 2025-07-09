@@ -162,6 +162,7 @@ export class WorkingScheduleMapper
                 code: record.timeKeeping.code,
                 checkInTime: record.timeKeeping.checkInTime,
                 checkOutTime: record.timeKeeping.checkOutTime,
+                workingHourReal: record.timeKeeping.workingHourReal,
                 date: record.timeKeeping.date,
                 status: record.timeKeeping.status,
                 userCode: record.timeKeeping.userCode,

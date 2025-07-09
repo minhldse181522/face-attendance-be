@@ -117,6 +117,12 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
   checkOutTime?: Date | null;
 
   @ApiProperty({
+    example: '8',
+    description: 'Thời gian làm việc thật của nhân viên',
+  })
+  workingHourReal?: string | null;
+
+  @ApiProperty({
     example: '',
     description: 'Trạng thái chấm công',
   })

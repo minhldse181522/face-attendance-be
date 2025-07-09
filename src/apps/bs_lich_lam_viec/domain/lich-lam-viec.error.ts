@@ -60,3 +60,23 @@ export class BranchNotBelongToContractError extends ExceptionBase {
     super(BranchNotBelongToContractError.message, cause, metadata);
   }
 }
+
+export class AlreadyCheckInError extends ExceptionBase {
+  static readonly message = 'Bạn đã checkin cho ngày hôm nay rồi';
+
+  public readonly code = 'TIME_KEEPING.ALREADY_CHECK_IN';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(AlreadyCheckInError.message, cause, metadata);
+  }
+}
+
+export class LateCheckInError extends ExceptionBase {
+  static readonly message = 'Bạn không được checkin trễ quá 1 tiếng';
+
+  public readonly code = 'TIME_KEEPING.LATE_CHECK_IN';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(LateCheckInError.message, cause, metadata);
+  }
+}

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 import { LichLamViecResponseDto } from '../dtos/lich-lam-viec.response.dto';
 import dayjs from 'dayjs';
+import { TimeKeepingEntity } from '@src/modules/time-keeping/domain/time-keeping.entity';
+import { LichChamCongResponseDto } from '../dtos/lich-cham-cong.response.dto';
 
 @Injectable()
 export class LichLamViecMapper {
@@ -32,6 +34,20 @@ export class LichLamViecMapper {
       : props.status;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
+    const timeKeeping = props.timeKeeping?.getProps();
+    if (timeKeeping?.checkInTime && timeKeeping?.checkOutTime) {
+      const diffMs =
+        new Date(timeKeeping.checkOutTime).getTime() -
+        new Date(timeKeeping.checkInTime).getTime();
+
+      const workingHourReal = (diffMs / (1000 * 60 * 60)).toFixed(2); // string
+      const totalMinutes = Math.floor(Number(workingHourReal) * 60);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      response.workingHourReal = `${hours}h ${minutes}m`;
+    } else {
+      response.workingHourReal = timeKeeping?.workingHourReal ?? null;
+    }
     response.statusTimeKeeping = props.timeKeeping?.getProps().status ?? null;
     response.positionName = props.userContract
       ?.getProps()
@@ -40,6 +56,27 @@ export class LichLamViecMapper {
       props.userContract?.getProps().manager?.getProps().firstName +
       ' ' +
       props.userContract?.getProps().manager?.getProps().lastName;
+    return response;
+  }
+
+  toLichChamCongResponse(entity: TimeKeepingEntity): LichChamCongResponseDto {
+    const props = entity.getProps();
+    const response = new LichChamCongResponseDto(entity);
+    response.code = props.code;
+    response.checkInTime = props.checkInTime;
+    response.checkOutTime = props.checkOutTime;
+    response.date = props.date;
+    response.status = props.status;
+    response.userCode = props.userCode;
+    response.workingScheduleCode = props.workingScheduleCode;
+
+    if (props.checkInTime && props.checkOutTime) {
+      const millis = props.checkOutTime.getTime() - props.checkInTime.getTime();
+      response.workingHourReal = (millis / (1000 * 60 * 60)).toFixed(2); // làm tròn 2 chữ số sau dấu thập phân
+    } else {
+      response.workingHourReal = null;
+    }
+
     return response;
   }
 }

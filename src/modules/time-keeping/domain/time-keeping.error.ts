@@ -29,3 +29,23 @@ export class TimeKeepingAlreadyInUseError extends ExceptionBase {
     super(TimeKeepingAlreadyInUseError.message, cause, metadata);
   }
 }
+
+export class NotAllowToCheckout extends ExceptionBase {
+  static readonly message = 'Không được checkout trước khi hết giờ làm việc';
+
+  public readonly code = 'TIME_KEEPING.NOT_ALLOW_TO_CHECK_OUT';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(NotAllowToCheckout.message, cause, metadata);
+  }
+}
+
+export class NotAllowToCheckoutAfterMidNight extends ExceptionBase {
+  static readonly message = 'Không được checkout sau 12h đêm';
+
+  public readonly code = 'TIME_KEEPING.NOT_ALLOW_TO_CHECK_OUT_AFTER_MID_NIGHT';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(NotAllowToCheckoutAfterMidNight.message, cause, metadata);
+  }
+}
