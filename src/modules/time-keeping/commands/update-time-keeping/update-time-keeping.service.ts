@@ -1,5 +1,10 @@
 import { ConflictException, Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import {
+  CommandBus,
+  CommandHandler,
+  ICommandHandler,
+  QueryBus,
+} from '@nestjs/cqrs';
 import { Err, Ok, Result } from 'oxide.ts';
 import { TimeKeepingRepositoryPort } from '../../database/time-keeping.repository.port';
 import { TimeKeepingEntity } from '../../domain/time-keeping.entity';
@@ -21,6 +26,7 @@ import {
   FindWorkingScheduleByParamsQueryResult,
 } from '@src/modules/working-schedule/queries/find-working-schedule-by-params/find-working-schedule-by-params.query-handler';
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
+import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
 
 export type UpdateTimeKeepingServiceResult = Result<
   TimeKeepingEntity,
@@ -40,6 +46,7 @@ export class UpdateTimeKeepingService
     @Inject(TIME_KEEPING_REPOSITORY)
     private readonly timeKeepingRepo: TimeKeepingRepositoryPort,
     private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
   ) {}
 
   async execute(
@@ -99,6 +106,13 @@ export class UpdateTimeKeepingService
     const updatedResult = TimeKeeping.update({
       ...command.getExtendedProps<UpdateTimeKeepingCommand>(),
     });
+    await this.commandBus.execute(
+      new UpdateWorkingScheduleCommand({
+        workingScheduleId: workingScheduleProps.id,
+        status: 'END',
+        updatedBy: command.updatedBy,
+      }),
+    );
     if (updatedResult.isErr()) {
       return updatedResult;
     }

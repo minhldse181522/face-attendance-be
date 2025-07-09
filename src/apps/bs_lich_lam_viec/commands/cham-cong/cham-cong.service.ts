@@ -151,7 +151,10 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
           checkInTime: command.checkInTime,
           checkOutTime: null,
           date: workingScheduleProps.date,
-          status: 'STARTED',
+          status:
+            new Date(command.checkInTime) > allowedCheckInDeadline
+              ? 'LATE'
+              : 'STARTED',
           userCode: workingScheduleProps.userCode,
           workingScheduleCode: workingScheduleProps.code,
           createdBy: command.updatedBy,
