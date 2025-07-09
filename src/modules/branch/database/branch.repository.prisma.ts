@@ -37,15 +37,17 @@ export class PrismaBranchRepository
   async findBranchDropDown(userCode?: string): Promise<DropDownResult[]> {
     const client = await this._getClient();
     const result = await client.branch.findMany({
-      where: {
-        userBranches: {
-          some: {
-            userContract: {
-              userCode: userCode,
+      where: userCode
+        ? {
+            userBranches: {
+              some: {
+                userContract: {
+                  userCode,
+                },
+              },
             },
-          },
-        },
-      },
+          }
+        : {},
       select: {
         code: true,
         branchName: true,
