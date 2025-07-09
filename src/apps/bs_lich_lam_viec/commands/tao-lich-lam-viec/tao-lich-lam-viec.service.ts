@@ -1,3 +1,4 @@
+import { TIME_KEEPING_REPOSITORY } from './../../../../modules/time-keeping/time-keeping.di-tokens';
 import { Inject } from '@nestjs/common';
 import {
   CommandBus,
@@ -33,6 +34,14 @@ import {
   FindUserContractByParamsQueryResult,
 } from './../../../../modules/user-contract/queries/find-user-contract-by-params/find-user-contract-by-params.query-handler';
 import { CreateLichLamViecCommand } from './tao-lich-lam-viec.command';
+import { CreatePayrollCommand } from '@src/modules/payroll/commands/create-payroll/create-payroll.command';
+import { TimeKeepingRepositoryPort } from '@src/modules/time-keeping/database/time-keeping.repository.port';
+import { FindPositionQueryResult } from '@src/modules/position/queries/find-positions/find-positions.query-handler';
+import {
+  FindPositionByParamsQuery,
+  FindPositionByParamsQueryResult,
+} from '@src/modules/position/queries/find-position-by-params/find-postion-by-params.query-handler';
+import { PositionNotFoundError } from '@src/modules/position/domain/position.error';
 
 export type CreateLichLamViecServiceResult = Result<
   WorkingScheduleEntity[],
@@ -42,6 +51,7 @@ export type CreateLichLamViecServiceResult = Result<
   | ShiftNotFoundError
   | WorkingDateAlreadyExistError
   | BranchNotBelongToContractError
+  | PositionNotFoundError
 >;
 
 @CommandHandler(CreateLichLamViecCommand)
@@ -53,6 +63,8 @@ export class CreateLichLamViecService
     protected readonly userContractRepo: UserContractRepositoryPort,
     @Inject(WORKING_SCHEDULE_REPOSITORY)
     protected readonly workingScheduleRepo: WorkingScheduleRepositoryPort,
+    @Inject(TIME_KEEPING_REPOSITORY)
+    protected readonly timeKeepingRepo: TimeKeepingRepositoryPort,
     protected readonly generateCode: GenerateCode,
     protected readonly generateWorkingDate: GenerateWorkingDate,
     private readonly queryBus: QueryBus,
@@ -70,6 +82,7 @@ export class CreateLichLamViecService
     const checkManager = await this.userContractRepo.checkManagedBy(
       command.createdBy,
     );
+
     if (checkManager) {
       // Check user có hợp đồng hợp lệ
       const checkValidUserContract: FindUserContractByParamsQueryResult =
@@ -113,6 +126,7 @@ export class CreateLichLamViecService
         return Err(new ShiftNotFoundError());
       }
 
+      //#region Tao Lich lam viec
       const fromDate = localDate;
       const toDate =
         command.optionCreate === 'THANG'
@@ -143,10 +157,25 @@ export class CreateLichLamViecService
         const results: WorkingScheduleEntity[] = [];
 
         for (const date of workingDates) {
-          const code = await this.generateCode.generateCode('WS', 4);
+          let generatedCode: string;
+          let retryCount = 0;
+          do {
+            generatedCode = await this.generateCode.generateCode('WS', 4);
+            const exists =
+              await this.workingScheduleRepo.existsByCode(generatedCode);
+            if (!exists) break;
+
+            retryCount++;
+            if (retryCount > 5) {
+              throw new Error(
+                `Cannot generate unique code after ${retryCount} tries`,
+              );
+            }
+          } while (true);
+
           const createdWorkingSchedule = await this.commandBus.execute(
             new CreateWorkingScheduleCommand({
-              code: code,
+              code: generatedCode,
               userCode: command.userCode,
               userContractCode: userContractProps.code,
               date: new Date(date),
@@ -159,6 +188,48 @@ export class CreateLichLamViecService
 
           results.push(createdWorkingSchedule.unwrap());
         }
+        //#endregion
+
+        //#region Tao Bang Luong
+        // Đi tìm trong timeKeeping xem đã có bao nhiêu status END | LATE
+        const finishWorkDate = await this.timeKeepingRepo.findFinishWorkDate();
+
+        // Đi tìm position để gắn các giá trị vào bảng lương
+        const findInitSalary: FindPositionByParamsQueryResult =
+          await this.queryBus.execute(
+            new FindPositionByParamsQuery({
+              where: {
+                code: userContractProps.positionCode,
+              },
+            }),
+          );
+        if (findInitSalary.isErr()) {
+          return Err(new PositionNotFoundError());
+        }
+        const positionProps = findInitSalary.unwrap().getProps();
+
+        // Tạo mới bảng lương với user đó
+        const month = localDate.getMonth() + 1;
+        const year = localDate.getFullYear() % 100;
+        const formattedMonth = `${month}/${year}`;
+        await this.commandBus.execute(
+          new CreatePayrollCommand({
+            userCode: command.userCode,
+            month: formattedMonth,
+            baseSalary: positionProps.baseSalary ?? 0,
+            workDay: finishWorkDate,
+            allowance: positionProps.allowance ?? 0,
+            overtimeSalary: positionProps.overtimeSalary ?? 0,
+            lateFine: positionProps.lateFine ?? 0,
+            totalSalary:
+              positionProps.baseSalary! +
+              positionProps.allowance! +
+              positionProps.overtimeSalary! -
+              positionProps.lateFine!,
+            createdBy: 'system',
+          }),
+        );
+        //#endregion
 
         return Ok(results);
       } catch (error) {

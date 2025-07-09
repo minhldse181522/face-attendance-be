@@ -133,4 +133,14 @@ export class PrismaWorkingScheduleRepository
         }),
     );
   }
+
+  async existsByCode(code: string): Promise<boolean> {
+    const client = await this._getClient();
+    const result = await client.workingSchedule.findUnique({
+      where: { code },
+      select: { id: true },
+    });
+
+    return !!result;
+  }
 }

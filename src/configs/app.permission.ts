@@ -62,6 +62,11 @@ export const resourcesV1 = {
     displayName: 'Lưu trữ khuôn mặt',
     parent: 'Tác vụ',
   },
+  PAYROLL: {
+    name: 'PAY ROLL',
+    displayName: 'Bảng lương',
+    parent: 'Tác vụ',
+  },
   UPLOAD: {
     name: 'UPLOAD',
     displayName: 'Xử lý ảnh',

@@ -1,7 +1,7 @@
+import { FindPositionByParamsQueryHandler } from './queries/find-position-by-params/find-postion-by-params.query-handler';
 import { Logger, Module, Provider } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
-
 import { CreatePositionHttpController } from './commands/create-position/create-position.http.controller';
 import { CreatePositionService } from './commands/create-position/create-position.service';
 import { DeletePositionHttpController } from './commands/delete-position/delete-position.http.controller';
@@ -33,7 +33,10 @@ const commandHandlers: Provider[] = [
   DeletePositionService,
 ];
 
-const queryHandlers: Provider[] = [FindPositionQueryHandler];
+const queryHandlers: Provider[] = [
+  FindPositionQueryHandler,
+  FindPositionByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [PositionMapper];
 
