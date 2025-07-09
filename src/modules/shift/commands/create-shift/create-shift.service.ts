@@ -8,6 +8,11 @@ import { ShiftAlreadyExistsError } from '../../domain/shift.error';
 import { SHIFT_REPOSITORY } from '../../shift.di-tokens';
 import { CreateShiftCommand } from './create-shift.command';
 
+function convertUtcToVietnamTime(dateUtc: Date): Date {
+  const vietnamOffsetMs = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
+  return new Date(dateUtc.getTime() + vietnamOffsetMs);
+}
+
 export type CreateShiftServiceResult = Result<
   ShiftEntity,
   ShiftAlreadyExistsError
@@ -32,8 +37,12 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
     let lunchBreak: string | null = null;
 
     if (command.startTime && command.endTime) {
-      start = new Date(command.startTime);
-      end = new Date(command.endTime);
+      const startUtc = new Date(command.startTime);
+      const endUtc = new Date(command.endTime);
+
+      // Convert to Vietnam timezone
+      start = convertUtcToVietnamTime(startUtc);
+      end = convertUtcToVietnamTime(endUtc);
 
       let durationMs: number;
       const startMs = start.getTime();
