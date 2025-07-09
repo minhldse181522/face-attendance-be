@@ -21,6 +21,9 @@ import { FindUserByManagementQueryHandler } from './queries/find-user-by-managem
 import { BS_USER_REPOSITORY } from '../bs_user/bs-user.di-tokens';
 import { PrismaBsUserRepository } from '../bs_user/database/bs-user.repository.prisma';
 import { BsUserMapper } from '../bs_user/mappers/bs-user.mapper';
+import { TIME_KEEPING_REPOSITORY } from '@src/modules/time-keeping/time-keeping.di-tokens';
+import { PrismaTimeKeepingRepository } from '@src/modules/time-keeping/database/time-keeping.repository.prisma';
+import { TimeKeepingModule } from '@src/modules/time-keeping/time-keeping.module';
 
 const httpControllers = [
   FindLichLamViecHttpController,
@@ -55,6 +58,10 @@ const repositories: Provider[] = [
     useClass: PrismaWorkingScheduleRepository,
   },
   {
+    provide: TIME_KEEPING_REPOSITORY,
+    useClass: PrismaTimeKeepingRepository,
+  },
+  {
     provide: BS_USER_REPOSITORY,
     useClass: PrismaBsUserRepository,
   },
@@ -63,7 +70,13 @@ const repositories: Provider[] = [
 const utilities: Provider[] = [GenerateCode, GenerateWorkingDate];
 
 @Module({
-  imports: [CqrsModule, UserContractModule, ShiftModule, WorkingScheduleModule],
+  imports: [
+    CqrsModule,
+    UserContractModule,
+    ShiftModule,
+    WorkingScheduleModule,
+    TimeKeepingModule,
+  ],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
     Logger,

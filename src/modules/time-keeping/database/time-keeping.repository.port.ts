@@ -18,4 +18,5 @@ export interface TimeKeepingRepositoryPort
   findTimeKeepingByParams(
     params: PrismaQueryBase<Prisma.TimeKeepingWhereInput>,
   ): Promise<Option<TimeKeepingEntity>>;
+  findFinishWorkDate(): Promise<number>;
 }

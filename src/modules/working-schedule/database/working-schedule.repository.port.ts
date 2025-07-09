@@ -23,4 +23,5 @@ export interface WorkingScheduleRepositoryPort
     fromDate: Date,
     toDate: Date,
   ): Promise<WorkingScheduleEntity[]>;
+  existsByCode(code: string): Promise<boolean>;
 }

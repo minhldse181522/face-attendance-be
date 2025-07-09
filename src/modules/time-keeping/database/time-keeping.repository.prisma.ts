@@ -1,16 +1,16 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
 import { Prisma, TimeKeeping as TimeKeepingModel } from '@prisma/client';
-import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
-import { TimeKeepingEntity } from '../domain/time-keeping.entity';
-import { TimeKeepingRepositoryPort } from './time-keeping.repository.port';
-import { TimeKeepingMapper } from '../mappers/time-keeping.mapper';
+import { Paginated } from '@src/libs/ddd';
 import {
   PrismaPaginatedQueryBase,
   PrismaQueryBase,
 } from '@src/libs/ddd/prisma-query.base';
-import { Paginated } from '@src/libs/ddd';
+import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { None, Option, Some } from 'oxide.ts';
+import { TimeKeepingEntity } from '../domain/time-keeping.entity';
+import { TimeKeepingMapper } from '../mappers/time-keeping.mapper';
+import { TimeKeepingRepositoryPort } from './time-keeping.repository.port';
 
 @Injectable()
 export class PrismaTimeKeepingRepository
@@ -82,5 +82,15 @@ export class PrismaTimeKeepingRepository
       orderBy,
     });
     return result ? Some(this.mapper.toDomain(result)) : None;
+  }
+
+  async findFinishWorkDate(): Promise<number> {
+    const client = await this._getClient();
+    const result = await client.timeKeeping.count({
+      where: {
+        OR: [{ status: { equals: 'END' } }, { status: { equals: 'LATE' } }],
+      },
+    });
+    return result;
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 import { LichLamViecResponseDto } from '../dtos/lich-lam-viec.response.dto';
-import dayjs from 'dayjs';
+import dayjs from '@libs/utils/dayjs';
 import { TimeKeepingEntity } from '@src/modules/time-keeping/domain/time-keeping.entity';
 import { LichChamCongResponseDto } from '../dtos/lich-cham-cong.response.dto';
 
@@ -23,31 +23,32 @@ export class LichLamViecMapper {
     response.branchName = props.branch?.getProps().branchName;
     response.branchCode = props.branch?.getProps().code;
     response.addressLine = props.branch?.getProps().addressLine;
-    response.startShiftTime = dayjs(props.shift?.getProps().startTime).format(
-      'HH:mm',
-    );
-    response.endShiftTime = dayjs(props.shift?.getProps().endTime).format(
-      'HH:mm',
-    );
+    const shiftStartTime = props.shift?.getProps().startTime;
+    const shiftEndTime = props.shift?.getProps().endTime;
+    response.startShiftTime = shiftStartTime
+      ? dayjs
+          .tz(
+            `1970-01-01T${dayjs(shiftStartTime).utc().format('HH:mm')}:00`,
+            'Asia/Ho_Chi_Minh',
+          )
+          .format('HH:mm')
+      : null;
+
+    response.endShiftTime = shiftEndTime
+      ? dayjs
+          .tz(
+            `1970-01-01T${dayjs(shiftEndTime).utc().format('HH:mm')}:00`,
+            'Asia/Ho_Chi_Minh',
+          )
+          .format('HH:mm')
+      : null;
     response.workingHours = props.shift?.getProps().workingHours
       ? props.shift?.getProps().workingHours
       : props.status;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
-    const timeKeeping = props.timeKeeping?.getProps();
-    if (timeKeeping?.checkInTime && timeKeeping?.checkOutTime) {
-      const diffMs =
-        new Date(timeKeeping.checkOutTime).getTime() -
-        new Date(timeKeeping.checkInTime).getTime();
-
-      const workingHourReal = (diffMs / (1000 * 60 * 60)).toFixed(2); // string
-      const totalMinutes = Math.floor(Number(workingHourReal) * 60);
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      response.workingHourReal = `${hours}h ${minutes}m`;
-    } else {
-      response.workingHourReal = timeKeeping?.workingHourReal ?? null;
-    }
+    response.workingHourReal =
+      props.timeKeeping?.getProps().workingHourReal ?? null;
     response.statusTimeKeeping = props.timeKeeping?.getProps().status ?? null;
     response.positionName = props.userContract
       ?.getProps()

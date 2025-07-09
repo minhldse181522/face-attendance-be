@@ -32,6 +32,7 @@ import { MinioModule } from './libs/minio/minio.module';
 import { minioConfig } from './configs/minio.config';
 import { UploadModule } from './modules/upload/upload.module';
 import { FaceReferenceModule } from './modules/face-reference/face-reference.module';
+import { PayrollModule } from './modules/payroll/payroll.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -91,6 +92,7 @@ const interceptors = [
     ShiftModule,
     TimeKeepingModule,
     FaceReferenceModule,
+    PayrollModule,
 
     // Business
     BsUserModule,

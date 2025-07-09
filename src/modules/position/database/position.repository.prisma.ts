@@ -1,8 +1,10 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
-import { Position as PositionModel } from '@prisma/client';
+import { Position as PositionModel, Prisma } from '@prisma/client';
+import { PrismaQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { DropDownResult } from '@src/libs/utils/dropdown.util';
+import { None, Option, Some } from 'oxide.ts';
 import { PositionEntity } from '../domain/position.entity';
 import { PositionMapper } from '../mappers/position.mapper';
 import { PositionRepositoryPort } from './position.repository.port';
@@ -19,6 +21,18 @@ export class PrismaPositionRepository
     mapper: PositionMapper,
   ) {
     super(manager, mapper);
+  }
+
+  async findPositionByParams(
+    params: PrismaQueryBase<Prisma.PositionWhereInput>,
+  ): Promise<Option<PositionEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.position.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
   }
 
   async findPositionDropDown(roleCode: string): Promise<DropDownResult[]> {

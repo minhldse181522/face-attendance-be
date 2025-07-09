@@ -124,9 +124,14 @@ export class UpdateTimeKeepingService
         status = 'LATE';
       }
     }
+
+    const workingHourMs = checkOutTime.getTime() - shiftStartDateTime.getTime();
+    const workingHourNumber = (workingHourMs / (1000 * 60 * 60)).toFixed(2);
+
     const updatedResult = TimeKeeping.update({
       ...command.getExtendedProps<UpdateTimeKeepingCommand>(),
       status,
+      workingHourReal: workingHourNumber,
     });
     await this.commandBus.execute(
       new UpdateWorkingScheduleCommand({

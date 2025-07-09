@@ -83,6 +83,9 @@ export const routesV1 = {
     faceReference: {
       ...baseRoutes(`${dtRoot}/face-reference`),
     },
+    payroll: {
+      ...baseRoutes(`${dtRoot}/pay-roll`),
+    },
   },
   // #endregion
   // #region Bussiness Logic
