@@ -1,7 +1,11 @@
 import { Paginated, RepositoryPort } from '@libs/ddd';
-import { TimeKeepingEntity } from '../domain/time-keeping.entity';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { Prisma } from '@prisma/client';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
+import { Option } from 'oxide.ts';
+import { TimeKeepingEntity } from '../domain/time-keeping.entity';
 
 export interface TimeKeepingRepositoryPort
   extends RepositoryPort<TimeKeepingEntity> {
@@ -11,4 +15,7 @@ export interface TimeKeepingRepositoryPort
     fromDate?: Date,
     toDate?: Date,
   ): Promise<Paginated<TimeKeepingEntity>>;
+  findTimeKeepingByParams(
+    params: PrismaQueryBase<Prisma.TimeKeepingWhereInput>,
+  ): Promise<Option<TimeKeepingEntity>>;
 }

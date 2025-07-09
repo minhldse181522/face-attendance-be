@@ -39,7 +39,7 @@ export class CreateTimeKeepingHttpController {
   @ApiTags(
     `${resourcesV1.TIME_KEEPING.parent} - ${resourcesV1.TIME_KEEPING.displayName}`,
   )
-  @ApiOperation({ summary: 'Create a user contract' })
+  @ApiOperation({ summary: 'Create a time keeping' })
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.CREATED,

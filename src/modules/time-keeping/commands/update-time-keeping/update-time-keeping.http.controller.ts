@@ -1,6 +1,7 @@
 import { ApiErrorResponse } from '@libs/api/api-error.response';
 import { JwtAuthGuard } from '@modules/auth/guards/auth.guard';
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -26,6 +27,8 @@ import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user
 import { match } from 'oxide.ts';
 import { TimeKeepingEntity } from '../../domain/time-keeping.entity';
 import {
+  NotAllowToCheckout,
+  NotAllowToCheckoutAfterMidNight,
   TimeKeepingAlreadyExistsError,
   TimeKeepingAlreadyInUseError,
   TimeKeepingNotFoundError,
@@ -46,11 +49,11 @@ export class UpdateTimeKeepingHttpController {
   @ApiTags(
     `${resourcesV1.TIME_KEEPING.parent} - ${resourcesV1.TIME_KEEPING.displayName}`,
   )
-  @ApiOperation({ summary: 'Update a Working Schedule' })
+  @ApiOperation({ summary: 'Update a Time Keeping' })
   @ApiBearerAuth()
   @ApiParam({
     name: 'id',
-    description: 'Working Schedule ID',
+    description: 'Time Keeping ID',
     type: 'string',
     required: true,
     example: '1',
@@ -89,6 +92,15 @@ export class UpdateTimeKeepingHttpController {
       Ok: (TimeKeeping: TimeKeepingEntity) =>
         this.mapper.toResponse(TimeKeeping),
       Err: (error: Error) => {
+        if (
+          error instanceof NotAllowToCheckout ||
+          error instanceof NotAllowToCheckoutAfterMidNight
+        ) {
+          throw new BadRequestException({
+            message: error.message,
+            errorCode: error.code,
+          });
+        }
         if (error instanceof TimeKeepingNotFoundError) {
           throw new NotFoundHttpException({
             message: error.message,

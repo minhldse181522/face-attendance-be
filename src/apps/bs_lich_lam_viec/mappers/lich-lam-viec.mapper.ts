@@ -34,6 +34,20 @@ export class LichLamViecMapper {
       : props.status;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
+    const timeKeeping = props.timeKeeping?.getProps();
+    if (timeKeeping?.checkInTime && timeKeeping?.checkOutTime) {
+      const diffMs =
+        new Date(timeKeeping.checkOutTime).getTime() -
+        new Date(timeKeeping.checkInTime).getTime();
+
+      const workingHourReal = (diffMs / (1000 * 60 * 60)).toFixed(2); // string
+      const totalMinutes = Math.floor(Number(workingHourReal) * 60);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      response.workingHourReal = `${hours}h ${minutes}m`;
+    } else {
+      response.workingHourReal = timeKeeping?.workingHourReal ?? null;
+    }
     response.statusTimeKeeping = props.timeKeeping?.getProps().status ?? null;
     response.positionName = props.userContract
       ?.getProps()

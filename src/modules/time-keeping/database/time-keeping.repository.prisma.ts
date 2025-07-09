@@ -5,8 +5,12 @@ import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { TimeKeepingEntity } from '../domain/time-keeping.entity';
 import { TimeKeepingRepositoryPort } from './time-keeping.repository.port';
 import { TimeKeepingMapper } from '../mappers/time-keeping.mapper';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { Paginated } from '@src/libs/ddd';
+import { None, Option, Some } from 'oxide.ts';
 
 @Injectable()
 export class PrismaTimeKeepingRepository
@@ -66,5 +70,17 @@ export class PrismaTimeKeepingRepository
       limit,
       page,
     });
+  }
+
+  async findTimeKeepingByParams(
+    params: PrismaQueryBase<Prisma.TimeKeepingWhereInput>,
+  ): Promise<Option<TimeKeepingEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.timeKeeping.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
   }
 }

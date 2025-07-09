@@ -32,7 +32,7 @@ export class DeleteTimeKeepingHttpController {
   @ApiTags(
     `${resourcesV1.TIME_KEEPING.parent} - ${resourcesV1.TIME_KEEPING.displayName}`,
   )
-  @ApiOperation({ summary: 'Delete a Working Schedule' })
+  @ApiOperation({ summary: 'Delete a Time Keeping' })
   @ApiBearerAuth()
   @ApiParam({
     name: 'id',

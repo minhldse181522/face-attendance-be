@@ -13,6 +13,7 @@ import { TimeKeepingMapper } from './mappers/time-keeping.mapper';
 import { FindTimeKeepingHttpController } from './queries/find-time-keepings/find-time-keepings.http.controller';
 import { FindTimeKeepingQueryHandler } from './queries/find-time-keepings/find-time-keepings.query-handler';
 import { TIME_KEEPING_REPOSITORY } from './time-keeping.di-tokens';
+import { FindTimeKeepingByParamsQueryHandler } from './queries/find-time-keeping-by-params/find-time-keeping-by-params.query-handler';
 
 const httpControllers = [
   FindTimeKeepingHttpController,
@@ -33,7 +34,10 @@ const commandHandlers: Provider[] = [
   DeleteTimeKeepingService,
 ];
 
-const queryHandlers: Provider[] = [FindTimeKeepingQueryHandler];
+const queryHandlers: Provider[] = [
+  FindTimeKeepingQueryHandler,
+  FindTimeKeepingByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [TimeKeepingMapper];
 
