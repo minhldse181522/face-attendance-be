@@ -27,6 +27,12 @@ export class ShiftResponseDto extends ResponseBase<any> {
   endTime?: Date | null;
 
   @ApiProperty({
+    example: 'ACTIVE',
+    description: 'Trạng thái ca làm',
+  })
+  status?: string | null;
+
+  @ApiProperty({
     example: '01:00',
     description: 'Khoảng thời gian nghỉ trưa',
   })

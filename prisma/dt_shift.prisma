@@ -5,6 +5,7 @@ model Shift {
   name           String?    @map("name") @db.VarChar(200)
   startTime      DateTime?  @map("start_time") @db.Time(0)
   endTime        DateTime?  @map("end_time") @db.Time(0)
+  status         String     @default("ACTIVE") @map("status") @db.VarChar(10)
   lunchBreak     String?    @map("lunch_break") @db.VarChar(10)
   workingHours   Int?       @map("working_hours") @db.Integer()
 

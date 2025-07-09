@@ -73,6 +73,7 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
       name: command.name ?? null,
       startTime: start,
       endTime: end,
+      status: 'ACTIVE',
       lunchBreak: lunchBreak,
       workingHours: workingHours,
       createdBy: command.createdBy,

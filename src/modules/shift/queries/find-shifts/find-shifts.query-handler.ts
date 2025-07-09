@@ -7,8 +7,19 @@ import { Ok, Result } from 'oxide.ts';
 import { ShiftRepositoryPort } from '../../database/shift.repository.port';
 import { ShiftEntity } from '../../domain/shift.entity';
 import { SHIFT_REPOSITORY } from '../../shift.di-tokens';
+import { GeneratedFindOptions } from '@chax-at/prisma-filter';
 
-export class FindShiftQuery extends PrismaPaginatedQueryBase<Prisma.ShiftWhereInput> {}
+export class FindShiftQuery extends PrismaPaginatedQueryBase<Prisma.ShiftWhereInput> {
+  status?: string;
+  constructor(
+    props: GeneratedFindOptions<Prisma.ShiftWhereInput> & {
+      status?: string;
+    },
+  ) {
+    super(props);
+    this.status = props.status;
+  }
+}
 
 export type FindShiftQueryResult = Result<Paginated<ShiftEntity>, void>;
 
@@ -20,7 +31,10 @@ export class FindShiftQueryHandler {
   ) {}
 
   async execute(query: FindShiftQuery): Promise<FindShiftQueryResult> {
-    const result = await this.shiftRepo.findAllPaginated(query);
+    const result = await this.shiftRepo.findAllShift(
+      { ...query },
+      query.status,
+    );
 
     return Ok(
       new Paginated({
