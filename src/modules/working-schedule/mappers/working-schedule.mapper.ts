@@ -149,6 +149,7 @@ export class WorkingScheduleMapper
                 name: record.shift.name,
                 startTime: record.shift.startTime,
                 endTime: record.shift.endTime,
+                status: record.shift.status,
                 lunchBreak: record.shift.lunchBreak,
                 workingHours: record.shift.workingHours,
                 createdBy: record.shift.createdBy,

@@ -20,6 +20,7 @@ export class ShiftMapper
       name: copy.name || null,
       startTime: copy.startTime || null,
       endTime: copy.endTime || null,
+      status: copy.status,
       lunchBreak: copy.lunchBreak || null,
       workingHours: copy.workingHours || null,
       createdAt: copy.createdAt,
@@ -46,6 +47,7 @@ export class ShiftMapper
         startTime: record.startTime || null,
         endTime: record.endTime || null,
         lunchBreak: record.lunchBreak || null,
+        status: record.status,
         workingHours: record.workingHours || null,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
@@ -82,6 +84,7 @@ export class ShiftMapper
     response.name = props.name;
     response.startTime = props.startTime;
     response.endTime = props.endTime;
+    response.status = props.status;
     response.lunchBreak = props.lunchBreak;
     response.workingHours = props.workingHours;
     return response;

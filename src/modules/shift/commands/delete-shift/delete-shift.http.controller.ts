@@ -2,6 +2,7 @@ import { resourceScopes, resourcesV1 } from '@config/app.permission';
 import { routesV1 } from '@config/app.routes';
 import { ApiErrorResponse } from '@libs/api/api-error.response';
 import {
+  Body,
   Controller,
   Delete,
   HttpCode,
@@ -25,6 +26,8 @@ import { match } from 'oxide.ts';
 import { ShiftNotFoundError } from '../../domain/shift.error';
 import { DeleteShiftCommand } from './delete-shift.command';
 import { DeleteShiftServiceResult } from './delete-shift.service';
+import { DeleteShiftRequestDto } from './delete-shift.request.dto';
+import { ShiftResponseDto } from '../../dtos/shift.response.dto';
 
 @Controller(routesV1.version)
 export class DeleteShiftHttpController {
@@ -42,7 +45,7 @@ export class DeleteShiftHttpController {
   })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Shift deleted',
+    type: ShiftResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -53,8 +56,11 @@ export class DeleteShiftHttpController {
   @UseGuards(JwtAuthGuard)
   @Delete(routesV1.tacVu.shift.delete)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') shiftId: bigint): Promise<void> {
-    const command = new DeleteShiftCommand({ shiftId });
+  async delete(
+    @Param('id') shiftId: bigint,
+    @Body() body: DeleteShiftRequestDto,
+  ): Promise<void> {
+    const command = new DeleteShiftCommand({ shiftId, ...body });
     const result: DeleteShiftServiceResult =
       await this.commandBus.execute(command);
 

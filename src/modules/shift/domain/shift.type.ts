@@ -1,11 +1,17 @@
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 
+export enum ShiftStatusEnum {
+  ACTIVE = 'ACTIVE',
+  NOTACTIVE = 'NOTACTIVE',
+}
+
 export interface ShiftProps {
   id?: bigint;
   code?: string | null;
   name?: string | null;
   startTime?: Date | null;
   endTime?: Date | null;
+  status: string;
   lunchBreak?: string | null;
   workingHours?: number | null;
   createdBy: string;
@@ -20,6 +26,7 @@ export interface CreateShiftProps {
   name?: string | null;
   startTime?: Date | null;
   endTime?: Date | null;
+  status: string;
   lunchBreak?: string | null;
   workingHours?: number | null;
   createdBy: string;
@@ -30,6 +37,7 @@ export interface UpdateShiftProps {
   name?: string | null;
   startTime?: Date | null;
   endTime?: Date | null;
+  status?: string | null;
   lunchBreak?: string | null;
   workingHours?: number | null;
   updatedBy: string | null;
