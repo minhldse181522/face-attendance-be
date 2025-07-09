@@ -29,6 +29,7 @@ model User {
   submittedForms   FormDescription[] @relation("FormSubmitter")
   approvedForms    FormDescription[] @relation("FormApprover")
   faceReference    FaceReference[]
+  payroll          Payroll[]
 
   @@map("dt_user")
 }

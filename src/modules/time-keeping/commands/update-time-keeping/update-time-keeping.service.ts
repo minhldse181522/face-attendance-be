@@ -102,9 +102,31 @@ export class UpdateTimeKeepingService
       return Err(new NotAllowToCheckoutAfterMidNight());
     }
 
+    // Kiểm tra giờ checkin
+    const shiftStartTime = shift.unwrap().getProps().startTime;
+    const workingDate = new Date(workingScheduleProps.date!);
+
+    const shiftStartDateTime = new Date(workingDate);
+    shiftStartDateTime.setUTCHours(shiftStartTime!.getUTCHours());
+    shiftStartDateTime.setUTCMinutes(shiftStartTime!.getUTCMinutes());
+    shiftStartDateTime.setUTCSeconds(0);
+    shiftStartDateTime.setUTCMilliseconds(0);
+
     const TimeKeeping = found.unwrap();
+    // Kiểm tra giờ checkin để chốt status
+    let status = 'END';
+    const checkInTime = TimeKeeping.getProps().checkInTime;
+    if (checkInTime) {
+      const lateThreshold = new Date(
+        shiftStartDateTime.getTime() + 60 * 60 * 1000,
+      );
+      if (checkInTime > lateThreshold) {
+        status = 'LATE';
+      }
+    }
     const updatedResult = TimeKeeping.update({
       ...command.getExtendedProps<UpdateTimeKeepingCommand>(),
+      status,
     });
     await this.commandBus.execute(
       new UpdateWorkingScheduleCommand({
