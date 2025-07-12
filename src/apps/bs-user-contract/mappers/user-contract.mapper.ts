@@ -211,6 +211,7 @@ export class UserContractMapper
     response.userCode = props.userCode;
     response.managedBy = props.managedBy;
     response.positionCode = props.positionCode;
+    response.positionName = props.position?.getProps().positionName; // Add positionName to response
     response.branchNames = branchName.length > 0 ? branchName.join(', ') : null;
     response.branchCodes = branchCodes; // Assign the collected branch codes
     // Set fullName property by combining firstName and lastName from user entity if available
