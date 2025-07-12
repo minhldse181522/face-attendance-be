@@ -36,4 +36,11 @@ export class UpdateFormDescriptionRequestDto {
   @IsOptional()
   @MaxLength(50)
   response?: string;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Đơn tăng ca',
+  })
+  @IsOptional()
+  statusOvertime?: boolean | null;
 }

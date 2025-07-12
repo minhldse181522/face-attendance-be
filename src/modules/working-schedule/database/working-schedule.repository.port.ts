@@ -34,4 +34,5 @@ export interface WorkingScheduleRepositoryPort
       } | null;
     }[]
   >;
+  getAllUserCodes(): Promise<string[]>;
 }

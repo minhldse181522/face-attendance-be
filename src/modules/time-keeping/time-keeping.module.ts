@@ -14,6 +14,7 @@ import { FindTimeKeepingHttpController } from './queries/find-time-keepings/find
 import { FindTimeKeepingQueryHandler } from './queries/find-time-keepings/find-time-keepings.query-handler';
 import { TIME_KEEPING_REPOSITORY } from './time-keeping.di-tokens';
 import { FindTimeKeepingByParamsQueryHandler } from './queries/find-time-keeping-by-params/find-time-keeping-by-params.query-handler';
+import { FindManyTimeKeepingByParamsQueryHandler } from './queries/find-many-time-keeping-by-params/find-many-time-keeping-by-params.query-handler';
 
 const httpControllers = [
   FindTimeKeepingHttpController,
@@ -37,6 +38,7 @@ const commandHandlers: Provider[] = [
 const queryHandlers: Provider[] = [
   FindTimeKeepingQueryHandler,
   FindTimeKeepingByParamsQueryHandler,
+  FindManyTimeKeepingByParamsQueryHandler,
 ];
 
 const mappers: Provider[] = [TimeKeepingMapper];

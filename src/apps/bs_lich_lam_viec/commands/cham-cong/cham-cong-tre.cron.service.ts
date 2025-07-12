@@ -16,10 +16,10 @@ export class WorkingScheduleCronService {
     private readonly commandBus: CommandBus,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE) // mỗi phút thôi nhé
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async handleCron() {
     await RequestContextService.runWithContext(
-      { tenantId: 'default', user: { username: 'system' } }, // bạn có thể dùng RequestUser nếu cần
+      { tenantId: 'default', user: { username: 'system' } },
       async () => {
         const now = new Date();
 

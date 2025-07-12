@@ -197,73 +197,71 @@ export class CreateLichLamViecService
 
         //#region Tao Bang Luong
         // Đi tìm trong timeKeeping xem đã có bao nhiêu status END | LATE
-        const finishWorkDate = await this.timeKeepingRepo.findFinishWorkDate();
+        // const finishWorkDate = await this.timeKeepingRepo.findFinishWorkDate();
+        // const lateWorkDate = await this.timeKeepingRepo.findLateWorkDate();
 
-        // Đi tìm position để gắn các giá trị vào bảng lương
-        const findInitSalary: FindPositionByParamsQueryResult =
-          await this.queryBus.execute(
-            new FindPositionByParamsQuery({
-              where: {
-                code: userContractProps.positionCode,
-              },
-            }),
-          );
-        if (findInitSalary.isErr()) {
-          return Err(new PositionNotFoundError());
-        }
-        const positionProps = findInitSalary.unwrap().getProps();
+        // // Đi tìm position để gắn các giá trị vào bảng lương
+        // const findInitSalary: FindPositionByParamsQueryResult =
+        //   await this.queryBus.execute(
+        //     new FindPositionByParamsQuery({
+        //       where: {
+        //         code: userContractProps.positionCode,
+        //       },
+        //     }),
+        //   );
+        // if (findInitSalary.isErr()) {
+        //   return Err(new PositionNotFoundError());
+        // }
+        // const positionProps = findInitSalary.unwrap().getProps();
 
-        // Đi tìm trong payroll đã tồn tại bảng lương với user này chưa
-        const foundPayroll: FindPayrollByParamsQueryResult =
-          await this.queryBus.execute(
-            new FindPayrollByParamsQuery({
-              where: {
-                userCode: command.userCode,
-              },
-            }),
-          );
-        const month = localDate.getMonth() + 1;
-        const year = localDate.getFullYear() % 100;
-        const formattedMonth = `${month}/${year}`;
-        if (foundPayroll.isErr()) {
-          // Tạo mới bảng lương với user đó
-          await this.commandBus.execute(
-            new CreatePayrollCommand({
-              userCode: command.userCode,
-              month: formattedMonth,
-              baseSalary: positionProps.baseSalary ?? 0,
-              workDay: finishWorkDate,
-              allowance: positionProps.allowance ?? 0,
-              overtimeSalary: positionProps.overtimeSalary ?? 0,
-              lateFine: positionProps.lateFine ?? 0,
-              totalSalary:
-                positionProps.baseSalary! +
-                positionProps.allowance! +
-                positionProps.overtimeSalary! -
-                positionProps.lateFine!,
-              createdBy: 'system',
-            }),
-          );
-        } else {
-          await this.commandBus.execute(
-            new UpdatePayrollCommand({
-              payrollId: foundPayroll.unwrap().getProps().id,
-              userCode: command.userCode,
-              month: formattedMonth,
-              baseSalary: positionProps.baseSalary ?? 0,
-              workDay: finishWorkDate,
-              allowance: positionProps.allowance ?? 0,
-              overtimeSalary: positionProps.overtimeSalary ?? 0,
-              lateFine: positionProps.lateFine ?? 0,
-              totalSalary:
-                positionProps.baseSalary! +
-                positionProps.allowance! +
-                positionProps.overtimeSalary! -
-                positionProps.lateFine!,
-              updatedBy: 'system',
-            }),
-          );
-        }
+        // // Đi tìm trong payroll đã tồn tại bảng lương với user này chưa
+        // const foundPayroll: FindPayrollByParamsQueryResult =
+        //   await this.queryBus.execute(
+        //     new FindPayrollByParamsQuery({
+        //       where: {
+        //         userCode: command.userCode,
+        //       },
+        //     }),
+        //   );
+        // const month = localDate.getMonth() + 1;
+        // const year = localDate.getFullYear() % 100;
+        // const formattedMonth = `${month}/${year}`;
+        // if (foundPayroll.isErr()) {
+        //   // Tạo mới bảng lương với user đó
+        //   await this.commandBus.execute(
+        //     new CreatePayrollCommand({
+        //       userCode: command.userCode,
+        //       month: formattedMonth,
+        //       baseSalary: positionProps.baseSalary ?? 0,
+        //       workDay: finishWorkDate,
+        //       allowance: positionProps.allowance ?? 0,
+        //       overtimeSalary: positionProps.overtimeSalary ?? 0,
+        //       lateFine: positionProps.lateFine! * lateWorkDate,
+        //       lateTimeCount: lateWorkDate,
+        //       totalSalary:
+        //         positionProps.baseSalary! +
+        //         positionProps.allowance! +
+        //         positionProps.overtimeSalary! -
+        //         positionProps.lateFine!,
+        //       createdBy: 'system',
+        //     }),
+        //   );
+        // } else {
+        //   await this.commandBus.execute(
+        //     new UpdatePayrollCommand({
+        //       payrollId: foundPayroll.unwrap().getProps().id,
+        //       workDay: finishWorkDate,
+        //       lateFine: positionProps.lateFine! * lateWorkDate,
+        //       lateTimeCount: lateWorkDate,
+        //       totalSalary:
+        //         positionProps.baseSalary! +
+        //         positionProps.allowance! +
+        //         positionProps.overtimeSalary! -
+        //         positionProps.lateFine!,
+        //       updatedBy: 'system',
+        //     }),
+        //   );
+        // }
 
         //#endregion
 

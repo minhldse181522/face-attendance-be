@@ -34,6 +34,7 @@ import {
   FindShiftByParamsQueryResult,
 } from '@src/modules/shift/queries/find-shift-by-params/find-shift-by-params.query-handler';
 import { ShiftNotFoundError } from '@src/modules/shift/domain/shift.error';
+import { getShiftStartDateTime } from '@src/libs/utils/get-shift-start-time.util';
 
 export type ChamCongServiceResult = Result<
   WorkingScheduleEntity,
@@ -85,11 +86,10 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
     const checkinTime = new Date(command.checkInTime!);
 
     // Kiểm tra checkin ko trễ quá 1 tiếng
-    const shiftStartDateTime = new Date(workingDate);
-    shiftStartDateTime.setUTCHours(shiftStartTime!.getUTCHours());
-    shiftStartDateTime.setUTCMinutes(shiftStartTime!.getUTCMinutes());
-    shiftStartDateTime.setUTCSeconds(0);
-    shiftStartDateTime.setUTCMilliseconds(0);
+    const shiftStartDateTime = getShiftStartDateTime(
+      workingDate,
+      shiftStartTime!,
+    );
 
     const checkInTooEarlyLimit = new Date(
       shiftStartDateTime.getTime() - 2 * 60 * 60 * 1000,

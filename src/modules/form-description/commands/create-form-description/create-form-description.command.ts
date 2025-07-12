@@ -6,6 +6,7 @@ export class CreateFormDescriptionCommand extends Command {
   readonly file?: string | null;
   readonly startTime: Date;
   readonly endTime: Date;
+  readonly statusOvertime?: boolean | null;
   readonly formId: string;
   readonly submittedBy: string;
   readonly createdBy: string;

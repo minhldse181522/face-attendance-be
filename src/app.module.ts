@@ -34,6 +34,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { FaceReferenceModule } from './modules/face-reference/face-reference.module';
 import { PayrollModule } from './modules/payroll/payroll.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BangLuongModule } from './apps/bs_bang_luong/bang-luong.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -100,6 +101,7 @@ const interceptors = [
     BsUserModule,
     BsUserContractModule,
     LichLamViecModule,
+    BangLuongModule,
   ],
   controllers: [],
   providers: [

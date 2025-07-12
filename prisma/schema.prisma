@@ -118,6 +118,8 @@ datasource db {
 // From dt_branch.prisma
 
 // From dt_branch.prisma
+
+// From dt_branch.prisma
 model Branch {
   id           BigInt  @id @default(autoincrement())
 
@@ -183,14 +185,15 @@ model Form {
 model FormDescription {
   id BigInt @id @default(autoincrement())
 
-  code          String   @unique @db.VarChar(50)
-  reason        String   @db.Text
-  response      String?  @db.VarChar(200)
-  status        String   @db.VarChar(50)
-  file          String?  @db.VarChar(200)
-  startTime     DateTime @map("start_time") @db.Timestamptz(3)
-  endTime       DateTime @map("end_time") @db.Timestamptz(3)
-  approvedTime  DateTime? @map("approved_time") @db.Timestamptz(3)
+  code           String    @unique @db.VarChar(50)
+  reason         String    @db.Text
+  response       String?   @db.VarChar(200)
+  status         String    @db.VarChar(50)
+  file           String?   @db.VarChar(200)
+  startTime      DateTime  @map("start_time") @db.Timestamptz(3)
+  endTime        DateTime  @map("end_time") @db.Timestamptz(3)
+  approvedTime   DateTime? @map("approved_time") @db.Timestamptz(3)
+  statusOvertime Boolean?  @map("status_overtime") @db.Boolean
   
   formId        BigInt   @map("form_id")
   submittedBy   String   @map("submitted_by") @db.VarChar(50)

@@ -15,6 +15,7 @@ import {
 import { None, Option, Some } from 'oxide.ts';
 import { Paginated } from '@src/libs/ddd';
 import { endOfDay, startOfDay } from 'date-fns';
+import { equals } from 'class-validator';
 
 @Injectable()
 export class PrismaWorkingScheduleRepository
@@ -187,5 +188,20 @@ export class PrismaWorkingScheduleRepository
         shiftCode: item.shiftCode,
         shift: item.shift,
       }));
+  }
+
+  async getAllUserCodes(): Promise<string[]> {
+    const client = await this._getClient();
+
+    const result = await client.workingSchedule.findMany({
+      select: {
+        userCode: true,
+      },
+      distinct: ['userCode'],
+    });
+
+    return result
+      .map((user) => user.userCode)
+      .filter((userCode): userCode is string => userCode !== null);
   }
 }

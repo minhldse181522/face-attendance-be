@@ -22,6 +22,7 @@ export class PayrollMapper
       allowance: copy.allowance,
       overtimeSalary: copy.overtimeSalary,
       lateFine: copy.lateFine,
+      lateTimeCount: copy.lateTimeCount || null,
       otherFee: copy.otherFee || null,
       totalSalary: copy.totalSalary,
       createdAt: copy.createdAt,
@@ -49,6 +50,7 @@ export class PayrollMapper
         allowance: record.allowance,
         overtimeSalary: record.overtimeSalary,
         lateFine: record.lateFine,
+        lateTimeCount: record.lateTimeCount || null,
         otherFee: record.otherFee || null,
         totalSalary: record.totalSalary,
         createdBy: record.createdBy,
@@ -71,6 +73,7 @@ export class PayrollMapper
     response.allowance = props.allowance;
     response.overtimeSalary = props.overtimeSalary;
     response.lateFine = props.lateFine;
+    response.lateTimeCount = props.lateTimeCount;
     response.otherFee = props.otherFee;
     response.totalSalary = props.totalSalary;
     return response;

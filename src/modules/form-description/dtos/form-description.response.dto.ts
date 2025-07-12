@@ -26,6 +26,12 @@ export class FormDescriptionResponseDto extends ResponseBase<any> {
   })
   status: string;
 
+  @ApiProperty({
+    example: 'PENDING',
+    description: 'Trạng thái đơn',
+  })
+  statusOvertime?: boolean | null;
+
   @ApiPropertyOptional({
     example: 'file_upload.pdf',
     description: 'Tệp đính kèm',

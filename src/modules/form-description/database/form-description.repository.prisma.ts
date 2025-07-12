@@ -5,13 +5,17 @@ import {
   Prisma,
 } from '@prisma/client';
 import { Paginated, PrismaPaginatedQueryParams } from '@src/libs/ddd';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { IField } from '@src/libs/utils';
+import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
+import { None, Option, Some } from 'oxide.ts';
 import { FormDescriptionEntity } from '../domain/form-description.entity';
 import { FormDescriptionMapper } from '../mappers/form-description.mapper';
 import { FormDescriptionRepositoryPort } from './form-description.repository.port';
-import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 
 export const FormDescriptionScalarFieldEnum =
   Prisma.FormDescriptionScalarFieldEnum;
@@ -386,5 +390,17 @@ export class PrismaFormDescriptionRepository
       limit, // Số bản ghi trên mỗi trang
       page, // Trang hiện tại
     });
+  }
+
+  async findManyFormDescriptionByParams(
+    params: PrismaQueryBase<Prisma.FormDescriptionWhereInput>,
+  ): Promise<FormDescriptionEntity[]> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.formDescription.findMany({
+      where: { ...where },
+      orderBy,
+    });
+    return result.map((item) => this.mapper.toDomain(item));
   }
 }
