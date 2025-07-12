@@ -3,6 +3,7 @@ model FormDescription {
 
   code          String   @unique @db.VarChar(50)
   reason        String   @db.Text
+  response      String?  @db.VarChar(200)
   status        String   @db.VarChar(50)
   file          String?  @db.VarChar(200)
   startTime     DateTime @map("start_time") @db.Timestamptz(3)

@@ -23,6 +23,7 @@ export class FormDescriptionMapper
       id: copy.id,
       code: copy.code,
       reason: copy.reason,
+      response: copy.response || null,
       status: copy.status,
       file: copy.file || null,
       startTime: copy.startTime,
@@ -54,6 +55,7 @@ export class FormDescriptionMapper
       props: {
         code: record.code,
         reason: record.reason,
+        response: record.response,
         status: record.status,
         file: record.file,
         startTime: record.startTime,
@@ -78,6 +80,7 @@ export class FormDescriptionMapper
     const response = new FormDescriptionResponseDto(entity);
     response.code = props.code;
     response.reason = props.reason;
+    response.response = props.response;
     response.status = props.status;
     response.file = props.file || undefined;
     response.startTime = props.startTime;

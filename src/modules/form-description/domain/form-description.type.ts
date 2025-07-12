@@ -2,6 +2,7 @@ export interface FormDescriptionProps {
   id?: bigint;
   code: string;
   reason: string;
+  response?: string | null;
   status: string;
   file?: string | null;
   startTime: Date;
@@ -18,6 +19,7 @@ export interface FormDescriptionProps {
 export interface CreateFormDescriptionProps {
   code: string;
   reason: string;
+  response?: string | null;
   status: string;
   file?: string | null;
   startTime: Date;
@@ -29,6 +31,7 @@ export interface CreateFormDescriptionProps {
 
 export interface UpdateFormDescriptionProps {
   status?: string | null;
+  response?: string | null;
   approvedTime?: Date | null;
   approvedBy?: string | null;
   updatedBy: string | null;
@@ -38,4 +41,5 @@ export enum FormDescriptionStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
+  CANCEL = 'CANCEL',
 }
