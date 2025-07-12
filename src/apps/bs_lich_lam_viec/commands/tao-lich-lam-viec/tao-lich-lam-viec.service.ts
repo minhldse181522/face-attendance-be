@@ -42,6 +42,11 @@ import {
   FindPositionByParamsQueryResult,
 } from '@src/modules/position/queries/find-position-by-params/find-postion-by-params.query-handler';
 import { PositionNotFoundError } from '@src/modules/position/domain/position.error';
+import {
+  FindPayrollByParamsQuery,
+  FindPayrollByParamsQueryResult,
+} from '@src/modules/payroll/queries/find-payroll-by-params/find-payroll-by-params.query-handler';
+import { UpdatePayrollCommand } from '@src/modules/payroll/commands/update-payroll/update-payroll.command';
 
 export type CreateLichLamViecServiceResult = Result<
   WorkingScheduleEntity[],
@@ -208,27 +213,58 @@ export class CreateLichLamViecService
         }
         const positionProps = findInitSalary.unwrap().getProps();
 
-        // Tạo mới bảng lương với user đó
+        // Đi tìm trong payroll đã tồn tại bảng lương với user này chưa
+        const foundPayroll: FindPayrollByParamsQueryResult =
+          await this.queryBus.execute(
+            new FindPayrollByParamsQuery({
+              where: {
+                userCode: command.userCode,
+              },
+            }),
+          );
         const month = localDate.getMonth() + 1;
         const year = localDate.getFullYear() % 100;
         const formattedMonth = `${month}/${year}`;
-        await this.commandBus.execute(
-          new CreatePayrollCommand({
-            userCode: command.userCode,
-            month: formattedMonth,
-            baseSalary: positionProps.baseSalary ?? 0,
-            workDay: finishWorkDate,
-            allowance: positionProps.allowance ?? 0,
-            overtimeSalary: positionProps.overtimeSalary ?? 0,
-            lateFine: positionProps.lateFine ?? 0,
-            totalSalary:
-              positionProps.baseSalary! +
-              positionProps.allowance! +
-              positionProps.overtimeSalary! -
-              positionProps.lateFine!,
-            createdBy: 'system',
-          }),
-        );
+        if (foundPayroll.isErr()) {
+          // Tạo mới bảng lương với user đó
+          await this.commandBus.execute(
+            new CreatePayrollCommand({
+              userCode: command.userCode,
+              month: formattedMonth,
+              baseSalary: positionProps.baseSalary ?? 0,
+              workDay: finishWorkDate,
+              allowance: positionProps.allowance ?? 0,
+              overtimeSalary: positionProps.overtimeSalary ?? 0,
+              lateFine: positionProps.lateFine ?? 0,
+              totalSalary:
+                positionProps.baseSalary! +
+                positionProps.allowance! +
+                positionProps.overtimeSalary! -
+                positionProps.lateFine!,
+              createdBy: 'system',
+            }),
+          );
+        } else {
+          await this.commandBus.execute(
+            new UpdatePayrollCommand({
+              payrollId: foundPayroll.unwrap().getProps().id,
+              userCode: command.userCode,
+              month: formattedMonth,
+              baseSalary: positionProps.baseSalary ?? 0,
+              workDay: finishWorkDate,
+              allowance: positionProps.allowance ?? 0,
+              overtimeSalary: positionProps.overtimeSalary ?? 0,
+              lateFine: positionProps.lateFine ?? 0,
+              totalSalary:
+                positionProps.baseSalary! +
+                positionProps.allowance! +
+                positionProps.overtimeSalary! -
+                positionProps.lateFine!,
+              updatedBy: 'system',
+            }),
+          );
+        }
+
         //#endregion
 
         return Ok(results);

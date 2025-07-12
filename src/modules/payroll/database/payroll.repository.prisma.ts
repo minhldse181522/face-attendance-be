@@ -1,14 +1,17 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Payroll as PayrollModel, Prisma } from '@prisma/client';
 import { Paginated } from '@src/libs/ddd';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { IField } from '@src/libs/utils';
+import { None, Option, Some } from 'oxide.ts';
 import { PayrollEntity } from '../domain/payroll.entity';
 import { PayrollMapper } from '../mappers/payroll.mapper';
 import { PayrollRepositoryPort } from './payroll.repository.port';
-import { Payroll as PayrollModel } from '@prisma/client';
 
 export const PayrollScalarFieldEnum = Prisma.PayrollScalarFieldEnum;
 
@@ -88,5 +91,17 @@ export class PrismaPayrollRepository
       limit,
       page,
     });
+  }
+
+  async findPayrollByParams(
+    params: PrismaQueryBase<Prisma.PayrollWhereInput>,
+  ): Promise<Option<PayrollEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.payroll.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
   }
 }

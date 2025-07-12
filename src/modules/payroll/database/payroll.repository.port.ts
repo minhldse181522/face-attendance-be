@@ -1,8 +1,12 @@
 import { Paginated, RepositoryPort } from '@libs/ddd';
 import { Prisma } from '@prisma/client';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { DropDownResult } from '@src/libs/utils/dropdown.util';
 import { PayrollEntity } from '../domain/payroll.entity';
+import { Option } from 'oxide.ts';
 
 export interface PayrollRepositoryPort extends RepositoryPort<PayrollEntity> {
   findPaginatedWithQuickSearch(
@@ -10,4 +14,7 @@ export interface PayrollRepositoryPort extends RepositoryPort<PayrollEntity> {
       quickSearch?: string | number;
     },
   ): Promise<Paginated<PayrollEntity>>;
+  findPayrollByParams(
+    params: PrismaQueryBase<Prisma.PayrollWhereInput>,
+  ): Promise<Option<PayrollEntity>>;
 }

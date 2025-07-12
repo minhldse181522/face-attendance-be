@@ -116,6 +116,8 @@ datasource db {
 // From dt_branch.prisma
 
 // From dt_branch.prisma
+
+// From dt_branch.prisma
 model Branch {
   id           BigInt  @id @default(autoincrement())
 
@@ -220,6 +222,7 @@ model Payroll {
   allowance      Float     @map("allowance") @db.DoublePrecision
   overtimeSalary Float     @map("overtime_salary") @db.DoublePrecision
   lateFine       Float     @map("late_fine") @db.DoublePrecision
+  lateTimeCount  Int?      @map("late_time_count") @db.Integer
   otherFee       Float?    @map("other_fee") @db.DoublePrecision
   totalSalary    Float     @map("total_salary") @db.DoublePrecision
   
