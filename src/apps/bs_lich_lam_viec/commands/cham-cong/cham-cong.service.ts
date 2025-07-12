@@ -17,6 +17,7 @@ import {
   AlreadyCheckInError,
   ChamCongKhongDuDieuKienError,
   CheckInTimeNotInContractError,
+  CheckInTooEarlyError,
   LateCheckInError,
 } from '../../domain/lich-lam-viec.error';
 import {
@@ -42,6 +43,7 @@ export type ChamCongServiceResult = Result<
   | AlreadyCheckInError
   | LateCheckInError
   | ShiftNotFoundError
+  | CheckInTooEarlyError
 >;
 
 @CommandHandler(ChamCongCommand)
@@ -80,6 +82,8 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
     }
     const workingDate = new Date(workingScheduleProps.date!);
     const shiftStartTime = shiftFound.unwrap().getProps().startTime;
+    const checkinTime = new Date(command.checkInTime!);
+
     // Kiểm tra checkin ko trễ quá 1 tiếng
     const shiftStartDateTime = new Date(workingDate);
     shiftStartDateTime.setUTCHours(shiftStartTime!.getUTCHours());
@@ -87,11 +91,38 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
     shiftStartDateTime.setUTCSeconds(0);
     shiftStartDateTime.setUTCMilliseconds(0);
 
+    const checkInTooEarlyLimit = new Date(
+      shiftStartDateTime.getTime() - 2 * 60 * 60 * 1000,
+    ); // trước 2 tiếng
+    const checkInValidStart = new Date(
+      shiftStartDateTime.getTime() - 60 * 60 * 1000,
+    ); // Trước 1 tiếng
+    const checkInValidEnd = new Date(
+      shiftStartDateTime.getTime() + 5 * 60 * 1000,
+    ); // Sau 5p
     const allowedCheckInDeadline = new Date(
       shiftStartDateTime.getTime() + 60 * 60 * 1000,
-    );
+    ); // Sau 1 tiếng
 
-    if (new Date(command.checkInTime!) > allowedCheckInDeadline) {
+    // Checkin quá sớm
+    if (checkinTime < checkInTooEarlyLimit) {
+      return Err(new CheckInTooEarlyError());
+    }
+    if (checkinTime < checkInValidStart) {
+      return Err(new CheckInTooEarlyError());
+    }
+
+    const isLate = checkinTime > checkInValidEnd;
+
+    // Checkin trễ 1 tiếng
+    if (checkinTime > allowedCheckInDeadline) {
+      await this.commandBus.execute(
+        new UpdateWorkingScheduleCommand({
+          workingScheduleId: workingScheduleProps.id,
+          status: 'NOTWORK',
+          updatedBy: 'system',
+        }),
+      );
       return Err(new LateCheckInError());
     }
 
@@ -151,10 +182,7 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
           checkInTime: command.checkInTime,
           checkOutTime: null,
           date: workingScheduleProps.date,
-          status:
-            new Date(command.checkInTime) > allowedCheckInDeadline
-              ? 'LATE'
-              : 'STARTED',
+          status: isLate ? 'LATE' : 'STARTED',
           userCode: workingScheduleProps.userCode,
           workingScheduleCode: workingScheduleProps.code,
           createdBy: command.updatedBy,
