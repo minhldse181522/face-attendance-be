@@ -66,7 +66,9 @@ export class FormDescriptionMapper
           record.submitter?.firstName && record.submitter?.lastName
             ? `${record.submitter.firstName} ${record.submitter.lastName}`
             : record.submittedBy,
-        approvedBy: record.approvedBy,
+        approvedBy: record.approver
+          ? `${record.approver.firstName} ${record.approver.lastName}`
+          : record.approvedBy,
         formTitle: record.form?.title || '', // Assuming the form model has a title field
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
