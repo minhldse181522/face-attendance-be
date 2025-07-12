@@ -1,3 +1,4 @@
+global.crypto = require('crypto');
 import compression from 'compression';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';

@@ -24,4 +24,14 @@ export interface WorkingScheduleRepositoryPort
     toDate: Date,
   ): Promise<WorkingScheduleEntity[]>;
   existsByCode(code: string): Promise<boolean>;
+  findManyPendingToday(): Promise<
+    {
+      id: bigint;
+      date: Date;
+      shiftCode: string | null;
+      shift: {
+        startTime: Date | null;
+      } | null;
+    }[]
+  >;
 }

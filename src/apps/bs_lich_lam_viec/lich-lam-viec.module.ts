@@ -24,6 +24,8 @@ import { BsUserMapper } from '../bs_user/mappers/bs-user.mapper';
 import { TIME_KEEPING_REPOSITORY } from '@src/modules/time-keeping/time-keeping.di-tokens';
 import { PrismaTimeKeepingRepository } from '@src/modules/time-keeping/database/time-keeping.repository.prisma';
 import { TimeKeepingModule } from '@src/modules/time-keeping/time-keeping.module';
+import { WorkingScheduleCronService } from './commands/cham-cong/cham-cong-tre.cron.service';
+import { EndOfDayWorkingScheduleCronService } from './commands/cham-cong/ket-thuc-ngay.cron.service';
 
 const httpControllers = [
   FindLichLamViecHttpController,
@@ -41,10 +43,14 @@ const graphqlResolvers: Provider[] = [];
 const commandHandlers: Provider[] = [
   CreateLichLamViecService,
   UpdateChamCongService,
-  FindUserByManagementQueryHandler,
+  WorkingScheduleCronService,
+  EndOfDayWorkingScheduleCronService,
 ];
 
-const queryHandlers: Provider[] = [FindLichLamViecQueryHandler];
+const queryHandlers: Provider[] = [
+  FindLichLamViecQueryHandler,
+  FindUserByManagementQueryHandler,
+];
 
 const mappers: Provider[] = [LichLamViecMapper, BsUserMapper];
 
