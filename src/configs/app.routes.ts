@@ -108,6 +108,7 @@ export const routesV1 = {
       lichLam: `${businessRoot}/tao-lich-lam`,
       lichChamCong: `${businessRoot}/lich-cham-cong`,
       chamCong: `${businessRoot}/cham-cong/:id`,
+      bangLuong: `${businessRoot}/bang-luong`,
     },
   },
   // #endregion

@@ -12,6 +12,7 @@ import { None, Option, Some } from 'oxide.ts';
 import { PayrollEntity } from '../domain/payroll.entity';
 import { PayrollMapper } from '../mappers/payroll.mapper';
 import { PayrollRepositoryPort } from './payroll.repository.port';
+import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
 
 export const PayrollScalarFieldEnum = Prisma.PayrollScalarFieldEnum;
 
@@ -103,5 +104,109 @@ export class PrismaPayrollRepository
       orderBy,
     });
     return result ? Some(this.mapper.toDomain(result)) : None;
+  }
+
+  async findBangLuongByParamAndRole(
+    params: PrismaPaginatedQueryBase<Prisma.PayrollWhereInput>,
+    month?: number,
+  ): Promise<Paginated<PayrollEntity>> {
+    const client = await this._getClient();
+    const { limit, offset, page, where = {}, orderBy } = params;
+
+    const user = RequestContextService.getRequestUser();
+    const role = user?.roleCode;
+    const currentUserCode = user?.code;
+    const currentUsername = user?.userName;
+
+    let finalWhere: Prisma.PayrollWhereInput = { ...where };
+
+    if (role === 'R1') {
+      // Admin - không lọc
+    } else if (role === 'R2') {
+      // Nếu là HR, lọc danh sách user được quản lý
+      const contracts = await client.userContract.findMany({
+        where: {
+          managedBy: currentUsername,
+          status: 'ACTIVE',
+        },
+        select: {
+          userCode: true,
+        },
+      });
+
+      const managedUserCodes = contracts
+        .map((c) => c.userCode)
+        .filter((code): code is string => code !== null);
+
+      if (managedUserCodes.length === 0) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+
+      finalWhere.userCode = {
+        in: managedUserCodes,
+      };
+    } else if (role === 'R3') {
+      // Lấy danh sách user theo chi nhánh của manager
+      const currentUser = await client.user.findUnique({
+        where: { code: currentUserCode },
+        select: { addressCode: true },
+      });
+
+      if (!currentUser?.addressCode) {
+        throw new Error('Không tìm thấy địa chỉ chi nhánh của người dùng');
+      }
+
+      const usersInSameBranch = await client.user.findMany({
+        where: {
+          addressCode: currentUser.addressCode,
+        },
+        select: {
+          code: true,
+        },
+      });
+
+      const userCodes = usersInSameBranch.map((u) => u.code);
+
+      finalWhere.userCode = {
+        in: userCodes,
+      };
+    } else if (role === 'R4') {
+      // Staff chỉ xem được của chính mình
+      finalWhere.userCode = currentUserCode;
+    }
+
+    if (month) {
+      finalWhere.month = {
+        contains: `${month}/`,
+      };
+    }
+
+    const [data, count] = await Promise.all([
+      client.payroll.findMany({
+        skip: offset,
+        take: limit,
+        where: finalWhere,
+        include: {
+          user: true,
+        },
+        orderBy,
+      }),
+
+      client.payroll.count({
+        where: finalWhere,
+      }),
+    ]);
+
+    return new Paginated({
+      data: data.map(this.mapper.toDomain),
+      count,
+      limit,
+      page,
+    });
   }
 }

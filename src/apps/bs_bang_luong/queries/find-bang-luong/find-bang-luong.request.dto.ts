@@ -1,35 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { FilterDto } from '@src/libs/application/validators/prisma-filter.validator';
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  MaxLength,
-} from 'class-validator';
+import { IsOptional } from 'class-validator';
 
-export class FindLichLamViecRequestDto extends FilterDto<Prisma.WorkingScheduleWhereInput> {
-  @ApiProperty({
-    example: '',
-    description: 'Từ ngày',
-  })
-  @IsNotEmpty()
-  @IsDateString()
-  fromDate: Date;
-
-  @ApiProperty({
-    example: '',
-    description: 'Đến ngày',
-  })
-  @IsNotEmpty()
-  @IsDateString()
-  toDate: Date;
-
+export class FindBangLuongRequestDto extends FilterDto<Prisma.PayrollWhereInput> {
   @ApiPropertyOptional({
     example: '',
-    description: 'Mã nhân viên',
+    description: 'Tháng',
   })
   @IsOptional()
-  @MaxLength(50)
-  userCode?: string;
+  month?: number;
 }

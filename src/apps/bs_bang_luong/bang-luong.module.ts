@@ -18,8 +18,13 @@ import { BANG_LUONG_REPOSITORY } from './bang-luong.di-tokens';
 import { TinhBangLuongCronService } from './commands/tinh-bang-luong/tinh-bang-luong.cron.service';
 import { BangLuongRepository } from './database/bang-luong.repository.prisma';
 import { BangLuongMapper } from './mappers/bang-luong.mapper';
+import { FindBangLuongHttpController } from './queries/find-bang-luong/find-bang-luong.http.controller';
+import { FindBangLuongQueryHandler } from './queries/find-bang-luong/find-bang-luong.query-handler';
+import { PAYROLL_REPOSITORY } from '@src/modules/payroll/payroll.di-tokens';
+import { PrismaPayrollRepository } from '@src/modules/payroll/database/payroll.repository.prisma';
+import { PayrollModule } from '@src/modules/payroll/payroll.module';
 
-const httpControllers = [];
+const httpControllers = [FindBangLuongHttpController];
 
 const messageControllers = [];
 
@@ -29,7 +34,7 @@ const graphqlResolvers: Provider[] = [];
 
 const commandHandlers: Provider[] = [TinhBangLuongCronService];
 
-const queryHandlers: Provider[] = [];
+const queryHandlers: Provider[] = [FindBangLuongQueryHandler];
 
 const mappers: Provider[] = [BangLuongMapper, UserContractMapper];
 
@@ -54,6 +59,10 @@ const repositories: Provider[] = [
     provide: FORM_DESCRIPTION_REPOSITORY,
     useClass: PrismaFormDescriptionRepository,
   },
+  {
+    provide: PAYROLL_REPOSITORY,
+    useClass: PrismaPayrollRepository,
+  },
 ];
 
 const utilities: Provider[] = [GenerateCode];
@@ -65,6 +74,7 @@ const utilities: Provider[] = [GenerateCode];
     WorkingScheduleModule,
     TimeKeepingModule,
     FormDescriptionModule,
+    PayrollModule,
   ],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
