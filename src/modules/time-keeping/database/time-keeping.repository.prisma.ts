@@ -84,11 +84,33 @@ export class PrismaTimeKeepingRepository
     return result ? Some(this.mapper.toDomain(result)) : None;
   }
 
+  async findManyTimeKeepingByParams(
+    params: PrismaQueryBase<Prisma.TimeKeepingWhereInput>,
+  ): Promise<TimeKeepingEntity[]> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.timeKeeping.findMany({
+      where,
+      orderBy,
+    });
+    return result.map((item) => this.mapper.toDomain(item));
+  }
+
   async findFinishWorkDate(): Promise<number> {
     const client = await this._getClient();
     const result = await client.timeKeeping.count({
       where: {
         OR: [{ status: { equals: 'END' } }, { status: { equals: 'LATE' } }],
+      },
+    });
+    return result;
+  }
+
+  async findLateWorkDate(): Promise<number> {
+    const client = await this._getClient();
+    const result = await client.timeKeeping.count({
+      where: {
+        status: { equals: 'LATE' },
       },
     });
     return result;

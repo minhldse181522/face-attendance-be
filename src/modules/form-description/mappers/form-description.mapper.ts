@@ -29,6 +29,7 @@ export class FormDescriptionMapper
       startTime: copy.startTime,
       endTime: copy.endTime,
       approvedTime: copy.approvedTime || null,
+      statusOvertime: copy.statusOvertime || null,
       formId: copy.formId,
       submittedBy: copy.submittedBy,
       approvedBy: copy.approvedBy || null,
@@ -61,12 +62,15 @@ export class FormDescriptionMapper
         startTime: record.startTime,
         endTime: record.endTime,
         approvedTime: record.approvedTime,
+        statusOvertime: record.statusOvertime,
         formId: record.formId,
         submittedBy:
           record.submitter?.firstName && record.submitter?.lastName
             ? `${record.submitter.firstName} ${record.submitter.lastName}`
             : record.submittedBy,
-        approvedBy: record.approvedBy,
+        approvedBy: record.approver
+          ? `${record.approver.firstName} ${record.approver.lastName}`
+          : record.approvedBy,
         formTitle: record.form?.title || '', // Assuming the form model has a title field
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
@@ -86,6 +90,7 @@ export class FormDescriptionMapper
     response.startTime = props.startTime;
     response.endTime = props.endTime;
     response.approvedTime = props.approvedTime ?? undefined;
+    response.statusOvertime = props.statusOvertime;
     // response.formId = props.formId;
     response.formTitle = props.formTitle || ''; // Map the formTitle to the response
     response.submittedBy = props.submittedBy;

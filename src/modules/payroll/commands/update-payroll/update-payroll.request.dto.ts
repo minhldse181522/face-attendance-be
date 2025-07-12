@@ -61,6 +61,13 @@ export class UpdatePayrollRequestDto {
   lateFine?: number;
 
   @ApiPropertyOptional({
+    example: 3,
+    description: 'Số lần đi trễ',
+  })
+  @IsOptional()
+  lateTimeCount?: number | null;
+
+  @ApiPropertyOptional({
     example: 200000,
     description: 'Khoản khác',
   })

@@ -80,3 +80,13 @@ export class LateCheckInError extends ExceptionBase {
     super(LateCheckInError.message, cause, metadata);
   }
 }
+
+export class CheckInTooEarlyError extends ExceptionBase {
+  static readonly message = 'Chưa đến giờ checkin, vui lòng quay lại sau';
+
+  public readonly code = 'TIME_KEEPING.CHECK_IN_TOO_EARLY';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(CheckInTooEarlyError.message, cause, metadata);
+  }
+}

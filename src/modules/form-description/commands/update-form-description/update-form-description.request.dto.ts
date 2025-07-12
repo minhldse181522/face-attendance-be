@@ -28,4 +28,19 @@ export class UpdateFormDescriptionRequestDto {
   @IsOptional()
   @MaxLength(50)
   approvedBy?: string;
+
+  @ApiPropertyOptional({
+    example: 'KHông phê duyệt đơn đâu',
+    description: 'Phản hồi của người phê duyệt',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  response?: string;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Đơn tăng ca',
+  })
+  @IsOptional()
+  statusOvertime?: boolean | null;
 }

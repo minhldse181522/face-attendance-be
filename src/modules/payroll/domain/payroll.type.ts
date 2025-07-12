@@ -12,6 +12,7 @@ export interface PayrollProps {
   allowance: number;
   overtimeSalary: number;
   lateFine: number;
+  lateTimeCount?: number | null;
   otherFee?: number | null;
   totalSalary: number;
 
@@ -32,6 +33,7 @@ export interface CreatePayrollProps {
   allowance: number;
   overtimeSalary: number;
   lateFine: number;
+  lateTimeCount?: number | null;
   otherFee?: number | null;
   totalSalary: number;
 
@@ -48,6 +50,7 @@ export interface UpdatePayrollProps {
   allowance?: number | null;
   overtimeSalary?: number | null;
   lateFine?: number | null;
+  lateTimeCount?: number | null;
   otherFee?: number | null;
   totalSalary?: number | null;
 

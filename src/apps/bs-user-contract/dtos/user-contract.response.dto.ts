@@ -78,6 +78,12 @@ export class UserContractResponseDto extends ResponseBase<any> {
     nullable: true,
   })
   positionCode?: string | null;
+  @ApiProperty({
+    example: 'Nhân viên chăm sóc khách hàng',
+    description: 'Tên vị trí',
+    nullable: true,
+  })
+  positionName?: string | null;
 
   @ApiProperty({
     example: ['BRANCH001', 'BRANCH002'],

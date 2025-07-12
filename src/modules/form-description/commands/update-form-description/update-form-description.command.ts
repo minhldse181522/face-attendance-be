@@ -7,6 +7,7 @@ export class UpdateFormDescriptionCommand extends Command {
   readonly status?: string | null;
   readonly approvedTime?: Date | null;
   readonly approvedBy?: string | null;
+  readonly statusOvertime?: boolean | null;
   readonly updatedBy: string | null;
 
   constructor(props: CommandProps<UpdateFormDescriptionCommand>) {

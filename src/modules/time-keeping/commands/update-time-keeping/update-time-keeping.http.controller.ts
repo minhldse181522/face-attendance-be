@@ -27,6 +27,7 @@ import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user
 import { match } from 'oxide.ts';
 import { TimeKeepingEntity } from '../../domain/time-keeping.entity';
 import {
+  CannotCheckOutBecauseNotWorkError,
   NotAllowToCheckout,
   NotAllowToCheckoutAfterMidNight,
   TimeKeepingAlreadyExistsError,
@@ -94,7 +95,8 @@ export class UpdateTimeKeepingHttpController {
       Err: (error: Error) => {
         if (
           error instanceof NotAllowToCheckout ||
-          error instanceof NotAllowToCheckoutAfterMidNight
+          error instanceof NotAllowToCheckoutAfterMidNight ||
+          error instanceof CannotCheckOutBecauseNotWorkError
         ) {
           throw new BadRequestException({
             message: error.message,

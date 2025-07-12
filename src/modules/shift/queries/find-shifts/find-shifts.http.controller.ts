@@ -38,7 +38,10 @@ export class FindShiftHttpController {
     queryParams: FindShiftRequestDto,
   ): Promise<ShiftPaginatedResponseDto> {
     const result = await this.queryBus.execute(
-      new FindShiftQuery(queryParams.findOptions),
+      new FindShiftQuery({
+        ...queryParams.findOptions,
+        status: queryParams.status,
+      }),
     );
 
     const paginated = result.unwrap();

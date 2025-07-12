@@ -10,6 +10,7 @@ import { PayrollMapper } from './mappers/payroll.mapper';
 import { PAYROLL_REPOSITORY } from './payroll.di-tokens';
 import { FindPayrollsHttpController } from './queries/find-payrolls/find-payrolls.http.controller';
 import { FindPayrollsQueryHandler } from './queries/find-payrolls/find-payrolls.query-handler';
+import { FindPayrollByParamsQueryHandler } from './queries/find-payroll-by-params/find-payroll-by-params.query-handler';
 
 const httpControllers = [
   FindPayrollsHttpController,
@@ -30,7 +31,10 @@ const commandHandlers: Provider[] = [
   // DeleteBranchService,
 ];
 
-const queryHandlers: Provider[] = [FindPayrollsQueryHandler];
+const queryHandlers: Provider[] = [
+  FindPayrollsQueryHandler,
+  FindPayrollByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [PayrollMapper];
 
@@ -56,6 +60,6 @@ const repositories: Provider[] = [
     ...mappers,
     ...utils,
   ],
-  exports: [...repositories, ...mappers],
+  exports: [...repositories, ...mappers, ...queryHandlers],
 })
 export class PayrollModule {}

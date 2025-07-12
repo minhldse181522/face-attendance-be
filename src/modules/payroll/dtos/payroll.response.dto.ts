@@ -56,6 +56,12 @@ export class PayrollResponseDto extends ResponseBase<any> {
   })
   lateFine: number;
 
+  @ApiProperty({
+    example: 3,
+    description: 'Số lần đi trễ',
+  })
+  lateTimeCount?: number | null;
+
   @ApiPropertyOptional({
     example: 200000,
     description: 'Khoản khác',

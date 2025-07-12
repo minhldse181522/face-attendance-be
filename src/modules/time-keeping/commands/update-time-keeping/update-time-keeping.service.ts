@@ -9,6 +9,7 @@ import { Err, Ok, Result } from 'oxide.ts';
 import { TimeKeepingRepositoryPort } from '../../database/time-keeping.repository.port';
 import { TimeKeepingEntity } from '../../domain/time-keeping.entity';
 import {
+  CannotCheckOutBecauseNotWorkError,
   NotAllowToCheckout,
   NotAllowToCheckoutAfterMidNight,
   TimeKeepingAlreadyExistsError,
@@ -36,6 +37,7 @@ export type UpdateTimeKeepingServiceResult = Result<
   | NotAllowToCheckout
   | WorkingScheduleNotFoundError
   | NotAllowToCheckoutAfterMidNight
+  | CannotCheckOutBecauseNotWorkError
 >;
 
 @CommandHandler(UpdateTimeKeepingCommand)
@@ -70,6 +72,10 @@ export class UpdateTimeKeepingService
       return Err(new WorkingScheduleNotFoundError());
     }
     const workingScheduleProps = workingSchedule.unwrap().getProps();
+
+    if (workingScheduleProps.status === 'NOTWORK') {
+      return Err(new CannotCheckOutBecauseNotWorkError());
+    }
 
     // Lấy thông tin shift tương ứng
     const shift: FindShiftByParamsQueryResult = await this.queryBus.execute(
@@ -113,16 +119,11 @@ export class UpdateTimeKeepingService
     shiftStartDateTime.setUTCMilliseconds(0);
 
     const TimeKeeping = found.unwrap();
-    // Kiểm tra giờ checkin để chốt status
-    let status = 'END';
-    const checkInTime = TimeKeeping.getProps().checkInTime;
-    if (checkInTime) {
-      const lateThreshold = new Date(
-        shiftStartDateTime.getTime() + 60 * 60 * 1000,
-      );
-      if (checkInTime > lateThreshold) {
-        status = 'LATE';
-      }
+    let status;
+    if (workingScheduleProps.status === 'LATE') {
+      status = 'LATE';
+    } else {
+      status = 'END';
     }
 
     const workingHourMs = checkOutTime.getTime() - shiftStartDateTime.getTime();
@@ -133,13 +134,6 @@ export class UpdateTimeKeepingService
       status,
       workingHourReal: workingHourNumber,
     });
-    await this.commandBus.execute(
-      new UpdateWorkingScheduleCommand({
-        workingScheduleId: workingScheduleProps.id,
-        status: 'END',
-        updatedBy: command.updatedBy,
-      }),
-    );
     if (updatedResult.isErr()) {
       return updatedResult;
     }

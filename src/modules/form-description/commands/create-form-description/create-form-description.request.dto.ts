@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDateString,
   IsEnum,
@@ -54,6 +54,13 @@ export class CreateFormDescriptionRequestDto {
   @IsString()
   @IsDateString()
   endTime: Date;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Có phải đơn tăng ca',
+  })
+  @IsOptional()
+  statusOvertime?: boolean | null;
 
   @ApiProperty({
     example: 'id của form',

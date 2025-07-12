@@ -10,11 +10,34 @@ export class AppRequestContext extends RequestContext {
   tenantId?: string;
   user: any;
 }
+// Thêm vào đầu file AppRequestContext.ts
+let fallbackContext: Partial<AppRequestContext> | undefined;
 
 export class RequestContextService {
   static getContext(): AppRequestContext {
-    const ctx: AppRequestContext = RequestContext.currentContext.req;
-    return ctx;
+    try {
+      const ctx = RequestContext.currentContext?.req as AppRequestContext;
+      if (ctx) return ctx;
+    } catch (e) {
+      // ignore
+    }
+
+    // Nếu không có context từ HTTP request, dùng fallback (cho cron job)
+    if (fallbackContext) {
+      return fallbackContext as AppRequestContext;
+    }
+
+    throw new Error('Request context is not available');
+  }
+  static runWithContext(
+    ctx: Partial<AppRequestContext>,
+    fn: () => Promise<void>,
+  ) {
+    fallbackContext = ctx;
+
+    return fn().finally(() => {
+      fallbackContext = undefined;
+    });
   }
 
   static setRequestId(id: string): void {

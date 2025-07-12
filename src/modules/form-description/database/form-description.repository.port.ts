@@ -6,6 +6,8 @@ import {
 import { Prisma } from '@prisma/client';
 import { FormDescriptionEntity } from '../domain/form-description.entity';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
+import { PrismaQueryBase } from '@src/libs/ddd/prisma-query.base';
+import { Option } from 'oxide.ts';
 
 // Định nghĩa interface cho repository của FormDescription
 export interface FormDescriptionRepositoryPort
@@ -20,4 +22,7 @@ export interface FormDescriptionRepositoryPort
       user?: RequestUser; // Thông tin người dùng để phân quyền (đầy đủ)
     },
   ): Promise<Paginated<FormDescriptionEntity>>;
+  findManyFormDescriptionByParams(
+    params: PrismaQueryBase<Prisma.FormDescriptionWhereInput>,
+  ): Promise<FormDescriptionEntity[]>;
 }

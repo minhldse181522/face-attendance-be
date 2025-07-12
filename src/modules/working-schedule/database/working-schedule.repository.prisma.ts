@@ -15,6 +15,7 @@ import {
 import { None, Option, Some } from 'oxide.ts';
 import { Paginated } from '@src/libs/ddd';
 import { endOfDay, startOfDay } from 'date-fns';
+import { equals } from 'class-validator';
 
 @Injectable()
 export class PrismaWorkingScheduleRepository
@@ -142,5 +143,65 @@ export class PrismaWorkingScheduleRepository
     });
 
     return !!result;
+  }
+
+  async findManyPendingToday(): Promise<
+    {
+      id: bigint;
+      date: Date;
+      shiftCode: string | null;
+      shift: {
+        startTime: Date | null;
+      } | null;
+    }[]
+  > {
+    const client = await this._getClient();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const result = await client.workingSchedule.findMany({
+      where: {
+        status: { equals: 'NOTSTARTED' },
+        date: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+      select: {
+        id: true,
+        date: true,
+        shiftCode: true,
+        shift: {
+          select: { startTime: true },
+        },
+      },
+    });
+
+    return result
+      .filter((item) => item.date !== null)
+      .map((item) => ({
+        id: item.id,
+        date: item.date as Date,
+        shiftCode: item.shiftCode,
+        shift: item.shift,
+      }));
+  }
+
+  async getAllUserCodes(): Promise<string[]> {
+    const client = await this._getClient();
+
+    const result = await client.workingSchedule.findMany({
+      select: {
+        userCode: true,
+      },
+      distinct: ['userCode'],
+    });
+
+    return result
+      .map((user) => user.userCode)
+      .filter((userCode): userCode is string => userCode !== null);
   }
 }

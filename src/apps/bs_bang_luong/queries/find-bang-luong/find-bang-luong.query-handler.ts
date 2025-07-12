@@ -1,54 +1,42 @@
+import { GeneratedFindOptions } from '@chax-at/prisma-filter';
 import { Inject } from '@nestjs/common';
 import { QueryHandler } from '@nestjs/cqrs';
 import { Prisma } from '@prisma/client';
 import { Paginated } from '@src/libs/ddd';
 import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
-import { Ok, Result } from 'oxide.ts';
-import { GeneratedFindOptions } from '@chax-at/prisma-filter';
-import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
+import { PayrollRepositoryPort } from '@src/modules/payroll/database/payroll.repository.port';
+import { PayrollEntity } from '@src/modules/payroll/domain/payroll.entity';
+import { PAYROLL_REPOSITORY } from '@src/modules/payroll/payroll.di-tokens';
 import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
-import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
+import { Ok, Result } from 'oxide.ts';
 
-export class FindLichLamViecQuery extends PrismaPaginatedQueryBase<Prisma.WorkingScheduleWhereInput> {
-  fromDate: Date;
-  toDate: Date;
-  userCode?: string;
+export class FindBangLuongQuery extends PrismaPaginatedQueryBase<Prisma.PayrollWhereInput> {
+  month?: number;
   constructor(
-    props: GeneratedFindOptions<Prisma.WorkingScheduleWhereInput> & {
-      fromDate: Date;
-      toDate: Date;
-      userCode?: string;
+    props: GeneratedFindOptions<Prisma.PayrollWhereInput> & {
+      month?: number;
     },
   ) {
     super(props);
-    this.fromDate = props.fromDate;
-    this.toDate = props.toDate;
-    this.userCode = props.userCode;
+    this.month = props.month;
   }
 }
 
-export type FindLichLamViecQueryResult = Result<
-  Paginated<WorkingScheduleEntity>,
-  void
->;
+export type FindBangLuongQueryResult = Result<Paginated<PayrollEntity>, void>;
 
-@QueryHandler(FindLichLamViecQuery)
-export class FindLichLamViecQueryHandler {
+@QueryHandler(FindBangLuongQuery)
+export class FindBangLuongQueryHandler {
   constructor(
-    @Inject(WORKING_SCHEDULE_REPOSITORY)
-    protected readonly workingScheduleRepo: WorkingScheduleRepositoryPort,
+    @Inject(PAYROLL_REPOSITORY)
+    protected readonly payrollRepo: PayrollRepositoryPort,
   ) {}
 
-  async execute(
-    query: FindLichLamViecQuery,
-  ): Promise<FindLichLamViecQueryResult> {
-    const result = await this.workingScheduleRepo.findLichLamViecByParam(
+  async execute(query: FindBangLuongQuery): Promise<FindBangLuongQueryResult> {
+    const result = await this.payrollRepo.findBangLuongByParamAndRole(
       {
         ...query,
       },
-      query.fromDate,
-      query.toDate,
-      query.userCode,
+      query.month,
     );
 
     return Ok(

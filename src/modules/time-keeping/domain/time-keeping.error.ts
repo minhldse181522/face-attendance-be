@@ -49,3 +49,13 @@ export class NotAllowToCheckoutAfterMidNight extends ExceptionBase {
     super(NotAllowToCheckoutAfterMidNight.message, cause, metadata);
   }
 }
+
+export class CannotCheckOutBecauseNotWorkError extends ExceptionBase {
+  static readonly message = 'Không thể checkout vì không làm việc';
+
+  public readonly code = 'TIME_KEEPING.CAN_NOT_CHECK_OUT_BECAUSE_NOT_WORK';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(CannotCheckOutBecauseNotWorkError.message, cause, metadata);
+  }
+}
