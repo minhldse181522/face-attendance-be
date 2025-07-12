@@ -15,6 +15,12 @@ export class FormDescriptionResponseDto extends ResponseBase<any> {
   reason: string;
 
   @ApiProperty({
+    example: 'OKE',
+    description: 'Phản hồi',
+  })
+  response?: string | null;
+
+  @ApiProperty({
     example: 'PENDING',
     description: 'Trạng thái đơn',
   })
