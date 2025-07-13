@@ -67,13 +67,20 @@ export class PrismaPositionRepository
     let finalWhere: Prisma.PositionWhereInput = { ...where };
 
     if (userCode) {
-      const user = await client.user.findUnique({
-        where: { code: userCode },
-        select: { roleCode: true },
+      const activeContracts = await client.userContract.findMany({
+        where: {
+          userCode,
+          status: 'ACTIVE',
+          positionCode: { not: null },
+        },
+        select: { positionCode: true },
       });
-      if (user?.roleCode) {
-        finalWhere.role = user.roleCode;
-      } else {
+
+      const positionCodes = activeContracts
+        .map((c) => c.positionCode)
+        .filter((c): c is string => c !== null);
+
+      if (positionCodes.length === 0) {
         return new Paginated({
           data: [],
           count: 0,
@@ -81,6 +88,8 @@ export class PrismaPositionRepository
           page,
         });
       }
+
+      finalWhere.code = { in: positionCodes };
     }
 
     const [data, count] = await Promise.all([
