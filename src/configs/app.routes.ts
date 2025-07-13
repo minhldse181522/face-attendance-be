@@ -54,6 +54,7 @@ export const routesV1 = {
     },
     position: {
       ...baseRoutes(`${positionRoot}`),
+      user: `${positionRoot}/user-code`,
     },
     form: {
       ...baseRoutes(`${formRoot}`),

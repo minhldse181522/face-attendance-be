@@ -1,7 +1,11 @@
 import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-repository.base';
 import { Injectable } from '@nestjs/common';
 import { Position as PositionModel, Prisma } from '@prisma/client';
-import { PrismaQueryBase } from '@src/libs/ddd/prisma-query.base';
+import { Paginated } from '@src/libs/ddd';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { DropDownResult } from '@src/libs/utils/dropdown.util';
 import { None, Option, Some } from 'oxide.ts';
@@ -51,5 +55,55 @@ export class PrismaPositionRepository
       label: item.positionName ?? '',
       value: item.code ?? '',
     }));
+  }
+
+  async findPositionByUsercode(
+    params: PrismaPaginatedQueryBase<Prisma.PositionWhereInput>,
+    userCode?: string,
+  ): Promise<Paginated<PositionEntity>> {
+    const client = await this._getClient();
+    const { limit, offset, page, where = {}, orderBy } = params;
+
+    let finalWhere: Prisma.PositionWhereInput = { ...where };
+
+    if (userCode) {
+      const user = await client.user.findUnique({
+        where: { code: userCode },
+        select: { roleCode: true },
+      });
+      if (user?.roleCode) {
+        finalWhere.role = user.roleCode;
+      } else {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+    }
+
+    const [data, count] = await Promise.all([
+      client.position.findMany({
+        skip: offset,
+        take: limit,
+        where: finalWhere,
+        include: {
+          rolePosition: true,
+        },
+        orderBy,
+      }),
+
+      client.position.count({
+        where: finalWhere,
+      }),
+    ]);
+
+    return new Paginated({
+      data: data.map(this.mapper.toDomain),
+      count,
+      limit,
+      page,
+    });
   }
 }
