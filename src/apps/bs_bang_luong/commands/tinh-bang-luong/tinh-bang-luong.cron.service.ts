@@ -168,7 +168,6 @@ export class TinhBangLuongCronService {
                 },
               }),
             );
-
           if (foundPayroll.isErr()) {
             await this.commandBus.execute(
               new CreatePayrollCommand({
@@ -176,6 +175,9 @@ export class TinhBangLuongCronService {
                 month: formattedMonth,
                 baseSalary: salaryPerHour,
                 actualSalary,
+                totalWorkHour: actualSalaryHours,
+                status: 'NOTPAID',
+                paidDate: null,
                 allowance,
                 overtimeSalary: totalOvertimeHours,
                 workDay,
@@ -194,6 +196,7 @@ export class TinhBangLuongCronService {
                 month: formattedMonth,
                 baseSalary: salaryPerHour,
                 actualSalary,
+                totalWorkHour: actualSalaryHours,
                 allowance,
                 overtimeSalary: totalOvertimeHours,
                 workDay,

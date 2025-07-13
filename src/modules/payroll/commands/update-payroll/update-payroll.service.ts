@@ -34,9 +34,15 @@ export class UpdatePayrollService
     }
 
     const Payroll = found.unwrap();
-    const updatedResult = Payroll.update({
+
+    const updatePayload = {
       ...command.getExtendedProps<UpdatePayrollCommand>(),
-    });
+    };
+    if (updatePayload.paidDate != null) {
+      updatePayload.status = 'PAID';
+    }
+
+    const updatedResult = Payroll.update(updatePayload);
     if (updatedResult.isErr()) {
       return updatedResult;
     }

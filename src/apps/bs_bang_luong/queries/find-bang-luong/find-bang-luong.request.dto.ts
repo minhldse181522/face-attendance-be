@@ -9,7 +9,7 @@ export class FindBangLuongRequestDto extends FilterDto<Prisma.PayrollWhereInput>
     description: 'Tháng',
   })
   @IsOptional()
-  month?: number;
+  month?: string;
 
   @ApiPropertyOptional({
     example: '',

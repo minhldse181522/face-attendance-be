@@ -108,7 +108,7 @@ export class PrismaPayrollRepository
 
   async findBangLuongByParamAndRole(
     params: PrismaPaginatedQueryBase<Prisma.PayrollWhereInput>,
-    month?: number,
+    month?: string,
     userCode?: string,
   ): Promise<Paginated<PayrollEntity>> {
     const client = await this._getClient();
@@ -182,8 +182,14 @@ export class PrismaPayrollRepository
     }
 
     if (month) {
+      const normalizedMonth = String(Number(String(month).split('/')[0]));
+      const yearPart = String(month).split('/')[1] ?? '';
+      const finalMonth = yearPart
+        ? `${normalizedMonth}/${yearPart}`
+        : `${normalizedMonth}/`;
+
       finalWhere.month = {
-        contains: `${month}/`,
+        equals: finalMonth,
       };
     }
 

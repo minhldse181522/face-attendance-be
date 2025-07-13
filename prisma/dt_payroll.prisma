@@ -6,6 +6,9 @@ model Payroll {
   month          String    @map("month") @db.VarChar(5)
   baseSalary     Float     @map("base_salary") @db.DoublePrecision
   actualSalary   Float?    @map("actual_salary") @db.DoublePrecision
+  totalWorkHour  Float?    @map("total_work_hour") @db.DoublePrecision
+  status         String?   @map("status") @db.VarChar(20)
+  paidDate       DateTime? @map("paid_date") @db.Timestamptz(3)
   deductionFee   Float?    @map("deduction_fee") @db.DoublePrecision
   workDay        Int       @map("work_day") @db.Integer
   allowance      Float     @map("allowance") @db.DoublePrecision

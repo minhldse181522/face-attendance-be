@@ -26,6 +26,12 @@ export class BangLuongResponseDto extends ResponseBase<any> {
   })
   baseSalary: number;
 
+  @ApiProperty({
+    example: 8000000,
+    description: 'Lương cơ bản',
+  })
+  actualSalary?: number | null;
+
   @ApiPropertyOptional({
     example: 500000,
     description: 'Các khoản khấu trừ',
@@ -68,9 +74,27 @@ export class BangLuongResponseDto extends ResponseBase<any> {
   })
   totalSalary: number;
 
-  @ApiProperty({
-    example: 9600000,
-    description: 'Số giờ làm việc',
+  @ApiPropertyOptional({
+    example: 20,
+    description: 'Tổng số giờ làm',
   })
-  workingHour: number;
+  totalWorkHour?: number | null;
+
+  @ApiPropertyOptional({
+    example: 'NOTPAID',
+    description: 'Trạng thái thanh toán',
+  })
+  status?: string | null;
+
+  @ApiPropertyOptional({
+    example: 3,
+    description: 'Số lần đi trễ',
+  })
+  lateTimeCount?: number | null;
+
+  @ApiPropertyOptional({
+    example: new Date(),
+    description: 'Ngày thanh toán',
+  })
+  paidDate?: Date | null;
 }
