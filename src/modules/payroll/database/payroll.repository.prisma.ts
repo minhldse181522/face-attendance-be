@@ -182,8 +182,10 @@ export class PrismaPayrollRepository
     }
 
     if (month) {
-      const normalizedMonth = String(Number(String(month).split('/')[0]));
-      const yearPart = String(month).split('/')[1] ?? '';
+      const [monthPartRaw, yearFullRaw] = String(month).split('/');
+      const normalizedMonth = String(Number(monthPartRaw));
+      const yearPart = yearFullRaw ? yearFullRaw.slice(-2) : '';
+
       const finalMonth = yearPart
         ? `${normalizedMonth}/${yearPart}`
         : `${normalizedMonth}/`;
