@@ -43,6 +43,7 @@ export class FindBangLuongHttpController {
       new FindBangLuongQuery({
         ...queryParams.findOptions,
         month: queryParams.month,
+        userCode: queryParams.userCode,
       }),
     );
 
