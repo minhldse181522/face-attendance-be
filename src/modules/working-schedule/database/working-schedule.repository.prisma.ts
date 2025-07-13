@@ -7,7 +7,10 @@ import {
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { WorkingScheduleEntity } from '../domain/working-schedule.entity';
 import { WorkingScheduleMapper } from '../mappers/working-schedule.mapper';
-import { WorkingScheduleRepositoryPort } from './working-schedule.repository.port';
+import {
+  FindAllWorkingScheduleWithShiftParams,
+  WorkingScheduleRepositoryPort,
+} from './working-schedule.repository.port';
 import {
   PrismaPaginatedQueryBase,
   PrismaQueryBase,
@@ -203,5 +206,23 @@ export class PrismaWorkingScheduleRepository
     return result
       .map((user) => user.userCode)
       .filter((userCode): userCode is string => userCode !== null);
+  }
+
+  async findAllWorkingScheduleWithShift(
+    params: FindAllWorkingScheduleWithShiftParams,
+  ): Promise<WorkingScheduleEntity[]> {
+    const client = await this._getClient();
+    const result = await client.workingSchedule.findMany({
+      where: {
+        userCode: params.userCode,
+        date: params.date,
+        status: params.status,
+      },
+      include: {
+        shift: true,
+      },
+    });
+
+    return result.map((record) => this.mapper.toDomain(record));
   }
 }

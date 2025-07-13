@@ -67,4 +67,10 @@ export class BangLuongResponseDto extends ResponseBase<any> {
     description: 'Tổng lương thực lĩnh',
   })
   totalSalary: number;
+
+  @ApiProperty({
+    example: 9600000,
+    description: 'Số giờ làm việc',
+  })
+  workingHour: number;
 }

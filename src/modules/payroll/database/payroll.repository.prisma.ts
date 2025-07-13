@@ -109,6 +109,7 @@ export class PrismaPayrollRepository
   async findBangLuongByParamAndRole(
     params: PrismaPaginatedQueryBase<Prisma.PayrollWhereInput>,
     month?: number,
+    userCode?: string,
   ): Promise<Paginated<PayrollEntity>> {
     const client = await this._getClient();
     const { limit, offset, page, where = {}, orderBy } = params;
@@ -190,7 +191,10 @@ export class PrismaPayrollRepository
       client.payroll.findMany({
         skip: offset,
         take: limit,
-        where: finalWhere,
+        where: {
+          ...finalWhere,
+          userCode,
+        },
         include: {
           user: true,
         },
@@ -198,7 +202,10 @@ export class PrismaPayrollRepository
       }),
 
       client.payroll.count({
-        where: finalWhere,
+        where: {
+          ...finalWhere,
+          userCode,
+        },
       }),
     ]);
 

@@ -26,6 +26,13 @@ export class UpdatePayrollRequestDto {
   baseSalary?: number;
 
   @ApiPropertyOptional({
+    example: '20',
+    description: 'Tổng số giờ làm',
+  })
+  @IsOptional()
+  actualSalary?: number | null;
+
+  @ApiPropertyOptional({
     example: 500000,
     description: 'Các khoản khấu trừ',
   })

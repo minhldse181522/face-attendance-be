@@ -4,6 +4,7 @@ export class CreatePayrollCommand extends Command {
   readonly userCode: string;
   readonly month: string;
   readonly baseSalary: number;
+  readonly actualSalary?: number | null;
   readonly deductionFee?: number | null;
   readonly workDay: number;
   readonly allowance: number;

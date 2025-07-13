@@ -26,6 +26,12 @@ export class PayrollResponseDto extends ResponseBase<any> {
   })
   baseSalary: number;
 
+  @ApiProperty({
+    example: 20,
+    description: 'Tổng số giờ làm việc',
+  })
+  actualSalary?: number | null;
+
   @ApiPropertyOptional({
     example: 500000,
     description: 'Các khoản khấu trừ',

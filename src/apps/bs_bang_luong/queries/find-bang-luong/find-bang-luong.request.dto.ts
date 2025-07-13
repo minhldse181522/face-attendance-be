@@ -10,4 +10,11 @@ export class FindBangLuongRequestDto extends FilterDto<Prisma.PayrollWhereInput>
   })
   @IsOptional()
   month?: number;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Mã nhân sự',
+  })
+  @IsOptional()
+  userCode?: string;
 }

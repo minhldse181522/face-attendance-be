@@ -6,6 +6,7 @@ export class UpdatePayrollCommand extends Command {
   readonly userCode?: string | null;
   readonly month?: string | null;
   readonly baseSalary?: number | null;
+  readonly actualSalary?: number | null;
   readonly deductionFee?: number | null;
   readonly workDay?: number | null;
   readonly allowance?: number | null;

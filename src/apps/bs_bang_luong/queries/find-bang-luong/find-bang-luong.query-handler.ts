@@ -12,13 +12,16 @@ import { Ok, Result } from 'oxide.ts';
 
 export class FindBangLuongQuery extends PrismaPaginatedQueryBase<Prisma.PayrollWhereInput> {
   month?: number;
+  userCode?: string;
   constructor(
     props: GeneratedFindOptions<Prisma.PayrollWhereInput> & {
       month?: number;
+      userCode?: string;
     },
   ) {
     super(props);
     this.month = props.month;
+    this.userCode = props.userCode;
   }
 }
 
@@ -37,6 +40,7 @@ export class FindBangLuongQueryHandler {
         ...query,
       },
       query.month,
+      query.userCode,
     );
 
     return Ok(

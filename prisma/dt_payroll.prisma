@@ -5,6 +5,7 @@ model Payroll {
   userCode       String    @map("user_code") @db.VarChar(50)
   month          String    @map("month") @db.VarChar(5)
   baseSalary     Float     @map("base_salary") @db.DoublePrecision
+  actualSalary   Float?    @map("actual_salary") @db.DoublePrecision
   deductionFee   Float?    @map("deduction_fee") @db.DoublePrecision
   workDay        Int       @map("work_day") @db.Integer
   allowance      Float     @map("allowance") @db.DoublePrecision

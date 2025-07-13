@@ -54,33 +54,39 @@ export class TinhBangLuongCronService {
         const allUser = await this.workingScheduleRepo.getAllUserCodes();
 
         for (const userCode of allUser) {
-          const timeKeepingsResult: FindManyTimeKeepingByParamsQueryResult =
-            await this.queryBus.execute(
-              new FindManyTimeKeepingByParamsQuery({
-                where: {
-                  status: { in: ['LATE', 'END'] },
-                  userCode,
-                  date: {
-                    gte: startOfMonth(now),
-                    lte: endOfMonth(now),
-                  },
-                },
-              }),
-            );
+          const workingSchedules =
+            await this.workingScheduleRepo.findAllWorkingScheduleWithShift({
+              userCode,
+              date: {
+                gte: startOfMonth(now),
+                lte: endOfMonth(now),
+              },
+              status: {
+                in: ['END', 'LATE', 'FORGET'],
+              },
+            });
 
-          if (timeKeepingsResult.isErr()) {
-            this.logger.warn(
-              `Không tìm thấy dữ liệu TimeKeeping cho user: ${userCode}`,
-            );
-            continue;
-          }
-          const timeKeepingList = timeKeepingsResult.unwrapOr([]);
-          const workDay = timeKeepingList.length;
-          const lateTimeCount = timeKeepingList.filter(
-            (tk) => tk.getProps().status === 'LATE',
+          const actualSalaryHours = workingSchedules.reduce((sum, ws) => {
+            const workingHours =
+              ws.getProps().shift?.getProps().workingHours ?? 0;
+            return sum + workingHours;
+          }, 0);
+
+          const workDay = workingSchedules.filter((ws) =>
+            ['END', 'FORGET'].includes(ws.getProps().status || ''),
           ).length;
 
-          // Tính số tiền OT từ đơn đã duyệt tăng ca
+          const lateCount = workingSchedules.filter(
+            (ws) => ws.getProps().status === 'LATE',
+          ).length;
+
+          const forgetCount = workingSchedules.filter(
+            (ws) => ws.getProps().status === 'FORGET',
+          ).length;
+
+          const lateTimeCount = lateCount + forgetCount;
+
+          // Lấy số giờ OT từ đơn đã duyệt tăng ca
           const overTimeResult: FindManyFormDescriptionByParamsQueryResult =
             await this.queryBus.execute(
               new FindManyFormDescriptionByParamsQuery({
@@ -130,18 +136,27 @@ export class TinhBangLuongCronService {
             );
           if (positionResult.isErr()) continue;
           const positionProps = positionResult.unwrap().getProps();
-          const baseSalary = positionProps.baseSalary ?? 0;
+          const salaryPerHour = positionProps.baseSalary ?? 0;
           const allowance = positionProps.allowance ?? 0;
           const lateFine = positionProps.lateFine ?? 0;
           const overtimeRate = positionProps.overtimeSalary ?? 0;
           const totalOvertimeSalary = totalOvertimeHours * overtimeRate;
+          const actualSalary =
+            Math.round(actualSalaryHours * salaryPerHour * 100) / 100;
 
           // Tính lương cuối cùng
           const totalSalary =
-            baseSalary! +
-            allowance! +
+            Number(actualSalary) +
+            allowance +
             totalOvertimeSalary -
-            lateFine! * lateTimeCount;
+            lateFine * lateTimeCount;
+
+          if (isNaN(Number(actualSalary)) || isNaN(totalSalary)) {
+            this.logger.warn(
+              `⚠️ Skip payroll for ${userCode} due to NaN salary`,
+            );
+            continue;
+          }
 
           // Kiểm tra user có bảng lương chưa
           const foundPayroll: FindPayrollByParamsQueryResult =
@@ -159,9 +174,10 @@ export class TinhBangLuongCronService {
               new CreatePayrollCommand({
                 userCode,
                 month: formattedMonth,
-                baseSalary,
+                baseSalary: salaryPerHour,
+                actualSalary,
                 allowance,
-                overtimeSalary: totalOvertimeSalary,
+                overtimeSalary: totalOvertimeHours,
                 workDay,
                 lateFine,
                 lateTimeCount,
@@ -176,9 +192,10 @@ export class TinhBangLuongCronService {
                 payrollId: payroll.id,
                 userCode,
                 month: formattedMonth,
-                baseSalary,
+                baseSalary: salaryPerHour,
+                actualSalary,
                 allowance,
-                overtimeSalary: totalOvertimeSalary,
+                overtimeSalary: totalOvertimeHours,
                 workDay,
                 lateFine,
                 lateTimeCount,
