@@ -13,12 +13,15 @@ import { PositionMapper } from './mappers/position.mapper';
 import { FindPositionHttpController } from './queries/find-positions/find-positions.http.controller';
 import { FindPositionQueryHandler } from './queries/find-positions/find-positions.query-handler';
 import { POSITION_REPOSITORY } from './position.di-tokens';
+import { FindPositionByUsercodeHttpController } from './queries/find-position-by-usercode/find-position-by-usercode.http.controller';
+import { FindPositionByUsercodeQueryHandler } from './queries/find-position-by-usercode/find-position-by-usercode.query-handler';
 
 const httpControllers = [
   FindPositionHttpController,
   CreatePositionHttpController,
   UpdatePositionHttpController,
   DeletePositionHttpController,
+  FindPositionByUsercodeHttpController,
 ];
 
 const messageControllers = [];
@@ -36,6 +39,7 @@ const commandHandlers: Provider[] = [
 const queryHandlers: Provider[] = [
   FindPositionQueryHandler,
   FindPositionByParamsQueryHandler,
+  FindPositionByUsercodeQueryHandler,
 ];
 
 const mappers: Provider[] = [PositionMapper];

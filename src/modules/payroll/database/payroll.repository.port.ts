@@ -18,6 +18,7 @@ export interface PayrollRepositoryPort extends RepositoryPort<PayrollEntity> {
   ): Promise<Option<PayrollEntity>>;
   findBangLuongByParamAndRole(
     params: PrismaPaginatedQueryBase<Prisma.PayrollWhereInput>,
-    month?: number,
+    month?: string,
+    userCode?: string,
   ): Promise<Paginated<PayrollEntity>>;
 }

@@ -1,8 +1,9 @@
 import { Mapper } from '@libs/ddd';
 import { Injectable } from '@nestjs/common';
-import { Payroll as PayrollModel } from '@prisma/client';
+import { Payroll as PayrollModel, User as UserModel } from '@prisma/client';
 import { PayrollEntity } from '../domain/payroll.entity';
 import { PayrollResponseDto } from '../dtos/payroll.response.dto';
+import { UserEntity } from '@src/modules/user/domain/user.entity';
 
 @Injectable()
 export class PayrollMapper
@@ -17,6 +18,10 @@ export class PayrollMapper
       userCode: copy.userCode,
       month: copy.month,
       baseSalary: copy.baseSalary,
+      actualSalary: copy.actualSalary || null,
+      totalWorkHour: copy.totalWorkHour || null,
+      status: copy.status || null,
+      paidDate: copy.paidDate || null,
       deductionFee: copy.deductionFee || null,
       workDay: copy.workDay,
       allowance: copy.allowance,
@@ -34,7 +39,11 @@ export class PayrollMapper
     return record;
   }
 
-  toDomain(record: PayrollModel): PayrollEntity {
+  toDomain(
+    record: PayrollModel & {
+      user: UserModel;
+    },
+  ): PayrollEntity {
     return new PayrollEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -45,6 +54,10 @@ export class PayrollMapper
         userCode: record.userCode,
         month: record.month,
         baseSalary: record.baseSalary,
+        actualSalary: record.actualSalary || null,
+        totalWorkHour: record.totalWorkHour || null,
+        status: record.status || null,
+        paidDate: record.paidDate || null,
         deductionFee: record.deductionFee || null,
         workDay: record.workDay,
         allowance: record.allowance,
@@ -55,6 +68,25 @@ export class PayrollMapper
         totalSalary: record.totalSalary,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+        user: record.user
+          ? new UserEntity({
+              id: record.user.id,
+              props: {
+                code: record.user.code,
+                userName: record.user.userName,
+                createdBy: record.user.createdBy,
+                password: record.user.password,
+                firstName: record.user.firstName,
+                lastName: record.user.lastName,
+                email: record.user.email,
+                gender: record.user.gender,
+                dob: record.user.dob,
+                phone: record.user.phone,
+                isActive: record.user.isActive,
+                roleCode: record.user.roleCode,
+              },
+            })
+          : undefined,
       },
       skipValidation: true,
     });
@@ -68,6 +100,7 @@ export class PayrollMapper
     response.userCode = props.userCode;
     response.month = props.month;
     response.baseSalary = props.baseSalary;
+    response.actualSalary = props.actualSalary;
     response.deductionFee = props.deductionFee;
     response.workDay = props.workDay;
     response.allowance = props.allowance;

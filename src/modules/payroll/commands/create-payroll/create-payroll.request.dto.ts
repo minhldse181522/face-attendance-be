@@ -26,6 +26,34 @@ export class CreatePayrollRequestDto {
   baseSalary: number;
 
   @ApiPropertyOptional({
+    example: '200000',
+    description: 'Tổng lương -> workHour * baseSalary',
+  })
+  @IsOptional()
+  actualSalary?: number | null;
+
+  @ApiPropertyOptional({
+    example: 20,
+    description: 'Tổng số giờ làm',
+  })
+  @IsOptional()
+  totalWorkHour?: number | null;
+
+  @ApiPropertyOptional({
+    example: 'NOTPAID',
+    description: 'Trạng thái thanh toán',
+  })
+  @IsOptional()
+  status?: string | null;
+
+  @ApiPropertyOptional({
+    example: new Date(),
+    description: 'Ngày thanh toán',
+  })
+  @IsOptional()
+  paidDate?: Date | null;
+
+  @ApiPropertyOptional({
     example: 500000,
     description: 'Các khoản khấu trừ',
   })

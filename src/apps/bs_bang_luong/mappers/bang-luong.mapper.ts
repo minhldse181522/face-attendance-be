@@ -11,12 +11,17 @@ export class BangLuongMapper {
     response.userCode = props.userCode;
     response.month = props.month;
     response.baseSalary = props.baseSalary;
+    response.actualSalary = props.actualSalary;
     response.deductionFee = props.deductionFee;
     response.workDay = props.workDay;
     response.allowance = props.allowance;
     response.overtimeSalary = props.overtimeSalary;
     response.lateFine = props.lateFine;
     response.otherFee = props.otherFee;
+    response.totalWorkHour = props.totalWorkHour;
+    response.status = props.status;
+    response.paidDate = props.paidDate;
+    response.lateTimeCount = props.lateTimeCount;
     response.totalSalary = props.totalSalary;
     return response;
   }

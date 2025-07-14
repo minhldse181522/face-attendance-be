@@ -108,7 +108,8 @@ export class PrismaPayrollRepository
 
   async findBangLuongByParamAndRole(
     params: PrismaPaginatedQueryBase<Prisma.PayrollWhereInput>,
-    month?: number,
+    month?: string,
+    userCode?: string,
   ): Promise<Paginated<PayrollEntity>> {
     const client = await this._getClient();
     const { limit, offset, page, where = {}, orderBy } = params;
@@ -181,8 +182,16 @@ export class PrismaPayrollRepository
     }
 
     if (month) {
+      const [monthPartRaw, yearFullRaw] = String(month).split('/');
+      const normalizedMonth = String(Number(monthPartRaw));
+      const yearPart = yearFullRaw ? yearFullRaw.slice(-2) : '';
+
+      const finalMonth = yearPart
+        ? `${normalizedMonth}/${yearPart}`
+        : `${normalizedMonth}/`;
+
       finalWhere.month = {
-        contains: `${month}/`,
+        equals: finalMonth,
       };
     }
 
@@ -190,7 +199,10 @@ export class PrismaPayrollRepository
       client.payroll.findMany({
         skip: offset,
         take: limit,
-        where: finalWhere,
+        where: {
+          ...finalWhere,
+          userCode,
+        },
         include: {
           user: true,
         },
@@ -198,7 +210,10 @@ export class PrismaPayrollRepository
       }),
 
       client.payroll.count({
-        where: finalWhere,
+        where: {
+          ...finalWhere,
+          userCode,
+        },
       }),
     ]);
 

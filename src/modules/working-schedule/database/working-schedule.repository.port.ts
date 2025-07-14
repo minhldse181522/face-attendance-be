@@ -7,6 +7,17 @@ import {
 import { Prisma } from '@prisma/client';
 import { Option } from 'oxide.ts';
 
+export interface FindAllWorkingScheduleWithShiftParams {
+  userCode?: string;
+  date?: {
+    gte?: Date;
+    lte?: Date;
+  };
+  status?: {
+    in?: string[];
+  };
+}
+
 export interface WorkingScheduleRepositoryPort
   extends RepositoryPort<WorkingScheduleEntity> {
   findWorkingScheduleByParams(
@@ -35,4 +46,7 @@ export interface WorkingScheduleRepositoryPort
     }[]
   >;
   getAllUserCodes(): Promise<string[]>;
+  findAllWorkingScheduleWithShift(
+    params: FindAllWorkingScheduleWithShiftParams,
+  ): Promise<WorkingScheduleEntity[]>;
 }

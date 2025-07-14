@@ -7,6 +7,10 @@ export interface PayrollProps {
   userCode: string;
   month: string;
   baseSalary: number;
+  actualSalary?: number | null;
+  totalWorkHour?: number | null;
+  status?: string | null;
+  paidDate?: Date | null;
   deductionFee?: number | null;
   workDay: number;
   allowance: number;
@@ -28,6 +32,10 @@ export interface CreatePayrollProps {
   userCode: string;
   month: string;
   baseSalary: number;
+  actualSalary?: number | null;
+  totalWorkHour?: number | null;
+  status?: string | null;
+  paidDate?: Date | null;
   deductionFee?: number | null;
   workDay: number;
   allowance: number;
@@ -45,6 +53,10 @@ export interface UpdatePayrollProps {
   userCode?: string | null;
   month?: string | null;
   baseSalary?: number | null;
+  actualSalary?: number | null;
+  totalWorkHour?: number | null;
+  status?: string | null;
+  paidDate?: Date | null;
   deductionFee?: number | null;
   workDay?: number | null;
   allowance?: number | null;
