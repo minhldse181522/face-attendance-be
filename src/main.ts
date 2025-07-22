@@ -7,6 +7,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import { BigIntSerializationInterceptor } from './libs/interceptors/bigint-serialization.interceptor';
+import multer from 'multer';
 
 function serializeBigInt(obj) {
   return JSON.parse(
@@ -73,6 +74,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new BigIntSerializationInterceptor());
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
   app.enableShutdownHooks();
 
   setupSwagger(app);
