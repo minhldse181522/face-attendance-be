@@ -68,7 +68,14 @@ export class DirectUploadHttpController {
   })
   @RateLimit(systemConfig.uploadRateLimit)
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: systemConfig.uploadFileSize, // Use specific upload file size limit
+        fieldSize: systemConfig.bodySizeLimit,
+      },
+    }),
+  )
   @Post(routesV1.upload.directUpload)
   async directUpload(
     @Body() body: DirectUploadDto,
@@ -78,7 +85,7 @@ export class DirectUploadHttpController {
         validators: [
           new FileSizeValidator({
             multiple: false,
-            maxSizeBytes: systemConfig.bodySizeLimit,
+            maxSizeBytes: systemConfig.uploadFileSize, // Use specific upload size limit
           }),
           new FileTypeValidator({
             multiple: false,
