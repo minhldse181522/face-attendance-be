@@ -40,6 +40,14 @@ export type UpdateTimeKeepingServiceResult = Result<
   | CannotCheckOutBecauseNotWorkError
 >;
 
+function convertUTCToVNTime(date: Date): Date {
+  return new Date(date.getTime() + 7 * 60 * 60 * 1000);
+}
+
+function convertVNTimeToUTC(date: Date): Date {
+  return new Date(date.getTime() - 7 * 60 * 60 * 1000);
+}
+
 @CommandHandler(UpdateTimeKeepingCommand)
 export class UpdateTimeKeepingService
   implements ICommandHandler<UpdateTimeKeepingCommand>
@@ -88,23 +96,27 @@ export class UpdateTimeKeepingService
     // Không cho checkout trước khi hết ca làm
     const shiftEndTime = shift.unwrap().getProps().endTime;
     const shiftDate = workingScheduleProps.date;
-    const allowCheckOutTime = new Date(shiftDate!);
-    allowCheckOutTime.setUTCHours(shiftEndTime!.getUTCHours());
-    allowCheckOutTime.setUTCMinutes(shiftEndTime!.getUTCMinutes());
-    allowCheckOutTime.setUTCSeconds(0);
-    allowCheckOutTime.setUTCMilliseconds(0);
+    const allowCheckOutTimeVN = convertUTCToVNTime(new Date(shiftDate!));
+    allowCheckOutTimeVN.setHours(
+      shiftEndTime!.getHours(),
+      shiftEndTime!.getMinutes(),
+      0,
+      0,
+    );
 
-    const checkOutTime = new Date(command.checkOutTime!);
+    const checkOutTime = convertUTCToVNTime(new Date(command.checkOutTime!));
 
-    if (checkOutTime < allowCheckOutTime) {
+    if (checkOutTime < allowCheckOutTimeVN) {
       return Err(new NotAllowToCheckout());
     }
 
     // không được checkout sau 12h đêm
-    const midnight = new Date(shiftDate!);
-    midnight.setUTCDate(midnight.getUTCDate() + 1);
-    midnight.setUTCHours(0, 0, 0, 0);
-    if (checkOutTime >= midnight) {
+    const rawShiftDate = new Date(shiftDate!);
+    rawShiftDate.setDate(rawShiftDate.getDate() + 1);
+    rawShiftDate.setUTCHours(0, 0, 0, 0);
+    const midnightVN = convertUTCToVNTime(rawShiftDate);
+
+    if (checkOutTime >= midnightVN) {
       return Err(new NotAllowToCheckoutAfterMidNight());
     }
 
@@ -113,10 +125,10 @@ export class UpdateTimeKeepingService
     const workingDate = new Date(workingScheduleProps.date!);
 
     const shiftStartDateTime = new Date(workingDate);
-    shiftStartDateTime.setUTCHours(shiftStartTime!.getUTCHours());
-    shiftStartDateTime.setUTCMinutes(shiftStartTime!.getUTCMinutes());
-    shiftStartDateTime.setUTCSeconds(0);
-    shiftStartDateTime.setUTCMilliseconds(0);
+    shiftStartDateTime.setHours(shiftStartTime!.getHours());
+    shiftStartDateTime.setMinutes(shiftStartTime!.getMinutes());
+    shiftStartDateTime.setSeconds(0);
+    shiftStartDateTime.setMilliseconds(0);
 
     const TimeKeeping = found.unwrap();
     let status;
