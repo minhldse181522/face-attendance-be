@@ -143,7 +143,7 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
           },
         }),
       );
-    if (alreadyCheckIn.isErr()) {
+    if (alreadyCheckIn.isOk()) {
       return Err(new AlreadyCheckInError());
     }
 
