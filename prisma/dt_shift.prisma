@@ -7,7 +7,7 @@ model Shift {
   endTime        DateTime?  @map("end_time") @db.Timestamptz(0)
   status         String     @default("ACTIVE") @map("status") @db.VarChar(10)
   lunchBreak     String?    @map("lunch_break") @db.VarChar(10)
-  workingHours   Int?       @map("working_hours") @db.Integer()
+  workingHours   Decimal?   @map("working_hours") @db.Decimal(10, 2)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)

@@ -69,7 +69,11 @@ export class TinhBangLuongCronService {
           const actualSalaryHours = workingSchedules.reduce((sum, ws) => {
             const workingHours =
               ws.getProps().shift?.getProps().workingHours ?? 0;
-            return sum + workingHours;
+            const workingHoursNumber =
+              typeof workingHours === 'number'
+                ? workingHours
+                : Number(workingHours);
+            return sum + workingHoursNumber;
           }, 0);
 
           const workDay = workingSchedules.filter((ws) =>

@@ -7,6 +7,7 @@ import { ShiftEntity } from '../../domain/shift.entity';
 import { ShiftAlreadyExistsError } from '../../domain/shift.error';
 import { SHIFT_REPOSITORY } from '../../shift.di-tokens';
 import { CreateShiftCommand } from './create-shift.command';
+import { Decimal } from '@prisma/client/runtime/library';
 
 export type CreateShiftServiceResult = Result<
   ShiftEntity,
@@ -57,7 +58,6 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
       workingHours = (durationMs - lunchMs) / (1000 * 60 * 60);
       workingHours = Math.round(workingHours * 100) / 100;
     }
-
     const shift = ShiftEntity.create({
       code: code,
       name: command.name ?? null,
@@ -65,7 +65,7 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
       endTime: end,
       status: 'ACTIVE',
       lunchBreak: lunchBreak,
-      workingHours: workingHours,
+      workingHours: workingHours !== null ? new Decimal(workingHours) : null,
       createdBy: command.createdBy,
     });
 

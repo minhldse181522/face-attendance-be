@@ -1,3 +1,4 @@
+import { Decimal } from '@prisma/client/runtime/library';
 import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/working-schedule.entity';
 
 export enum ShiftStatusEnum {
@@ -13,7 +14,7 @@ export interface ShiftProps {
   endTime?: Date | null;
   status: string;
   lunchBreak?: string | null;
-  workingHours?: number | null;
+  workingHours?: Decimal | null;
   createdBy: string;
   updatedBy?: string | null;
   inUseCount?: number;
@@ -28,7 +29,7 @@ export interface CreateShiftProps {
   endTime?: Date | null;
   status: string;
   lunchBreak?: string | null;
-  workingHours?: number | null;
+  workingHours?: Decimal | null;
   createdBy: string;
 }
 
@@ -39,6 +40,6 @@ export interface UpdateShiftProps {
   endTime?: Date | null;
   status?: string | null;
   lunchBreak?: string | null;
-  workingHours?: number | null;
+  workingHours?: Decimal | null;
   updatedBy: string | null;
 }
