@@ -126,6 +126,8 @@ datasource db {
 // From dt_branch.prisma
 
 // From dt_branch.prisma
+
+// From dt_branch.prisma
 model Branch {
   id           BigInt  @id @default(autoincrement())
 
@@ -299,8 +301,8 @@ model Shift {
 
   code           String?    @unique @map("code") @db.VarChar(50)
   name           String?    @map("name") @db.VarChar(200)
-  startTime      DateTime?  @map("start_time") @db.Time(0)
-  endTime        DateTime?  @map("end_time") @db.Time(0)
+  startTime      DateTime?  @map("start_time") @db.Timestamptz(0)
+  endTime        DateTime?  @map("end_time") @db.Timestamptz(0)
   status         String     @default("ACTIVE") @map("status") @db.VarChar(10)
   lunchBreak     String?    @map("lunch_break") @db.VarChar(10)
   workingHours   Int?       @map("working_hours") @db.Integer()

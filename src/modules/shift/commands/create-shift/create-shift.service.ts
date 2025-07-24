@@ -8,11 +8,6 @@ import { ShiftAlreadyExistsError } from '../../domain/shift.error';
 import { SHIFT_REPOSITORY } from '../../shift.di-tokens';
 import { CreateShiftCommand } from './create-shift.command';
 
-function convertUtcToVietnamTime(dateUtc: Date): Date {
-  const vietnamOffsetMs = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
-  return new Date(dateUtc.getTime() + vietnamOffsetMs);
-}
-
 export type CreateShiftServiceResult = Result<
   ShiftEntity,
   ShiftAlreadyExistsError
@@ -37,35 +32,30 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
     let lunchBreak: string | null = null;
 
     if (command.startTime && command.endTime) {
-      const startUtc = new Date(command.startTime);
-      const endUtc = new Date(command.endTime);
+      start = new Date(command.startTime); // giữ nguyên UTC
+      end = new Date(command.endTime); // giữ nguyên UTC
 
-      // Convert to Vietnam timezone
-      start = convertUtcToVietnamTime(startUtc);
-      end = convertUtcToVietnamTime(endUtc);
-
-      let durationMs: number;
       const startMs = start.getTime();
       const endMs = end.getTime();
 
-      if (endMs < startMs) {
-        // Ca làm việc qua đêm (end nhỏ hơn start)
-        durationMs = endMs + 24 * 60 * 60 * 1000 - startMs;
-      } else {
-        durationMs = endMs - startMs;
-      }
+      // Tính tổng thời gian ca làm
+      let durationMs =
+        endMs >= startMs
+          ? endMs - startMs
+          : endMs + 24 * 60 * 60 * 1000 - startMs; // ca qua đêm
 
+      // Tính thời gian nghỉ trưa
       let lunchMs = 0;
       if (command.lunchBreak) {
         lunchBreak = command.lunchBreak;
         const [hoursStr, minutesStr] = lunchBreak.split(':');
-        const hours = parseInt(hoursStr, 10);
-        const minutes = parseInt(minutesStr, 10);
+        const hours = parseInt(hoursStr || '0', 10);
+        const minutes = parseInt(minutesStr || '0', 10);
         lunchMs = (hours * 60 + minutes) * 60 * 1000;
       }
 
-      workingHours = (durationMs - lunchMs) / (1000 * 60 * 60); // đổi sang giờ
-      workingHours = Math.round(workingHours * 100) / 100; // làm tròn 2 chữ số thập phân
+      workingHours = (durationMs - lunchMs) / (1000 * 60 * 60);
+      workingHours = Math.round(workingHours * 100) / 100;
     }
 
     const shift = ShiftEntity.create({

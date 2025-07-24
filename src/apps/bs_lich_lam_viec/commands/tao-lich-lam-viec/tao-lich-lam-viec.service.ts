@@ -1,4 +1,3 @@
-import { TIME_KEEPING_REPOSITORY } from './../../../../modules/time-keeping/time-keeping.di-tokens';
 import { Inject } from '@nestjs/common';
 import {
   CommandBus,
@@ -8,11 +7,13 @@ import {
 } from '@nestjs/cqrs';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
 import { GenerateWorkingDate } from '@src/libs/utils/generate-working-dates.util';
+import { PositionNotFoundError } from '@src/modules/position/domain/position.error';
 import { ShiftNotFoundError } from '@src/modules/shift/domain/shift.error';
 import {
   FindShiftByParamsQuery,
   FindShiftByParamsQueryResult,
 } from '@src/modules/shift/queries/find-shift-by-params/find-shift-by-params.query-handler';
+import { TimeKeepingRepositoryPort } from '@src/modules/time-keeping/database/time-keeping.repository.port';
 import { UserContractRepositoryPort } from '@src/modules/user-contract/database/user-contract.repository.port';
 import { USER_CONTRACT_REPOSITORY } from '@src/modules/user-contract/user-contract.di-tokens';
 import { CreateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/create-working-schedule/create-working-schedule.command';
@@ -29,24 +30,12 @@ import {
   UserContractDoesNotExistError,
   WorkingDateAlreadyExistError,
 } from '../../domain/lich-lam-viec.error';
+import { TIME_KEEPING_REPOSITORY } from './../../../../modules/time-keeping/time-keeping.di-tokens';
 import {
   FindUserContractByParamsQuery,
   FindUserContractByParamsQueryResult,
 } from './../../../../modules/user-contract/queries/find-user-contract-by-params/find-user-contract-by-params.query-handler';
 import { CreateLichLamViecCommand } from './tao-lich-lam-viec.command';
-import { CreatePayrollCommand } from '@src/modules/payroll/commands/create-payroll/create-payroll.command';
-import { TimeKeepingRepositoryPort } from '@src/modules/time-keeping/database/time-keeping.repository.port';
-import { FindPositionQueryResult } from '@src/modules/position/queries/find-positions/find-positions.query-handler';
-import {
-  FindPositionByParamsQuery,
-  FindPositionByParamsQueryResult,
-} from '@src/modules/position/queries/find-position-by-params/find-postion-by-params.query-handler';
-import { PositionNotFoundError } from '@src/modules/position/domain/position.error';
-import {
-  FindPayrollByParamsQuery,
-  FindPayrollByParamsQueryResult,
-} from '@src/modules/payroll/queries/find-payroll-by-params/find-payroll-by-params.query-handler';
-import { UpdatePayrollCommand } from '@src/modules/payroll/commands/update-payroll/update-payroll.command';
 
 export type CreateLichLamViecServiceResult = Result<
   WorkingScheduleEntity[],
