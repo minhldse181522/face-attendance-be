@@ -1,6 +1,5 @@
 import { ResponseBase } from '@libs/api/response.base';
 import { ApiProperty } from '@nestjs/swagger';
-import { Decimal } from '@prisma/client/runtime/library';
 
 export class ShiftResponseDto extends ResponseBase<any> {
   @ApiProperty({
@@ -40,8 +39,8 @@ export class ShiftResponseDto extends ResponseBase<any> {
   lunchBreak?: string | null;
 
   @ApiProperty({
-    example: 7,
+    example: 7.5,
     description: 'Thời gian làm việc',
   })
-  workingHours?: Decimal | null;
+  workingHours?: number | null;
 }
