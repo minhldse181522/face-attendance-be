@@ -32,9 +32,7 @@ export class LichLamViecMapper {
       ? dayjs(shiftEndTime).tz('Asia/Ho_Chi_Minh').format('HH:mm')
       : null;
     response.workingHours =
-      props.shift?.getProps().workingHours != null
-        ? Number(props.shift?.getProps().workingHours)
-        : null;
+      props.shift?.getProps().workingHours?.toNumber() ?? null;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
     response.workingHourReal =
