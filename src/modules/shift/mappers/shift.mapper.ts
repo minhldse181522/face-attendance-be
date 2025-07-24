@@ -86,7 +86,9 @@ export class ShiftMapper
     response.endTime = props.endTime;
     response.status = props.status;
     response.lunchBreak = props.lunchBreak;
-    response.workingHours = props.workingHours;
+    response.workingHours = props.workingHours
+      ? props.workingHours.toNumber()
+      : null;
     return response;
   }
 }

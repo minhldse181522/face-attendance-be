@@ -1,3 +1,4 @@
+import { Decimal } from '@prisma/client/runtime/library';
 import { Command, CommandProps } from '@src/libs/ddd';
 
 export class CreateShiftCommand extends Command {

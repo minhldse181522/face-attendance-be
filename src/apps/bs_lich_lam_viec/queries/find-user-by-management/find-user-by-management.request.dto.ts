@@ -5,7 +5,7 @@ import { IsNotEmpty, MaxLength } from 'class-validator';
 
 export class FindUserByManagementRequestDto extends FilterDtoWithQuickSearch<Prisma.UserWhereInput> {
   @ApiProperty({
-    example: 'R1',
+    example: 'USER0001',
     description: 'Mã nhân viên',
   })
   @IsNotEmpty()

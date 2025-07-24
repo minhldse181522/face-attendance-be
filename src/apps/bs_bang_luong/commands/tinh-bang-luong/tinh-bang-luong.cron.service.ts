@@ -68,8 +68,9 @@ export class TinhBangLuongCronService {
 
           const actualSalaryHours = workingSchedules.reduce((sum, ws) => {
             const workingHours =
-              ws.getProps().shift?.getProps().workingHours ?? 0;
-            return sum + workingHours;
+              ws.getProps().shift?.getProps().workingHours ?? null;
+            const workingHoursNumber = workingHours?.toNumber() ?? 0;
+            return sum + workingHoursNumber;
           }, 0);
 
           const workDay = workingSchedules.filter((ws) =>
@@ -180,6 +181,7 @@ export class TinhBangLuongCronService {
                 paidDate: null,
                 allowance,
                 overtimeSalary: totalOvertimeHours,
+                salaryOvertime: overtimeRate,
                 workDay,
                 lateFine,
                 lateTimeCount,
@@ -199,6 +201,7 @@ export class TinhBangLuongCronService {
                 totalWorkHour: actualSalaryHours,
                 allowance,
                 overtimeSalary: totalOvertimeHours,
+                salaryOvertime: overtimeRate,
                 workDay,
                 lateFine,
                 lateTimeCount,

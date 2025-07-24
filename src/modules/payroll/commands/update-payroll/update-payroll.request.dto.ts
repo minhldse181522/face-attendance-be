@@ -75,6 +75,13 @@ export class UpdatePayrollRequestDto {
   overtimeSalary?: number;
 
   @ApiPropertyOptional({
+    example: 300000,
+    description: 'Lương tăng ca',
+  })
+  @IsOptional()
+  salaryOvertime?: number | null;
+
+  @ApiPropertyOptional({
     example: 150000,
     description: 'Tiền phạt đi trễ',
   })

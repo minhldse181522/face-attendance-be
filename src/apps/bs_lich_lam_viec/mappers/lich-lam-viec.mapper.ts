@@ -26,25 +26,13 @@ export class LichLamViecMapper {
     const shiftStartTime = props.shift?.getProps().startTime;
     const shiftEndTime = props.shift?.getProps().endTime;
     response.startShiftTime = shiftStartTime
-      ? dayjs
-          .tz(
-            `1970-01-01T${dayjs(shiftStartTime).utc().format('HH:mm')}:00`,
-            'Asia/Ho_Chi_Minh',
-          )
-          .format('HH:mm')
+      ? dayjs(shiftStartTime).tz('Asia/Ho_Chi_Minh').format('HH:mm')
       : null;
-
     response.endShiftTime = shiftEndTime
-      ? dayjs
-          .tz(
-            `1970-01-01T${dayjs(shiftEndTime).utc().format('HH:mm')}:00`,
-            'Asia/Ho_Chi_Minh',
-          )
-          .format('HH:mm')
+      ? dayjs(shiftEndTime).tz('Asia/Ho_Chi_Minh').format('HH:mm')
       : null;
-    response.workingHours = props.shift?.getProps().workingHours
-      ? props.shift?.getProps().workingHours
-      : props.status;
+    response.workingHours =
+      props.shift?.getProps().workingHours?.toNumber() ?? null;
     response.checkInTime = props.timeKeeping?.getProps().checkInTime ?? null;
     response.checkOutTime = props.timeKeeping?.getProps().checkOutTime ?? null;
     response.workingHourReal =

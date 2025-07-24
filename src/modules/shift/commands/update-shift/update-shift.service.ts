@@ -10,6 +10,7 @@ import {
 } from '../../domain/shift.error';
 import { SHIFT_REPOSITORY } from '../../shift.di-tokens';
 import { UpdateShiftCommand } from './update-shift.command';
+import { Decimal } from '@prisma/client/runtime/library';
 
 export type UpdateShiftServiceResult = Result<
   ShiftEntity,
@@ -31,32 +32,39 @@ export class UpdateShiftService implements ICommandHandler<UpdateShiftCommand> {
       return Err(new ShiftNotFoundError());
     }
 
-    const Shift = found.unwrap();
+    const shift = found.unwrap();
+
+    // Lấy thời gian start/end mới hoặc giữ nguyên nếu không truyền
     const start = command.startTime
       ? new Date(command.startTime)
-      : Shift.getProps().startTime;
+      : shift.getProps().startTime;
+
     const end = command.endTime
       ? new Date(command.endTime)
-      : Shift.getProps().endTime;
+      : shift.getProps().endTime;
+
+    // Lấy lunchBreak hoặc giữ nguyên
+    const lunchBreak: string | null =
+      command.lunchBreak ?? shift.getProps().lunchBreak ?? null;
 
     let workingHours: number | null = null;
-    let lunchBreak: string | null =
-      command.lunchBreak ?? Shift.getProps().lunchBreak ?? null;
 
     if (start && end) {
       const startMs = start.getTime();
       const endMs = end.getTime();
 
-      let durationMs =
+      // Ca qua đêm
+      const durationMs =
         endMs >= startMs
           ? endMs - startMs
           : endMs + 24 * 60 * 60 * 1000 - startMs;
 
+      // Tính thời lượng nghỉ trưa
       let lunchMs = 0;
       if (lunchBreak) {
         const [hStr, mStr] = lunchBreak.split(':');
-        const hours = parseInt(hStr, 10);
-        const minutes = parseInt(mStr, 10);
+        const hours = parseInt(hStr || '0', 10);
+        const minutes = parseInt(mStr || '0', 10);
         lunchMs = (hours * 60 + minutes) * 60 * 1000;
       }
 
@@ -64,19 +72,21 @@ export class UpdateShiftService implements ICommandHandler<UpdateShiftCommand> {
       workingHours = Math.round(workingHours * 100) / 100;
     }
 
-    const updatedResult = Shift.update({
+    // Gọi update entity
+    const updatedResult = shift.update({
       ...command.getExtendedProps<UpdateShiftCommand>(),
       startTime: start,
       endTime: end,
       lunchBreak,
-      workingHours,
+      workingHours: workingHours !== null ? new Decimal(workingHours) : null,
     });
+
     if (updatedResult.isErr()) {
       return updatedResult;
     }
 
     try {
-      const updatedShift = await this.shiftRepo.update(Shift);
+      const updatedShift = await this.shiftRepo.update(shift);
       return Ok(updatedShift);
     } catch (error: any) {
       if (error instanceof ConflictException) {

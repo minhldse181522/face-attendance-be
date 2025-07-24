@@ -14,6 +14,7 @@ export class UpdatePayrollCommand extends Command {
   readonly workDay?: number | null;
   readonly allowance?: number | null;
   readonly overtimeSalary?: number | null;
+  readonly salaryOvertime?: number | null;
   readonly lateFine?: number | null;
   readonly lateTimeCount?: number | null;
   readonly otherFee?: number | null;

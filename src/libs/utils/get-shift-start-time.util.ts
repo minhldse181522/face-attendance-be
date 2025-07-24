@@ -1,8 +1,8 @@
 export function getShiftStartDateTime(date: Date, shiftStartTime: Date): Date {
   const shiftStartDateTime = new Date(date);
-  shiftStartDateTime.setUTCHours(shiftStartTime.getUTCHours());
-  shiftStartDateTime.setUTCMinutes(shiftStartTime.getUTCMinutes());
-  shiftStartDateTime.setUTCSeconds(0);
-  shiftStartDateTime.setUTCMilliseconds(0);
+  shiftStartDateTime.setHours(shiftStartTime.getHours());
+  shiftStartDateTime.setMinutes(shiftStartTime.getMinutes());
+  shiftStartDateTime.setSeconds(0);
+  shiftStartDateTime.setMilliseconds(0);
   return shiftStartDateTime;
 }

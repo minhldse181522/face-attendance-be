@@ -12,6 +12,7 @@ export class CreatePayrollCommand extends Command {
   readonly workDay: number;
   readonly allowance: number;
   readonly overtimeSalary: number;
+  readonly salaryOvertime?: number | null;
   readonly lateFine: number;
   readonly lateTimeCount?: number | null;
   readonly otherFee?: number | null;

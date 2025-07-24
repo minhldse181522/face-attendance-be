@@ -99,10 +99,10 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
   endShiftTime?: string | null;
 
   @ApiProperty({
-    example: 7,
+    example: 7.5,
     description: 'Thời gian làm việc',
   })
-  workingHours?: any | null;
+  workingHours?: number | null;
 
   @ApiProperty({
     example: new Date(),
