@@ -130,12 +130,8 @@ export class UpdateTimeKeepingService
     shiftStartDateTime.setUTCMilliseconds(0);
 
     const TimeKeeping = found.unwrap();
-    let status;
-    if (workingScheduleProps.status === 'LATE') {
-      status = 'LATE';
-    } else {
-      status = 'END';
-    }
+    const currentStatus = TimeKeeping.getProps().status;
+    let status = currentStatus === 'LATE' ? 'LATE' : 'END';
 
     const breakTimeStr = shift.unwrap().getProps().lunchBreak;
     const breakTimeInMinutes = parseBreakTimeToMinutes(breakTimeStr);

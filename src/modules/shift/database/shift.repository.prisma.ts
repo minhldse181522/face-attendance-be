@@ -14,6 +14,16 @@ import { DropDownResult } from '@src/libs/utils/dropdown.util';
 import { Paginated } from '@src/libs/ddd';
 import { ShiftStatusEnum } from '../domain/shift.type';
 
+function formatToHHMMInVietnamTimezone(date: Date | null): string {
+  if (!date) return '';
+  return date.toLocaleTimeString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false, // dùng định dạng 24h
+    timeZone: 'Asia/Ho_Chi_Minh', // ép timezone về GMT+7
+  });
+}
+
 @Injectable()
 export class PrismaShiftRepository
   extends PrismaMultiTenantRepositoryBase<ShiftEntity, ShiftModel>
@@ -55,13 +65,7 @@ export class PrismaShiftRepository
       },
     });
     return result.map((item) => ({
-      label: `${item.name} - ${item.startTime?.toLocaleTimeString('vi-VN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })} - ${item.endTime?.toLocaleTimeString('vi-VN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })}`,
+      label: `${item.name} - ${formatToHHMMInVietnamTimezone(item.startTime)} - ${formatToHHMMInVietnamTimezone(item.endTime)}`,
       value: item.code ?? '',
     }));
   }

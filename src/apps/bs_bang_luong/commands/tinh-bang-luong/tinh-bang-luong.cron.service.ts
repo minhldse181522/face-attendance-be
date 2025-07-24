@@ -62,7 +62,7 @@ export class TinhBangLuongCronService {
                 lte: endOfMonth(now),
               },
               status: {
-                in: ['END', 'LATE', 'FORGET'],
+                in: ['END', 'FORGET'],
               },
             });
 
@@ -77,8 +77,24 @@ export class TinhBangLuongCronService {
             ['END', 'FORGET'].includes(ws.getProps().status || ''),
           ).length;
 
-          const lateCount = workingSchedules.filter(
-            (ws) => ws.getProps().status === 'LATE',
+          const timeKeepingResult: FindManyTimeKeepingByParamsQueryResult =
+            await this.queryBus.execute(
+              new FindManyTimeKeepingByParamsQuery({
+                where: {
+                  userCode,
+                  checkInTime: {
+                    gte: startOfMonth(now),
+                    lte: endOfMonth(now),
+                  },
+                  status: {
+                    in: ['LATE', 'FORGET'],
+                  },
+                },
+              }),
+            );
+          const timeKeepings = timeKeepingResult.unwrapOr([]);
+          const lateCount = timeKeepings.filter(
+            (tk) => tk.getProps().status === 'LATE',
           ).length;
 
           const forgetCount = workingSchedules.filter(
