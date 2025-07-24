@@ -97,4 +97,10 @@ export class BangLuongResponseDto extends ResponseBase<any> {
     description: 'Ngày thanh toán',
   })
   paidDate?: Date | null;
+
+  @ApiPropertyOptional({
+    example: 100000,
+    description: 'Lương làm thêm',
+  })
+  overTimeSalaryPosition?: number | null;
 }

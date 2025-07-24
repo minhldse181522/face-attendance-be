@@ -82,6 +82,13 @@ export class CreatePayrollRequestDto {
   overtimeSalary: number;
 
   @ApiProperty({
+    example: 300000,
+    description: 'Lương tăng ca',
+  })
+  @IsNotEmpty()
+  salaryOvertime?: number | null;
+
+  @ApiProperty({
     example: 150000,
     description: 'Tiền phạt đi trễ',
   })

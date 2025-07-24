@@ -40,6 +40,14 @@ export type UpdateTimeKeepingServiceResult = Result<
   | CannotCheckOutBecauseNotWorkError
 >;
 
+function parseBreakTimeToMinutes(breakTime: string | null | undefined): number {
+  if (!breakTime) return 0;
+  const [hoursStr, minutesStr] = breakTime.split(':');
+  const hours = parseInt(hoursStr, 10);
+  const minutes = parseInt(minutesStr, 10);
+  return hours * 60 + minutes;
+}
+
 function convertUTCToVNTime(date: Date): Date {
   return new Date(date.getTime() + 7 * 60 * 60 * 1000);
 }
@@ -129,7 +137,21 @@ export class UpdateTimeKeepingService
       status = 'END';
     }
 
-    const workingHourMs = checkOutTime.getTime() - shiftStartDateTime.getTime();
+    const breakTimeStr = shift.unwrap().getProps().lunchBreak;
+    const breakTimeInMinutes = parseBreakTimeToMinutes(breakTimeStr);
+
+    const checkinTime = TimeKeeping.getProps().checkInTime!;
+    const shiftEndDateTime = new Date(shiftDate);
+    shiftEndDateTime.setUTCHours(shiftEndTime!.getHours());
+    shiftEndDateTime.setUTCMinutes(shiftEndTime!.getMinutes());
+    shiftEndDateTime.setUTCSeconds(0);
+    shiftEndDateTime.setUTCMilliseconds(0);
+
+    const workingHourMs =
+      shiftEndDateTime.getTime() -
+      new Date(checkinTime).getTime() -
+      breakTimeInMinutes * 60 * 1000;
+
     const workingHourNumber = (workingHourMs / (1000 * 60 * 60)).toFixed(2);
 
     const updatedResult = TimeKeeping.update({
