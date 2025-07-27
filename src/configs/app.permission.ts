@@ -120,4 +120,9 @@ export const resourcesV1 = {
     displayName: 'Bảng lương cho nhân viên',
     parent: 'Nghiệp vụ',
   },
+  BS_REPORT: {
+    name: 'Báo cáo',
+    displayName: 'Báo cáo tổng hợp',
+    parent: 'Nghiệp vụ',
+  },
 };
