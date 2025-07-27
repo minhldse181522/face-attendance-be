@@ -21,6 +21,12 @@ export class PayrollResponseDto extends ResponseBase<any> {
   month: string;
 
   @ApiProperty({
+    example: 'NOTPAID',
+    description: 'Trạng thái',
+  })
+  status?: string | null;
+
+  @ApiProperty({
     example: 8000000,
     description: 'Lương cơ bản',
   })

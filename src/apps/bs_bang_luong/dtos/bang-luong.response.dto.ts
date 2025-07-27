@@ -103,4 +103,10 @@ export class BangLuongResponseDto extends ResponseBase<any> {
     description: 'Lương làm thêm',
   })
   overTimeSalaryPosition?: number | null;
+
+  @ApiPropertyOptional({
+    example: 'Phạm Văn A',
+    description: 'Tên user',
+  })
+  fullName?: string | null;
 }

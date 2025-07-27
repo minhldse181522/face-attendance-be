@@ -23,8 +23,14 @@ import { FindBangLuongQueryHandler } from './queries/find-bang-luong/find-bang-l
 import { PAYROLL_REPOSITORY } from '@src/modules/payroll/payroll.di-tokens';
 import { PrismaPayrollRepository } from '@src/modules/payroll/database/payroll.repository.prisma';
 import { PayrollModule } from '@src/modules/payroll/payroll.module';
+import { ThanhToanLuongHttpController } from './commands/thanh-toan-luong/thanh-toan-luong.http.controller';
+import { ThanhToanLuongService } from './commands/thanh-toan-luong/thanh-toan-luong.service';
+import { PayrollMapper } from '@src/modules/payroll/mappers/payroll.mapper';
 
-const httpControllers = [FindBangLuongHttpController];
+const httpControllers = [
+  FindBangLuongHttpController,
+  ThanhToanLuongHttpController,
+];
 
 const messageControllers = [];
 
@@ -32,11 +38,18 @@ const cliControllers: Provider[] = [];
 
 const graphqlResolvers: Provider[] = [];
 
-const commandHandlers: Provider[] = [TinhBangLuongCronService];
+const commandHandlers: Provider[] = [
+  TinhBangLuongCronService,
+  ThanhToanLuongService,
+];
 
 const queryHandlers: Provider[] = [FindBangLuongQueryHandler];
 
-const mappers: Provider[] = [BangLuongMapper, UserContractMapper];
+const mappers: Provider[] = [
+  BangLuongMapper,
+  UserContractMapper,
+  PayrollMapper,
+];
 
 const repositories: Provider[] = [
   {

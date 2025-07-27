@@ -14,6 +14,7 @@ import { FindWorkingScheduleHttpController } from './queries/find-working-schedu
 import { FindWorkingScheduleQueryHandler } from './queries/find-working-schedules/find-wroking-schedules.query-handler';
 import { WORKING_SCHEDULE_REPOSITORY } from './working-schedule.di-tokens';
 import { FindWorkingScheduleByParamsQueryHandler } from './queries/find-working-schedule-by-params/find-working-schedule-by-params.query-handler';
+import { FindWorkingScheduleArrayByParamsQueryHandler } from './queries/find-working-schedule-array-by-params/find-working-schedule-array-by-params.query-handler';
 
 const httpControllers = [
   FindWorkingScheduleHttpController,
@@ -37,6 +38,7 @@ const commandHandlers: Provider[] = [
 const queryHandlers: Provider[] = [
   FindWorkingScheduleQueryHandler,
   FindWorkingScheduleByParamsQueryHandler,
+  FindWorkingScheduleArrayByParamsQueryHandler,
 ];
 
 const mappers: Provider[] = [WorkingScheduleMapper];

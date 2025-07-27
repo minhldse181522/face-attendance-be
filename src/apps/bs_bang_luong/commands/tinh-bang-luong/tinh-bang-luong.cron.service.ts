@@ -54,6 +54,24 @@ export class TinhBangLuongCronService {
         const allUser = await this.workingScheduleRepo.getAllUserCodes();
 
         for (const userCode of allUser) {
+          const isStopped: FindManyTimeKeepingByParamsQueryResult =
+            await this.queryBus.execute(
+              new FindManyTimeKeepingByParamsQuery({
+                where: {
+                  userCode,
+                  status: 'STOP',
+                  checkInTime: {
+                    gte: startOfMonth(now),
+                    lte: endOfMonth(now),
+                  },
+                },
+              }),
+            );
+
+          if (isStopped.isOk() && isStopped.unwrap().length > 0) {
+            continue;
+          }
+
           const workingSchedules =
             await this.workingScheduleRepo.findAllWorkingScheduleWithShift({
               userCode,

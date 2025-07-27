@@ -225,4 +225,19 @@ export class PrismaWorkingScheduleRepository
 
     return result.map((record) => this.mapper.toDomain(record));
   }
+
+  async findWorkingScheduleArrayByParams(
+    userCode: string,
+    status: string,
+  ): Promise<WorkingScheduleEntity[]> {
+    const client = await this._getClient();
+    const result = await client.workingSchedule.findMany({
+      where: {
+        userCode,
+        status,
+      },
+    });
+
+    return result.map((record) => this.mapper.toDomain(record));
+  }
 }

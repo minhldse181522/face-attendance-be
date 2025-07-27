@@ -24,6 +24,8 @@ export class BangLuongMapper {
     response.lateTimeCount = props.lateTimeCount;
     response.totalSalary = props.totalSalary;
     response.overTimeSalaryPosition = props.salaryOvertime;
+    response.fullName =
+      props.user?.getProps().firstName + ' ' + props.user?.getProps().lastName;
     return response;
   }
 }

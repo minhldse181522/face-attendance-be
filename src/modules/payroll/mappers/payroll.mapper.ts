@@ -101,6 +101,7 @@ export class PayrollMapper
     response.code = props.code;
     response.userCode = props.userCode;
     response.month = props.month;
+    response.status = props.status;
     response.baseSalary = props.baseSalary;
     response.actualSalary = props.actualSalary;
     response.deductionFee = props.deductionFee;

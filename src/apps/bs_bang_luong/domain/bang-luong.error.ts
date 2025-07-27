@@ -80,3 +80,13 @@ export class LateCheckInError extends ExceptionBase {
     super(LateCheckInError.message, cause, metadata);
   }
 }
+
+export class WorkingScheduleUserNotFound extends ExceptionBase {
+  static readonly message = 'Không tìm thấy lịch làm của nhân viên';
+
+  public readonly code = 'WORKING_SCHEDULE.NOT_FOUND';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(WorkingScheduleUserNotFound.message, cause, metadata);
+  }
+}
