@@ -111,6 +111,9 @@ export const routesV1 = {
       chamCong: `${businessRoot}/cham-cong/:id`,
       bangLuong: `${businessRoot}/bang-luong`,
     },
+    bangLuong: {
+      thanhToanLuong: `${businessRoot}/thanh-toan-luong/:id`,
+    },
   },
   // #endregion
   // #region Dropdown

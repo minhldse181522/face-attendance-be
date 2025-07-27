@@ -115,4 +115,9 @@ export const resourcesV1 = {
     displayName: 'Lịch làm việc cho nhân viên',
     parent: 'Nghiệp vụ',
   },
+  BS_BANG_LUONG: {
+    name: 'Bảng lương',
+    displayName: 'Bảng lương cho nhân viên',
+    parent: 'Nghiệp vụ',
+  },
 };

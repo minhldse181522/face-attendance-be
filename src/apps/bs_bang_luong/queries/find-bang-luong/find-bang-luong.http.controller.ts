@@ -24,7 +24,7 @@ export class FindBangLuongHttpController {
     private readonly mapper: BangLuongMapper,
   ) {}
   @ApiTags(
-    `${resourcesV1.BS_LICH_LAM_VIEC.parent} - ${resourcesV1.BS_LICH_LAM_VIEC.displayName}`,
+    `${resourcesV1.BS_BANG_LUONG.parent} - ${resourcesV1.BS_BANG_LUONG.displayName}`,
   )
   @ApiOperation({ summary: 'Lấy danh sách bảng lương' })
   @ApiBearerAuth()
@@ -32,7 +32,7 @@ export class FindBangLuongHttpController {
     status: HttpStatus.OK,
     type: BangLuongPaginatedResponseDto,
   })
-  @AuthPermission(resourcesV1.BS_LICH_LAM_VIEC.name, resourceScopes.VIEW)
+  @AuthPermission(resourcesV1.BS_BANG_LUONG.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
   @Get(routesV1.businessLogic.lichLamViec.bangLuong)
   async findBangLuong(
