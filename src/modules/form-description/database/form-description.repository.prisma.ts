@@ -257,6 +257,15 @@ export class PrismaFormDescriptionRepository
             },
           };
           break;
+
+        // R4 (Staff) - Chỉ xem forms của chính mình
+        case 'R4':
+          if (userCode) {
+            roleBasedConditions = {
+              submittedBy: userCode, // Chỉ xem các đơn do chính mình gửi
+            };
+          }
+          break;
       }
 
       // Xử lý quyền truy cập dựa theo form.roleCode
