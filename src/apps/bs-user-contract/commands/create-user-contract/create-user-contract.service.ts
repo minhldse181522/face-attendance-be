@@ -26,6 +26,11 @@ export class CreateUserContractService
   ): Promise<CreateUserContractServiceResult> {
     const { branchCodes, ...contractProps } =
       command.getExtendedProps<CreateUserContractCommand>();
+
+    if (contractProps.status === 'INACTIVE') {
+      contractProps.endDate = new Date();
+    }
+
     const userContract = UserContractEntity.create(contractProps);
 
     try {

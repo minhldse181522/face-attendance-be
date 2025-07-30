@@ -57,6 +57,7 @@ export class UpdateUserContractService
     if (found.isNone()) {
       return Err(new UserContractNotFoundError());
     }
+    const currentDate = new Date();
 
     const userContract = found.unwrap();
     const userContractProps = userContract.getProps();
@@ -116,6 +117,7 @@ export class UpdateUserContractService
 
     const updatedResult = userContract.update({
       ...command.getExtendedProps<UpdateUserContractCommand>(),
+      endDate: currentDate,
     });
     if (updatedResult.isErr()) {
       return updatedResult;

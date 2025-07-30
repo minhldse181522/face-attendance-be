@@ -12,6 +12,7 @@ export class CreateUserContractCommand extends Command {
   readonly userBranchCode?: string | null;
   readonly managedBy?: string | null;
   readonly positionCode?: string | null;
+  readonly endDate?: Date | null;
   readonly branchCodes?: string[];
   readonly createdBy: string;
 
