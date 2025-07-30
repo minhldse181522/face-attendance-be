@@ -27,6 +27,7 @@ import { resourceScopes, resourcesV1 } from '@src/configs/app.permission';
 import {
   UserAlreadyExistsError,
   UserNotFoundError,
+  UserWithScheduleExistsError,
 } from '../../domain/user.error';
 import { ReqUser } from '@src/libs/decorators/request-user.decorator';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
@@ -91,7 +92,10 @@ export class UpdateUserHttpController {
             errorCode: error.code,
           });
         }
-        if (error instanceof UserAlreadyExistsError) {
+        if (
+          error instanceof UserAlreadyExistsError ||
+          error instanceof UserWithScheduleExistsError
+        ) {
           throw new ConflictException({
             message: error.message,
             errorCode: error.code,

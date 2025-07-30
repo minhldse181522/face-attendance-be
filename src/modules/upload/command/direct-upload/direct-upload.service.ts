@@ -29,17 +29,10 @@ export class DirectUploadService
 
   async execute(command: DirectUploadCommand): Promise<DirectUploadResult> {
     try {
-      const { key, file, userCode } =
+      const { file, userCode } =
         command.getExtendedProps<DirectUploadCommand>();
 
-      // upload ảnh
-      await this.minIoService.putObject(key, file.buffer, file.size, {
-        'content-type': file.mimetype,
-      });
-      const url = `${this.minIoService.getPublicEndpoint()}/${this.minIoService['_bucketName']}/${key}`;
-      console.log(url);
-
-      // lưu vào user
+      // Tìm user
       const foundUser: FindUserByParamsQueryResult =
         await this.queryBus.execute(
           new FindUserByParamsQuery({
@@ -52,6 +45,20 @@ export class DirectUploadService
         return Err(new UserNotFoundError());
       }
       const userProps = foundUser.unwrap().getProps();
+      const userName = userProps.userName;
+
+      // Tạo key
+      const extension = file.originalname.split('.').pop();
+      const key = `face/${userName}.${extension}`;
+
+      // upload ảnh
+      await this.minIoService.putObject(key, file.buffer, file.size, {
+        'content-type': file.mimetype,
+      });
+      const url = `${this.minIoService.getPublicEndpoint()}/${this.minIoService['_bucketName']}/${key}`;
+      console.log(url);
+
+      // lưu vào user
       const updatedUser = await this.commandBus.execute(
         new UpdateUserCommand({
           userId: userProps.id,

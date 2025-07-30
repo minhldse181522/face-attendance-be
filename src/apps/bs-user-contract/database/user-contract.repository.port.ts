@@ -10,4 +10,5 @@ export interface UserContractRepositoryPort
   ): Promise<UserContractEntity>;
   checkExist(userContractCode: string): Promise<boolean>;
   findByUserCode(userCode: string): Promise<UserContractEntity>;
+  findByUserCodeArray(userCode: string): Promise<UserContractEntity[]>;
 }

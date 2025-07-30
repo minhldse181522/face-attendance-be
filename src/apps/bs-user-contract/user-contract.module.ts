@@ -9,10 +9,13 @@ import { UserContractMapper } from './mappers/user-contract.mapper';
 import { FindUserContractsByUserCodeHttpController } from './queries/find-user-contracts-by-usercode/find-user-contracts-by-usercode.http.controller';
 import { FindUserContractsByUserCodeQueryHandler } from './queries/find-user-contracts-by-usercode/find-user-contracts-by-usercode.query-handler';
 import { BS_USER_CONTRACT_REPOSITORY } from './user-contract.di-tokens';
+import { FindUserContractsByUserCodeArrayHttpController } from './queries/find-user-contract-by-usercode-array/find-user-contract-by-usercode-array.http.controller';
+import { FindUserContractsByUserCodeArrayQueryHandler } from './queries/find-user-contract-by-usercode-array/find-user-contract-by-usercode-array.query-handler';
 
 const httpControllers = [
   CreateUserContractHttpController,
   FindUserContractsByUserCodeHttpController,
+  FindUserContractsByUserCodeArrayHttpController,
 ];
 
 const messageControllers = [];
@@ -23,7 +26,10 @@ const graphqlResolvers: Provider[] = [];
 
 const commandHandlers: Provider[] = [CreateUserContractService];
 
-const queryHandlers: Provider[] = [FindUserContractsByUserCodeQueryHandler];
+const queryHandlers: Provider[] = [
+  FindUserContractsByUserCodeQueryHandler,
+  FindUserContractsByUserCodeArrayQueryHandler,
+];
 
 const mappers: Provider[] = [UserContractMapper];
 

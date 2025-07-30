@@ -5,6 +5,24 @@ function normalizeDate(date: Date | string): string {
   return format(new Date(date), 'yyyy-MM-dd');
 }
 
+function isToday(date: Date): boolean {
+  const today = new Date();
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
+}
+
+function isAfterShiftStart(shiftStartTime: string): boolean {
+  const [startHour, startMinute] = shiftStartTime.split(':').map(Number);
+  const now = new Date();
+  return (
+    now.getHours() > startHour ||
+    (now.getHours() === startHour && now.getMinutes() >= startMinute)
+  );
+}
+
 @Injectable()
 export class GenerateWorkingDate {
   private readonly weekdayMap: Record<string, number> = {
@@ -21,6 +39,7 @@ export class GenerateWorkingDate {
     option: 'NGAY' | 'TUAN' | 'THANG',
     holidayMode: string[] = [],
     alreadyGeneratedDates: Date[] = [],
+    shiftStartTime?: string,
   ): Promise<Date[]> {
     const dates: Date[] = [];
     const realStartDate = new Date(normalizeDate(startDate));
@@ -40,7 +59,11 @@ export class GenerateWorkingDate {
       const weekday = d.getDay();
 
       // Nếu chưa được tạo và không nằm trong ngày nghỉ
-      if (!createdSet.has(key) && !holidayWeekdays.includes(weekday)) {
+      if (
+        !createdSet.has(key) &&
+        !holidayWeekdays.includes(weekday) &&
+        !(isToday(d) && shiftStartTime && isAfterShiftStart(shiftStartTime))
+      ) {
         dates.push(d);
         createdSet.add(key); // đánh dấu là đã tạo
       }
