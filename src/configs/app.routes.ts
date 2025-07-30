@@ -102,6 +102,7 @@ export const routesV1 = {
       ...baseRoutes(`${userContractRoot}`),
       byUserCode: `/${businessRoot}/by-user-code/:userCode`,
       createContract: `/${businessRoot}/create-contract-with-branch`,
+      byUserCodeArray: `/${businessRoot}/by-user-code-array/:userCode`,
     },
     lichLamViec: {
       userByManagement: `${businessRoot}/user-by-management`,

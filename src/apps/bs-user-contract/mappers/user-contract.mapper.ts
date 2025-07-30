@@ -16,7 +16,7 @@ import { PositionEntity } from '@src/modules/position/domain/position.entity';
 import { RoleEntity } from '@src/modules/role/domain/role.entity';
 import { UserEntity } from '@src/modules/user/domain/user.entity';
 
-type UserContractWithRelations = UserContractModel & {
+export type UserContractWithRelations = UserContractModel & {
   userBranches?: Array<
     UserBranchModel & {
       branch?: BranchModel;
@@ -59,7 +59,6 @@ export class UserContractMapper
   }
 
   toDomain(record: UserContractWithRelations): UserContractEntity {
-    // Create the entity with all available properties
     return new UserContractEntity({
       id: record.id,
       createdAt: record.createdAt,
@@ -77,6 +76,7 @@ export class UserContractMapper
         managedBy: record.managedBy,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
+
         manager: record.manager
           ? new UserEntity({
               id: record.manager.id,
@@ -89,7 +89,7 @@ export class UserContractMapper
                 firstName: record.manager.firstName,
                 lastName: record.manager.lastName,
                 email: record.manager.email,
-                faceImg: record.manager.faceImg || null, // Handle null case
+                faceImg: record.manager.faceImg ?? null,
                 dob: record.manager.dob,
                 gender: record.manager.gender,
                 phone: record.manager.phone,
@@ -99,6 +99,7 @@ export class UserContractMapper
               },
             })
           : undefined,
+
         user: record.user
           ? new UserEntity({
               id: record.user.id,
@@ -111,7 +112,7 @@ export class UserContractMapper
                 firstName: record.user.firstName,
                 lastName: record.user.lastName,
                 email: record.user.email,
-                faceImg: record.user.faceImg || null, // Handle null case
+                faceImg: record.user.faceImg ?? null,
                 dob: record.user.dob,
                 gender: record.user.gender,
                 phone: record.user.phone,
@@ -121,40 +122,40 @@ export class UserContractMapper
               },
             })
           : undefined,
-        userBranch: record.userBranches
-          ? record.userBranches.map(
-              (ub) =>
-                new UserBranchEntity({
-                  id: ub.id,
-                  createdAt: ub.createdAt,
-                  updatedAt: ub.updatedAt,
-                  props: {
-                    code: ub.code,
-                    branchCode: ub.branchCode,
-                    userContractCode: ub.userContractCode,
-                    createdBy: ub.createdBy,
-                    updatedBy: ub.updatedBy,
-                    branch: ub.branch
-                      ? new BranchEntity({
-                          id: ub.branch.id,
-                          props: {
-                            code: ub.branch.code,
-                            branchName: ub.branch.branchName,
-                            addressLine: ub.branch.addressLine,
-                            placeId: ub.branch.placeId,
-                            city: ub.branch.city,
-                            district: ub.branch.district,
-                            lat: ub.branch.lat,
-                            long: ub.branch.long,
-                            companyCode: ub.branch.companyCode,
-                            createdBy: ub.branch.createdBy,
-                          },
-                        })
-                      : undefined,
-                  },
-                }),
-            )
-          : undefined,
+
+        userBranch: record.userBranches?.map(
+          (ub) =>
+            new UserBranchEntity({
+              id: ub.id,
+              createdAt: ub.createdAt,
+              updatedAt: ub.updatedAt,
+              props: {
+                code: ub.code,
+                branchCode: ub.branchCode,
+                userContractCode: ub.userContractCode,
+                createdBy: ub.createdBy,
+                updatedBy: ub.updatedBy,
+                branch: ub.branch
+                  ? new BranchEntity({
+                      id: ub.branch.id,
+                      props: {
+                        code: ub.branch.code,
+                        branchName: ub.branch.branchName,
+                        addressLine: ub.branch.addressLine,
+                        placeId: ub.branch.placeId,
+                        city: ub.branch.city,
+                        district: ub.branch.district,
+                        lat: ub.branch.lat,
+                        long: ub.branch.long,
+                        companyCode: ub.branch.companyCode,
+                        createdBy: ub.branch.createdBy,
+                      },
+                    })
+                  : undefined,
+              },
+            }),
+        ),
+
         position: record.position
           ? new PositionEntity({
               id: record.position.id,

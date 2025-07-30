@@ -45,6 +45,7 @@ export class LichLamViecMapper {
       props.userContract?.getProps().manager?.getProps().firstName +
       ' ' +
       props.userContract?.getProps().manager?.getProps().lastName;
+    response.note = props.note;
     return response;
   }
 

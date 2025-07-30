@@ -19,3 +19,13 @@ export class UserAlreadyExistsError extends ExceptionBase {
     super(UserAlreadyExistsError.message, cause, metadata);
   }
 }
+
+export class UserWithScheduleExistsError extends ExceptionBase {
+  static readonly message = 'Không thể cập nhật nhân viên đã có lịch làm việc';
+
+  public readonly code = 'USER.WITH_SCHEDULE_EXISTS';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(UserWithScheduleExistsError.message, cause, metadata);
+  }
+}

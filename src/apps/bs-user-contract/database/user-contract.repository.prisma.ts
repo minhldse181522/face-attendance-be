@@ -9,7 +9,10 @@ import {
   BranchNotFoundError,
   UserContractNotFoundError,
 } from '../domain/user-contract.error';
-import { UserContractMapper } from '../mappers/user-contract.mapper';
+import {
+  UserContractMapper,
+  UserContractWithRelations,
+} from '../mappers/user-contract.mapper';
 import { UserContractRepositoryPort } from './user-contract.repository.port';
 
 @Injectable()
@@ -25,6 +28,19 @@ export class PrismaUserContractRepository
     private readonly generateCode: GenerateCode,
   ) {
     super(manager, mapper);
+  }
+
+  private normalizeToContractWithRelations(c: any): UserContractWithRelations {
+    return {
+      ...c,
+      userBranches: c.userBranches.map((ub) => ({
+        ...ub,
+        branch: ub.branch ?? undefined,
+      })),
+      user: c.user ?? undefined,
+      manager: c.manager ?? undefined,
+      position: c.position ?? undefined,
+    };
   }
 
   async checkExist(userContractCode: string): Promise<boolean> {
@@ -177,5 +193,47 @@ export class PrismaUserContractRepository
     const transformedContract = this.transformPrismaResponse(contracts[0]);
 
     return this.mapper.toDomain(transformedContract);
+  }
+
+  async findByUserCodeArray(userCode: string): Promise<UserContractEntity[]> {
+    const client = await this._getClient();
+    const contracts = await client.userContract.findMany({
+      where: {
+        userCode,
+      },
+      include: {
+        user: true,
+        manager: true,
+        position: {
+          include: {
+            rolePosition: true,
+          },
+        },
+        userBranches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    console.log('Found:', contracts);
+
+    if (contracts.length === 0) {
+      throw new UserContractNotFoundError(undefined, { userCode });
+    }
+
+    return contracts.map((c) =>
+      this.mapper.toDomain({
+        ...c,
+        userBranches: c.userBranches.map((ub) => ({
+          ...ub,
+          branch: ub.branch ?? undefined,
+        })),
+        user: c.user ?? undefined,
+        manager: c.manager ?? undefined,
+        position: c.position ?? undefined,
+      } as UserContractWithRelations),
+    );
   }
 }

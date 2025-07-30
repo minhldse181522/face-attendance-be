@@ -8,6 +8,7 @@ model WorkingSchedule {
   shiftCode         String?    @map("shift_code") @db.VarChar(50)
   status            String?    @map("status") @db.VarChar(50)
   branchCode        String?    @map("branch_code") @db.VarChar(50)
+  note              String?    @map("note") @db.VarChar(200)
 
   createdAt     DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy     String    @map("created_by") @db.VarChar(36)

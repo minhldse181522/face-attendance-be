@@ -38,3 +38,13 @@ export class BranchNotFoundError extends ExceptionBase {
     super(BranchNotFoundError.message, cause, metadata);
   }
 }
+
+export class WorkingScheduleFutureNotFoundError extends ExceptionBase {
+  static readonly message = 'Không tìm thấy lịch làm việc của nhân viên này';
+
+  public readonly code = 'WORKING_SCHEDULE.FUTURE_NOT_FOUND';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(WorkingScheduleFutureNotFoundError.message, cause, metadata);
+  }
+}

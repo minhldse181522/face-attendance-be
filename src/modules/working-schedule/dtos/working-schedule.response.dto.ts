@@ -43,4 +43,10 @@ export class WorkingScheduleResponseDto extends ResponseBase<any> {
     description: 'Mã chi nhánh',
   })
   branchCode?: string | null;
+
+  @ApiProperty({
+    example: '',
+    description: 'Ghi chú',
+  })
+  note?: string | null;
 }

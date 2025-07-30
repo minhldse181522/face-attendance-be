@@ -127,4 +127,10 @@ export class LichLamViecResponseDto extends ResponseBase<any> {
     description: 'Trạng thái chấm công',
   })
   statusTimeKeeping?: string | null;
+
+  @ApiProperty({
+    example: '',
+    description: 'Ghi chú',
+  })
+  note?: string | null;
 }
