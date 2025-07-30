@@ -8,7 +8,9 @@ import {
   Controller,
   HttpStatus,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import {
@@ -28,12 +30,16 @@ import { UserContractMapper } from '../../mappers/user-contract.mapper';
 import { CreateUserContractCommand } from './create-user-contract.command';
 import { CreateUserContractRequestDto } from './create-user-contract.request.dto';
 import { CreateUserContractServiceResult } from './create-user-contract.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { randomUUID } from 'crypto';
+import { MinioService } from '@src/libs/minio/minio.service';
 
 @Controller(routesV1.version)
 export class CreateUserContractHttpController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly mapper: UserContractMapper,
+    private readonly minioService: MinioService,
   ) {}
 
   @ApiTags(
@@ -54,15 +60,37 @@ export class CreateUserContractHttpController {
     description: UserContractAlreadyExistsError.message,
     type: ApiErrorResponse,
   })
+  @UseInterceptors(
+    FileInterceptor('contractPdf', {
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
+  )
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.CREATE)
   @UseGuards(JwtAuthGuard)
   @Post(routesV1.tacVu.userContract.root)
   async create(
     @ReqUser() user: RequestUser,
+    @UploadedFile() file: Express.Multer.File,
     @Body() body: CreateUserContractRequestDto,
   ): Promise<UserContractResponseDto> {
+    let fileUrl: string | null = null;
+
+    if (file) {
+      // ✅ 1. Tạo object name duy nhất
+      const extension = file.originalname.split('.').pop();
+      const fileName = `contracts/${Date.now()}-${randomUUID()}.${extension}`;
+
+      // ✅ 2. Upload file lên Minio
+      await this.minioService.putObject(fileName, file.buffer, file.size, {
+        'Content-Type': file.mimetype,
+      });
+
+      // ✅ 3. Tạo URL công khai (nếu Minio bucket là public)
+      fileUrl = `${this.minioService.getPublicEndpoint()}/${this.minioService.getBucketName()}/${fileName}`;
+    }
     const command = new CreateUserContractCommand({
       ...body,
+      contractPdf: fileUrl,
       startTime: body.startTime ? new Date(body.startTime) : undefined,
       endTime: body.endTime ? new Date(body.endTime) : undefined,
       createdBy: user.userName,

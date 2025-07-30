@@ -36,6 +36,8 @@ import { PayrollModule } from './modules/payroll/payroll.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BangLuongModule } from './apps/bs_bang_luong/bang-luong.module';
 import { ReportModule } from './apps/report/report.module';
+import { WebsocketModule } from './libs/websocket/websocket.module';
+import { socketConfig } from './configs/socket.config';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -73,6 +75,13 @@ const interceptors = [
       useFactory: async () => ({
         isGlobal: true,
         ...cacheConfig,
+      }),
+    }),
+    WebsocketModule.forRootAsync({
+      useFactory: async () => ({
+        isGlobal: true,
+        redis: cacheConfig,
+        channelPrefix: socketConfig.channelPrefix,
       }),
     }),
     MinioModule.forRootAsync({
