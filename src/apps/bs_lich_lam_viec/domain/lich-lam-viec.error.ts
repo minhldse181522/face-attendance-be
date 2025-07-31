@@ -90,3 +90,13 @@ export class CheckInTooEarlyError extends ExceptionBase {
     super(CheckInTooEarlyError.message, cause, metadata);
   }
 }
+
+export class NotGeneratedError extends ExceptionBase {
+  static readonly message = 'Không thể tạo lịch làm việc này vì đã quá ca làm';
+
+  public readonly code = 'WORKING_SCHEDULE.NOT_GENERATED';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(NotGeneratedError.message, cause, metadata);
+  }
+}

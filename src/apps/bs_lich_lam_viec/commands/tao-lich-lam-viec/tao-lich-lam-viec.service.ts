@@ -27,6 +27,7 @@ import { Err, Ok, Result } from 'oxide.ts';
 import {
   BranchNotBelongToContractError,
   ManagerNotAssignToUserError,
+  NotGeneratedError,
   UserContractDoesNotExistError,
   WorkingDateAlreadyExistError,
 } from '../../domain/lich-lam-viec.error';
@@ -46,6 +47,7 @@ export type CreateLichLamViecServiceResult = Result<
   | WorkingDateAlreadyExistError
   | BranchNotBelongToContractError
   | PositionNotFoundError
+  | NotGeneratedError
 >;
 
 @CommandHandler(CreateLichLamViecCommand)

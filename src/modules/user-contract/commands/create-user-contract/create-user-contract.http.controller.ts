@@ -3,6 +3,7 @@ import { routesV1 } from '@config/app.routes';
 import { ApiErrorResponse } from '@libs/api/api-error.response';
 import { ReqUser } from '@libs/decorators/request-user.decorator';
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -15,6 +16,7 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -45,7 +47,12 @@ export class CreateUserContractHttpController {
   @ApiTags(
     `${resourcesV1.USER_CONTRACT.parent} - ${resourcesV1.USER_CONTRACT.displayName}`,
   )
-  @ApiOperation({ summary: 'Create a user contract' })
+  @ApiOperation({
+    summary: 'Create a user contract',
+    description:
+      'Upload a PDF contract file and create user contract. Only PDF files are accepted.',
+  })
+  @ApiConsumes('multipart/form-data')
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -62,7 +69,19 @@ export class CreateUserContractHttpController {
   })
   @UseInterceptors(
     FileInterceptor('contractPdf', {
-      limits: { fileSize: 10 * 1024 * 1024 },
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
+      },
+      fileFilter: (req, file, callback) => {
+        // Chỉ cho phép file PDF
+        if (file.mimetype !== 'application/pdf') {
+          return callback(
+            new BadRequestException('Only PDF files are allowed'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
     }),
   )
   @AuthPermission(resourcesV1.USER_CONTRACT.name, resourceScopes.CREATE)
@@ -76,17 +95,38 @@ export class CreateUserContractHttpController {
     let fileUrl: string | null = null;
 
     if (file) {
-      // ✅ 1. Tạo object name duy nhất
-      const extension = file.originalname.split('.').pop();
-      const fileName = `contracts/${Date.now()}-${randomUUID()}.${extension}`;
+      try {
+        // ✅ 1. Validate file extension
+        const allowedExtensions = ['pdf'];
+        const extension = file.originalname.split('.').pop()?.toLowerCase();
 
-      // ✅ 2. Upload file lên Minio
-      await this.minioService.putObject(fileName, file.buffer, file.size, {
-        'Content-Type': file.mimetype,
-      });
+        if (!extension || !allowedExtensions.includes(extension)) {
+          throw new BadRequestException('Only PDF files are allowed');
+        }
 
-      // ✅ 3. Tạo URL công khai (nếu Minio bucket là public)
-      fileUrl = `${this.minioService.getPublicEndpoint()}/${this.minioService.getBucketName()}/${fileName}`;
+        // ✅ 2. Tạo object name duy nhất với timestamp và UUID
+        const timestamp = Date.now();
+        const uuid = randomUUID();
+        const fileName = `contracts/${timestamp}-${uuid}.${extension}`;
+
+        // ✅ 3. Upload file lên Minio với metadata
+        await this.minioService.putObject(fileName, file.buffer, file.size, {
+          'Content-Type': file.mimetype,
+          'Original-Name': file.originalname,
+          'Upload-Date': new Date().toISOString(),
+          'Uploaded-By': user.userName,
+        });
+
+        // ✅ 4. Tạo URL công khai
+        fileUrl = `${this.minioService.getPublicEndpoint()}/${this.minioService.getBucketName()}/${fileName}`;
+      } catch (error) {
+        if (error instanceof BadRequestException) {
+          throw error;
+        }
+        throw new BadRequestException(
+          'Failed to upload file: ' + error.message,
+        );
+      }
     }
     const command = new CreateUserContractCommand({
       ...body,

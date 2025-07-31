@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { addDays, endOfMonth, endOfWeek, format, isSameMonth } from 'date-fns';
+import { NotGeneratedError } from '@src/apps/bs_lich_lam_viec/domain/lich-lam-viec.error';
+import { addDays, endOfMonth, endOfWeek, format } from 'date-fns';
 
 function normalizeDate(date: Date | string): string {
   return format(new Date(date), 'yyyy-MM-dd');
@@ -91,6 +92,10 @@ export class GenerateWorkingDate {
         addValidDate(current);
         current = addDays(current, 1);
       }
+    }
+
+    if (dates.length === 0) {
+      throw new NotGeneratedError();
     }
 
     return dates;
