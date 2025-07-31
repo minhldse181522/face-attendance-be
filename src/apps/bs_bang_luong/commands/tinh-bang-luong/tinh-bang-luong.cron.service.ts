@@ -72,6 +72,24 @@ export class TinhBangLuongCronService {
             continue;
           }
 
+          const workingScheduleNotCalculate =
+            await this.workingScheduleRepo.findAllWorkingScheduleWithShift({
+              userCode,
+              date: {
+                gte: startOfMonth(now),
+                lte: endOfMonth(now),
+              },
+              status: {
+                in: ['ACTIVE'],
+              },
+            });
+          if (workingScheduleNotCalculate.length !== 0) {
+            this.logger.warn(
+              `Stop calculate for ${userCode} due to not finished working schedules`,
+            );
+            continue;
+          }
+
           const workingSchedules =
             await this.workingScheduleRepo.findAllWorkingScheduleWithShift({
               userCode,

@@ -226,6 +226,28 @@ export class PrismaWorkingScheduleRepository
     return result.map((record) => this.mapper.toDomain(record));
   }
 
+  async findWorkingSchedulesByUserAndDateRangeWithShift(
+    userCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<WorkingScheduleEntity[]> {
+    const client = await this._getClient();
+
+    const result = await client.workingSchedule.findMany({
+      where: {
+        userCode,
+        date: {
+          gte: startOfDay(fromDate), // 00:00:00
+          lte: endOfDay(toDate), // 23:59:59.999
+        },
+      },
+      include: {
+        shift: true,
+      },
+    });
+    return result.map((record) => this.mapper.toDomain(record));
+  }
+
   async findWorkingScheduleArrayByParams(
     userCode: string,
     status: string,

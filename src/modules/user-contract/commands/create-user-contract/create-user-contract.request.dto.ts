@@ -48,12 +48,11 @@ export class CreateUserContractRequestDto {
   duration?: string | null;
 
   @ApiPropertyOptional({
-    example: '/uploads/contracts/contract001.pdf',
-    description: 'Đường dẫn đến file PDF hợp đồng',
+    type: 'string',
+    format: 'binary',
+    description: 'File PDF hợp đồng (chỉ chấp nhận file PDF, tối đa 10MB)',
   })
-  @IsOptional()
-  @MaxLength(200)
-  contractPdf?: string | null;
+  contractPdf?: any;
 
   @ApiPropertyOptional({
     example: 'ACTIVE',

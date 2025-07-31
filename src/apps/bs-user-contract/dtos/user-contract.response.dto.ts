@@ -59,6 +59,13 @@ export class UserContractResponseDto extends ResponseBase<any> {
   status?: string | null;
 
   @ApiProperty({
+    example: new Date(),
+    description: 'Thời gian kết thúc hợp đồng',
+    nullable: true,
+  })
+  endDate?: Date | null;
+
+  @ApiProperty({
     example: 'USER001',
     description: 'Mã người dùng',
     nullable: true,

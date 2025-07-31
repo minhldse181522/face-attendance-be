@@ -215,9 +215,8 @@ export class PrismaUserContractRepository
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { status: 'asc' },
     });
-    console.log('Found:', contracts);
 
     if (contracts.length === 0) {
       throw new UserContractNotFoundError(undefined, { userCode });

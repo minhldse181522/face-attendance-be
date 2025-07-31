@@ -45,6 +45,7 @@ const allowedOrigins = [
   'https://he-thong-cham-cong-admin.vercel.app',
   'http://128.199.119.151:3001',
   'http://localhost:8081',
+  'http://localhost:5173',
   'https://api.128-199-119-151.sslip.io',
 ];
 

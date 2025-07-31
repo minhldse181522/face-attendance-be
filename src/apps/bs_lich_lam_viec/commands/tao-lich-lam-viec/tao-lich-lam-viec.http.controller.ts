@@ -31,6 +31,7 @@ import { WorkingScheduleMapper } from '@src/modules/working-schedule/mappers/wor
 import { match } from 'oxide.ts';
 import {
   ManagerNotAssignToUserError,
+  NotGeneratedError,
   UserContractDoesNotExistError,
   WorkingDateAlreadyExistError,
 } from '../../domain/lich-lam-viec.error';
@@ -80,7 +81,8 @@ export class CreateLichLamViecHttpController {
         if (
           error instanceof ManagerNotAssignToUserError ||
           error instanceof UserContractDoesNotExistError ||
-          error instanceof WorkingDateAlreadyExistError
+          error instanceof WorkingDateAlreadyExistError ||
+          error instanceof NotGeneratedError
         ) {
           throw new BadRequestException({
             message: error.message,

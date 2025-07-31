@@ -65,6 +65,13 @@ export class CreateUserContractRequestDto {
   status?: string;
 
   @ApiPropertyOptional({
+    example: '2023-01-01T00:00:00.000Z',
+    description: 'Thời gian kết thúc hợp đồng',
+  })
+  @IsOptional()
+  endDate?: Date | null;
+
+  @ApiPropertyOptional({
     example: 'USER001',
     description: 'Mã người dùng',
   })

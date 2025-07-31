@@ -46,6 +46,7 @@ export class UserContractMapper
       duration: copy.duration || null,
       contractPdf: copy.contractPdf || null,
       status: copy.status || null,
+      endDate: copy.endDate || null,
       userCode: copy.userCode || null,
       managedBy: copy.managedBy || null,
       positionCode: copy.positionCode || null,
@@ -72,6 +73,7 @@ export class UserContractMapper
         duration: record.duration,
         contractPdf: record.contractPdf,
         status: record.status,
+        endDate: record.endDate,
         positionCode: record.positionCode,
         managedBy: record.managedBy,
         createdBy: record.createdBy,
@@ -209,6 +211,7 @@ export class UserContractMapper
     response.duration = props.duration;
     response.contractPdf = props.contractPdf;
     response.status = props.status;
+    response.endDate = props.endDate;
     response.userCode = props.userCode;
     response.managedBy = props.managedBy;
     response.positionCode = props.positionCode;

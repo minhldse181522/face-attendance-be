@@ -8,6 +8,7 @@ export class CreateUserContractCommand extends Command {
   readonly duration?: string | null;
   readonly contractPdf?: string | null;
   readonly status?: string | null;
+  readonly endDate?: Date | null;
   readonly userCode?: string | null;
   readonly userBranchCode?: string | null;
   readonly managedBy?: string | null;

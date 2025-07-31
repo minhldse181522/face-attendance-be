@@ -12,6 +12,7 @@ export interface UserContractProps {
   duration?: string | null;
   contractPdf?: string | null;
   status?: string | null;
+  endDate?: Date | null;
   userCode?: string | null;
   managedBy?: string | null;
   positionCode?: string | null;
@@ -34,6 +35,7 @@ export interface CreateUserContractProps {
   duration?: string | null;
   contractPdf?: string | null;
   status?: string | null;
+  endDate?: Date | null;
   userCode?: string | null;
   managedBy?: string | null;
   positionCode?: string | null;
@@ -49,6 +51,7 @@ export interface UpdateUserContractProps {
   duration?: string | null;
   contractPdf?: string | null;
   status?: string | null;
+  endDate?: Date | null;
   userCode?: string | null;
   managedBy?: string | null;
   positionCode?: string | null;
