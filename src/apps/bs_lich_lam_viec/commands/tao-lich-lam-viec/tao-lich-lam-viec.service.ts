@@ -192,7 +192,7 @@ export class CreateLichLamViecService
 
         return Ok(results);
       } catch (error) {
-        return Err(new WorkingScheduleNotFoundError());
+        return Err(new NotGeneratedError());
       }
     } else {
       return Err(new ManagerNotAssignToUserError());
