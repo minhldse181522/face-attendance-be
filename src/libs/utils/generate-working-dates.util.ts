@@ -1,27 +1,86 @@
 import { Injectable } from '@nestjs/common';
 import { NotGeneratedError } from '@src/apps/bs_lich_lam_viec/domain/lich-lam-viec.error';
 import { addDays, endOfMonth, endOfWeek, format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 function normalizeDate(date: Date | string): string {
   return format(new Date(date), 'yyyy-MM-dd');
 }
 
+function isOverlappingWithExistingShift(
+  targetDate: Date,
+  newStartTime: string,
+  existingShifts: { date: Date; startTime: string; endTime: string }[],
+  newEndTime: string,
+): boolean {
+  const timeZone = 'Asia/Ho_Chi_Minh';
+
+  const normalizeDateOnly = (d: Date) =>
+    toZonedTime(d, timeZone).toISOString().split('T')[0];
+
+  const getDateTimeInVN = (date: Date, timeStr: string): Date => {
+    const [h, m] = timeStr.split(':').map(Number);
+    const zoned = toZonedTime(date, timeZone);
+    return new Date(
+      zoned.getFullYear(),
+      zoned.getMonth(),
+      zoned.getDate(),
+      h,
+      m,
+      0,
+      0,
+    );
+  };
+
+  const targetDay = normalizeDateOnly(targetDate);
+  const newStart = getDateTimeInVN(targetDate, newStartTime);
+  const newEnd = getDateTimeInVN(targetDate, newEndTime);
+
+  return existingShifts.some((shift) => {
+    const shiftDay = normalizeDateOnly(shift.date);
+    if (shiftDay !== targetDay) return false;
+
+    const existStart = getDateTimeInVN(shift.date, shift.startTime);
+    const existEnd = getDateTimeInVN(shift.date, shift.endTime);
+
+    const isOverlap = newStart < existEnd && newEnd > existStart;
+
+    if (isOverlap) {
+      console.log('⚠️ Overlap found:', {
+        targetDate,
+        newStart,
+        newEnd,
+        existStart,
+        existEnd,
+      });
+    }
+
+    return isOverlap;
+  });
+}
+
 function isToday(date: Date): boolean {
-  const today = new Date();
+  const now = toZonedTime(new Date(), 'Asia/Ho_Chi_Minh');
+  const zoned = toZonedTime(date, 'Asia/Ho_Chi_Minh');
+
   return (
-    date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate()
+    zoned.getFullYear() === now.getFullYear() &&
+    zoned.getMonth() === now.getMonth() &&
+    zoned.getDate() === now.getDate()
   );
 }
 
-function isAfterShiftStart(shiftStartTime: string): boolean {
+function isAfterShiftStartOnDate(date: Date, shiftStartTime: string): boolean {
   const [startHour, startMinute] = shiftStartTime.split(':').map(Number);
-  const now = new Date();
-  return (
-    now.getHours() > startHour ||
-    (now.getHours() === startHour && now.getMinutes() >= startMinute)
-  );
+
+  const shiftDateInVN = toZonedTime(date, 'Asia/Ho_Chi_Minh');
+
+  const shiftStart = new Date(shiftDateInVN);
+  shiftStart.setHours(startHour, startMinute, 0, 0);
+
+  const now = toZonedTime(new Date(), 'Asia/Ho_Chi_Minh');
+
+  return now >= shiftStart;
 }
 
 @Injectable()
@@ -40,7 +99,13 @@ export class GenerateWorkingDate {
     option: 'NGAY' | 'TUAN' | 'THANG',
     holidayMode: string[] = [],
     alreadyGeneratedDates: Date[] = [],
+    shiftEndTimeStr: string,
     shiftStartTime?: string,
+    alreadyGeneratedShifts: {
+      date: Date;
+      startTime: string;
+      endTime: string;
+    }[] = [],
   ): Promise<Date[]> {
     const dates: Date[] = [];
     const realStartDate = new Date(normalizeDate(startDate));
@@ -61,9 +126,18 @@ export class GenerateWorkingDate {
 
       // Nếu chưa được tạo và không nằm trong ngày nghỉ
       if (
-        !createdSet.has(key) &&
         !holidayWeekdays.includes(weekday) &&
-        !(isToday(d) && shiftStartTime && isAfterShiftStart(shiftStartTime))
+        !(
+          isToday(d) &&
+          shiftStartTime &&
+          isAfterShiftStartOnDate(d, shiftStartTime)
+        ) &&
+        !isOverlappingWithExistingShift(
+          d,
+          shiftStartTime!,
+          alreadyGeneratedShifts,
+          shiftEndTimeStr,
+        )
       ) {
         dates.push(d);
         createdSet.add(key); // đánh dấu là đã tạo

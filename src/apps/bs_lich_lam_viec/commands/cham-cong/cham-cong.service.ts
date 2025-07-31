@@ -127,19 +127,11 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
     }
 
     // Kiếm tra 1 ngày không checkin 2 lần
-    const startOfDay = new Date(command.checkInTime!);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(command.checkInTime!);
-    endOfDay.setHours(23, 59, 59, 999);
     const alreadyCheckIn: FindTimeKeepingByParamsQueryResult =
       await this.queryBus.execute(
         new FindTimeKeepingByParamsQuery({
           where: {
-            checkInTime: {
-              gte: startOfDay,
-              lte: endOfDay,
-            },
+            workingScheduleCode: workingScheduleProps.code,
           },
         }),
       );

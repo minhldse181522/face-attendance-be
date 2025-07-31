@@ -28,7 +28,7 @@ export class EndOfDayWorkingScheduleCronService {
         tomorrow.setDate(today.getDate() + 1);
 
         const schedules = await this.workingScheduleRepo.findAll({
-          status: { OR: ['NOTSTARTED', 'ACTIVE'] },
+          status: { in: ['NOTSTARTED', 'ACTIVE'] },
           date: {
             gte: today,
             lt: tomorrow,

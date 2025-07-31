@@ -124,6 +124,8 @@ export class CreateLichLamViecService
       const shiftProps = checkExistShift.unwrap().getProps();
       const start = shiftProps.startTime;
       const shiftStartTimeStr = `${start!.getHours().toString().padStart(2, '0')}:${start!.getMinutes().toString().padStart(2, '0')}`;
+      const end = shiftProps.endTime;
+      const shiftEndTimeStr = `${end!.getHours().toString().padStart(2, '0')}:${end!.getMinutes().toString().padStart(2, '0')}`;
 
       //#region Tao Lich lam viec
       const fromDate = localDate;
@@ -142,9 +144,36 @@ export class CreateLichLamViecService
           toDate,
         );
 
+      const existingSchedulesWithShift =
+        await this.workingScheduleRepo.findWorkingSchedulesByUserAndDateRangeWithShift(
+          command.userCode,
+          fromDate,
+          toDate,
+        );
+
       const existingDates: Date[] = existingSchedules
         .map((ws) => ws.getProps().date)
         .filter((d): d is Date => d instanceof Date);
+
+      const alreadyGeneratedShifts = existingSchedulesWithShift
+        .map((ws) => {
+          const props = ws.getProps();
+          const date = props.date;
+          const startTime = props.shift?.getProps().startTime;
+          const endTime = props.shift?.getProps().endTime;
+
+          if (!date || !startTime || !endTime) return null; // bỏ ca không đầy đủ thông tin
+
+          return {
+            date,
+            startTime: startTime.toTimeString().slice(0, 5),
+            endTime: endTime.toTimeString().slice(0, 5),
+          };
+        })
+        .filter(
+          (s): s is { date: Date; startTime: string; endTime: string } =>
+            s !== null,
+        ); // lọc null
 
       try {
         const workingDates = await this.generateWorkingDate.generateWorkingDate(
@@ -152,7 +181,9 @@ export class CreateLichLamViecService
           command.optionCreate,
           command.holidayMode ?? [],
           existingDates,
+          shiftEndTimeStr,
           shiftStartTimeStr,
+          alreadyGeneratedShifts,
         );
         const results: WorkingScheduleEntity[] = [];
 

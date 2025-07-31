@@ -49,6 +49,11 @@ export interface WorkingScheduleRepositoryPort
   findAllWorkingScheduleWithShift(
     params: FindAllWorkingScheduleWithShiftParams,
   ): Promise<WorkingScheduleEntity[]>;
+  findWorkingSchedulesByUserAndDateRangeWithShift(
+    userCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<WorkingScheduleEntity[]>;
   findWorkingScheduleArrayByParams(
     userCode: string,
     status: string,
