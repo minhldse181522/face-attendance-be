@@ -5,4 +5,5 @@ export interface MinioOptions {
   accessKey: string;
   secretKey: string;
   bucketName: string;
+  publicEndPoint: string;
 }

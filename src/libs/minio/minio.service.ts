@@ -225,12 +225,6 @@ export class MinioService {
   }
 
   getPublicEndpoint(): string {
-    // detect protocol
-    const protocol = this._options.useSSL ? 'https' : 'http';
-
-    // if useSSL is false, use port, otherwise use endpoint only
-    const port = this._options.useSSL ? '' : `:${this._options.port}`;
-
-    return `${protocol}://${this._options.endPoint}${port}`;
+    return this._options.publicEndPoint;
   }
 }

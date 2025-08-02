@@ -45,17 +45,14 @@ export class DirectUploadService
         return Err(new UserNotFoundError());
       }
       const userProps = foundUser.unwrap().getProps();
-      const userName = userProps.userName;
 
       // Tạo key
-      const extension = file.originalname.split('.').pop();
-      const key = `face/${userName}.${extension}`;
-
+      const key = command.key;
       // upload ảnh
       await this.minIoService.putObject(key, file.buffer, file.size, {
         'content-type': file.mimetype,
       });
-      const url = `${this.minIoService.getPublicEndpoint()}/${this.minIoService['_bucketName']}/${key}`;
+      const url = `${this.minIoService.getPublicEndpoint()}/${this.minIoService['_bucketName']}/${key}?v=${Date.now()}`;
       console.log(url);
 
       // lưu vào user
