@@ -11,6 +11,7 @@ import { UpdateFormHttpController } from './commands/update-form/update-form.htt
 import { UpdateFormService } from './commands/update-form/update-form.service';
 import { DeleteFormHttpController } from './commands/delete-form/delete-form.http.controller';
 import { DeleteFormService } from './commands/delete-form/delete-form.service';
+import { FormSeedService } from './services/form-seed.service';
 
 const httpControllers = [
   FindFormHttpController,
@@ -42,6 +43,8 @@ const repositories: Provider[] = [
   },
 ];
 
+const services: Provider[] = [FormSeedService];
+
 @Module({
   imports: [CqrsModule],
   controllers: [...httpControllers, ...messageControllers],
@@ -53,6 +56,7 @@ const repositories: Provider[] = [
     ...commandHandlers,
     ...queryHandlers,
     ...mappers,
+    ...services,
   ],
   exports: [...repositories, ...mappers],
 })

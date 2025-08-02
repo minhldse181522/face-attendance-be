@@ -6,9 +6,13 @@ import { DropDownResult } from '@src/libs/utils/dropdown.util';
 import { UserBranchEntity } from '../domain/user-branch.entity';
 import { UserBranchMapper } from '../mappers/user-branch.mapper';
 import { UserBranchRepositoryPort } from './user-branch.repository.port';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { Paginated } from '@src/libs/ddd';
 import { IField } from '@src/libs/utils';
+import { None, Option, Some } from 'oxide.ts';
 
 export const UserBranchScalarFieldEnum = Prisma.UserBranchScalarFieldEnum;
 
@@ -144,5 +148,17 @@ export class PrismaUserBranchRepository
       limit,
       page,
     });
+  }
+
+  async findUserBranchByParams(
+    params: PrismaQueryBase<Prisma.UserBranchWhereInput>,
+  ): Promise<Option<UserBranchEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.userBranch.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
   }
 }

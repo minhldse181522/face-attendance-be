@@ -125,4 +125,9 @@ export const resourcesV1 = {
     displayName: 'Báo cáo tổng hợp',
     parent: 'Nghiệp vụ',
   },
+  BS_DON: {
+    name: 'Đơn',
+    displayName: 'Quản lý xử lý đơn',
+    parent: 'Nghiệp vụ',
+  },
 };

@@ -29,3 +29,17 @@ export class WorkingScheduleAlreadyInUseError extends ExceptionBase {
     super(WorkingScheduleAlreadyInUseError.message, cause, metadata);
   }
 }
+
+export class WorkingScheduleInvalidStatusForDeletionError extends ExceptionBase {
+  static readonly message = 'Chỉ có thể xóa lịch làm việc chưa bắt đầu';
+
+  public readonly code = 'WORKING_SCHEDULE.INVALID_STATUS_FOR_DELETION';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(
+      WorkingScheduleInvalidStatusForDeletionError.message,
+      cause,
+      metadata,
+    );
+  }
+}

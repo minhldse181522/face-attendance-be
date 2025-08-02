@@ -15,6 +15,7 @@ export class FormMapper
       title: copy.title,
       description: copy.description || null,
       roleCode: copy.roleCode,
+      status: copy.status,
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -33,6 +34,7 @@ export class FormMapper
         title: record.title,
         description: record.description,
         roleCode: record.roleCode,
+        status: record.status,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
       },
@@ -46,6 +48,7 @@ export class FormMapper
     response.title = props.title;
     response.description = props.description || '';
     response.roleCode = props.roleCode;
+    response.status = props.status;
     return response;
   }
 }

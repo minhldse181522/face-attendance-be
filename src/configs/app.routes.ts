@@ -61,6 +61,7 @@ export const routesV1 = {
     },
     formDescription: {
       ...baseRoutes(`${formDescriptionRoot}`),
+      taoDon: `/${formDescriptionRoot}/tao-don`,
     },
     formDescriptionFiter: {
       ...baseRoutes(`${formDescriptionRoot}/filter`),
@@ -117,6 +118,9 @@ export const routesV1 = {
     },
     report: {
       findReport: `${businessRoot}/find-report`,
+    },
+    don: {
+      taoDon: `${businessRoot}/tao-don`,
     },
   },
   // #endregion

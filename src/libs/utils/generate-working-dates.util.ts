@@ -45,16 +45,6 @@ function isOverlappingWithExistingShift(
 
     const isOverlap = newStart < existEnd && newEnd > existStart;
 
-    if (isOverlap) {
-      console.log('⚠️ Overlap found:', {
-        targetDate,
-        newStart,
-        newEnd,
-        existStart,
-        existEnd,
-      });
-    }
-
     return isOverlap;
   });
 }

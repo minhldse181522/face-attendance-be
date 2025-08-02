@@ -1,7 +1,10 @@
 import { AggregateID, AggregateRoot } from '@libs/ddd';
 import { copyNonUndefinedProps } from '@src/libs/utils';
 import { Err, Ok, Result } from 'oxide.ts';
-import { WorkingScheduleAlreadyInUseError } from './working-schedule.error';
+import {
+  WorkingScheduleAlreadyInUseError,
+  WorkingScheduleInvalidStatusForDeletionError,
+} from './working-schedule.error';
 import {
   CreateWorkingScheduleProps,
   UpdateWorkingScheduleProps,
@@ -31,9 +34,18 @@ export class WorkingScheduleEntity extends AggregateRoot<
     return Ok(true);
   }
 
-  delete(): Result<unknown, WorkingScheduleAlreadyInUseError> {
+  delete(): Result<
+    unknown,
+    | WorkingScheduleAlreadyInUseError
+    | WorkingScheduleInvalidStatusForDeletionError
+  > {
     if (this.props.inUseCount)
       return Err(new WorkingScheduleAlreadyInUseError());
+
+    if (this.props.status !== 'NOTSTARTED') {
+      return Err(new WorkingScheduleInvalidStatusForDeletionError());
+    }
+
     return Ok(true);
   }
 

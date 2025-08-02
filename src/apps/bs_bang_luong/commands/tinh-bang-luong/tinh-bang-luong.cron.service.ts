@@ -38,7 +38,7 @@ export class TinhBangLuongCronService {
     private readonly commandBus: CommandBus,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_HOURS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleSalaryCron() {
     await RequestContextService.runWithContext(
       {

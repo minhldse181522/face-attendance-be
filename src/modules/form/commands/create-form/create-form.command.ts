@@ -4,6 +4,7 @@ export class CreateFormCommand extends Command {
   readonly title: string;
   readonly description?: string | null;
   readonly roleCode: string;
+  readonly status: string;
   readonly createdBy: string;
 
   constructor(props: CommandProps<CreateFormCommand>) {

@@ -15,6 +15,7 @@ export class UpdateUserContractCommand extends Command {
   readonly userBranchCode?: string | null;
   readonly managedBy?: string | null;
   readonly positionCode?: string | null;
+  readonly branchCodes?: string[] | null;
   readonly updatedBy: string | null;
 
   constructor(props: CommandProps<UpdateUserContractCommand>) {

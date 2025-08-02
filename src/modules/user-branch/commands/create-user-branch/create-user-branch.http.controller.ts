@@ -61,6 +61,7 @@ export class CreateUserBranchHttpController {
   ): Promise<UserBranchResponseDto> {
     const command = new CreateUserBranchCommand({
       ...body,
+      code: '',
       createdBy: user.userName,
     });
 

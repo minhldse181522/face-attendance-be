@@ -48,6 +48,7 @@ export class FindFormHttpController {
         FormScalarFieldEnum.title,
         FormScalarFieldEnum.description,
         FormScalarFieldEnum.roleCode,
+        FormScalarFieldEnum.status,
       ]),
     )
     queryParams: FindFormRequestDto,

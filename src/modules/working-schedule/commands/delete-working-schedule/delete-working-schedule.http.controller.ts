@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException as NotFoundHttpException,
+  BadRequestException,
   Param,
   UseGuards,
 } from '@nestjs/common';
@@ -22,7 +23,10 @@ import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator'
 import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
 
 import { match } from 'oxide.ts';
-import { WorkingScheduleNotFoundError } from '../../domain/working-schedule.error';
+import {
+  WorkingScheduleNotFoundError,
+  WorkingScheduleInvalidStatusForDeletionError,
+} from '../../domain/working-schedule.error';
 import { DeleteWorkingScheduleCommand } from './delete-working-schedule.command';
 import { DeleteWorkingScheduleServiceResult } from './delete-working-schedule.service';
 
@@ -65,6 +69,13 @@ export class DeleteWorkingScheduleHttpController {
       Err: (error: Error) => {
         if (error instanceof WorkingScheduleNotFoundError) {
           throw new NotFoundHttpException({
+            message: error.message,
+            errorCode: error.code,
+          });
+        }
+
+        if (error instanceof WorkingScheduleInvalidStatusForDeletionError) {
+          throw new BadRequestException({
             message: error.message,
             errorCode: error.code,
           });

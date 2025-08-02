@@ -38,6 +38,7 @@ import { BangLuongModule } from './apps/bs_bang_luong/bang-luong.module';
 import { ReportModule } from './apps/report/report.module';
 import { WebsocketModule } from './libs/websocket/websocket.module';
 import { socketConfig } from './configs/socket.config';
+import { DonModule } from './apps/bs_don/don.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -113,6 +114,7 @@ const interceptors = [
     BsUserContractModule,
     LichLamViecModule,
     BangLuongModule,
+    DonModule,
   ],
   controllers: [],
   providers: [

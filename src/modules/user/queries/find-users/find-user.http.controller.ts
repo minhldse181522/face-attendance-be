@@ -38,6 +38,7 @@ export class FindUserHttpController {
     @Query(
       new DirectFilterPipe<any, Prisma.UserWhereInput>([
         UserScalarFieldEnum.userName,
+        UserScalarFieldEnum.roleCode,
       ]),
     )
     queryParams: FindUserRequestDto,

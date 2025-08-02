@@ -13,9 +13,16 @@ export class FormResponseDto extends ResponseBase<any> {
     description: 'Mô tả',
   })
   description: string;
+
   @ApiProperty({
     example: 'R1',
     description: 'Quyền duyệt đơn',
   })
   roleCode: string;
+
+  @ApiProperty({
+    example: 'ACTIVE',
+    description: 'Trạng thái của đơn',
+  })
+  status: string;
 }

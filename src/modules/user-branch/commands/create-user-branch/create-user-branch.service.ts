@@ -27,9 +27,10 @@ export class CreateUserBranchService
     command: CreateUserBranchCommand,
   ): Promise<CreateUserBranchServiceResult> {
     const code = await this.generateCode.generateCode('UB', 4);
+    const extendedProps = command.getExtendedProps<CreateUserBranchCommand>();
     const userBranch = UserBranchEntity.create({
-      code: code,
-      ...command.getExtendedProps<CreateUserBranchCommand>(),
+      ...extendedProps,
+      code,
     });
 
     try {

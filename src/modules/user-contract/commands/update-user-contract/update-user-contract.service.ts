@@ -27,6 +27,12 @@ import {
 } from '../../domain/user-contract.error';
 import { USER_CONTRACT_REPOSITORY } from '../../user-contract.di-tokens';
 import { UpdateUserContractCommand } from './update-user-contract.command';
+import {
+  FindUserBranchByParamsQuery,
+  FindUserBranchByParamsQueryResult,
+} from '@src/modules/user-branch/queries/find-user-branch-by-params/find-user-branch-by-params.query-handler';
+import { CreateUserBranchCommand } from '@src/modules/user-branch/commands/create-user-branch/create-user-branch.command';
+import { GenerateCode } from '@src/libs/utils/generate-code.util';
 
 export type UpdateUserContractServiceResult = Result<
   UserContractEntity,
@@ -46,6 +52,7 @@ export class UpdateUserContractService
     private readonly userContractRepo: UserContractRepositoryPort,
     protected readonly queryBus: QueryBus,
     protected readonly commandBus: CommandBus,
+    protected readonly generateCode: GenerateCode,
   ) {}
 
   async execute(
@@ -113,6 +120,30 @@ export class UpdateUserContractService
           updatedBy: 'system',
         }),
       );
+    }
+
+    for (const branchCode of command.branchCodes ?? []) {
+      const ubCode = await this.generateCode.generateCode('UB', 4);
+      const isBranchExist: FindUserBranchByParamsQueryResult =
+        await this.queryBus.execute(
+          new FindUserBranchByParamsQuery({
+            where: {
+              branchCode: branchCode,
+              userContractCode: userContractProps.code,
+            },
+          }),
+        );
+
+      if (isBranchExist.isErr()) {
+        await this.commandBus.execute(
+          new CreateUserBranchCommand({
+            code: ubCode,
+            branchCode: branchCode,
+            userContractCode: userContractProps.code!,
+            createdBy: 'system',
+          }),
+        );
+      }
     }
 
     const updatedResult = userContract.update({
