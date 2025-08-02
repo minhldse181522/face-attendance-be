@@ -83,7 +83,14 @@ export class TinhBangLuongCronService {
                 in: ['ACTIVE'],
               },
             });
-          if (workingScheduleNotCalculate.length !== 0) {
+
+          const hasOngoingShift = workingScheduleNotCalculate.some((ws) => {
+            const shiftEnd = ws.getProps().shift?.getProps().endTime;
+            if (!shiftEnd) return true;
+            return new Date(shiftEnd) > now;
+          });
+
+          if (hasOngoingShift) {
             this.logger.warn(
               `Stop calculate for ${userCode} due to not finished working schedules`,
             );
