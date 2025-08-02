@@ -226,7 +226,6 @@ export class PrismaBsUserRepository
       const managedUserCodes = contracts
         .map((c) => c.userCode)
         .filter((code): code is string => code !== null);
-      console.log(managedUserCodes);
 
       if (managedUserCodes.length === 0) {
         return new Paginated({
@@ -300,7 +299,106 @@ export class PrismaBsUserRepository
       count,
     };
   }
-}
 
-// Nhận vào userCode ==> sao đó kiểm tra các tài khoản thuộc quyền hạng của nó
-//  nếu HR thì những tk thuộc managerBy của nó , nếu R3 thì chi nhánh của nó , nếu R1 thì full
+  async findAllUserByManagement(
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+    userCode?: string,
+  ): Promise<Paginated<UserEntity>> {
+    const client = await this._getClient();
+    const { page, limit, offset, orderBy, where = {} } = params;
+
+    const user = RequestContextService.getRequestUser();
+    const role = user?.roleCode;
+    const currentUserCode = user?.code;
+    const currentUsername = user?.userName;
+
+    let finalWhere: Prisma.UserWhereInput = {
+      ...where,
+    };
+
+    if (userCode) {
+      finalWhere.code = userCode;
+    }
+
+    // Phân quyền theo role
+    if (role === 'R1') {
+      // Admin - không lọc
+    } else if (role === 'R2') {
+      // Nếu là HR, lọc danh sách user được quản lý
+      const contracts = await client.userContract.findMany({
+        where: {
+          managedBy: currentUsername,
+          status: 'ACTIVE',
+        },
+        select: {
+          userCode: true,
+        },
+      });
+
+      const managedUserCodes = contracts
+        .map((c) => c.userCode)
+        .filter((code): code is string => code !== null);
+      console.log(managedUserCodes);
+
+      if (managedUserCodes.length === 0) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+
+      finalWhere.code = {
+        in: managedUserCodes,
+      };
+    } else if (role === 'R3') {
+      // Lấy danh sách user theo chi nhánh của manager
+      const currentUser = await client.user.findUnique({
+        where: { code: currentUserCode },
+        select: { addressCode: true },
+      });
+
+      if (!currentUser?.addressCode) {
+        throw new Error('Không tìm thấy địa chỉ chi nhánh của người dùng');
+      }
+
+      const usersInSameBranch = await client.user.findMany({
+        where: {
+          addressCode: currentUser.addressCode,
+        },
+        select: {
+          code: true,
+        },
+      });
+
+      const userCodes = usersInSameBranch.map((u) => u.code);
+
+      finalWhere.code = {
+        in: userCodes,
+      };
+    } else if (role === 'R4') {
+      // Staff chỉ xem được của chính mình
+      finalWhere.code = currentUserCode;
+    }
+
+    const [data, count] = await Promise.all([
+      client.user.findMany({
+        where: finalWhere,
+        skip: offset,
+        take: limit,
+        orderBy,
+      }),
+      client.user.count({
+        where: finalWhere,
+      }),
+    ]);
+
+    return {
+      data: data.map(this.mapper.toDomain),
+      page,
+      limit,
+      count,
+    };
+  }
+}

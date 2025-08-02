@@ -9,10 +9,13 @@ import { FindFullUserInforHttpController } from './queries/find-full-user/find-f
 import { FindFullUserInforQueryHandler } from './queries/find-full-user/find-full-user.query-handler';
 import { FindLichLamViecHttpController } from '../bs_lich_lam_viec/queries/find-lich-lam-viec/find-lich-lam-viec.http.controller';
 import { FindUserByManagementQueryHandler } from '../bs_lich_lam_viec/queries/find-user-by-management/find-user-by-management.query-handler';
+import { FindAllUserByManagementHttpController } from './queries/find-all-user-by-management/find-all-user-by-management.http.controller';
+import { FindAllUserByManagementQueryHandler } from './queries/find-all-user-by-management/find-all-user-by-management.query-handler';
 
 const httpControllers = [
   FindUserWithActiveContractHttpController,
   FindFullUserInforHttpController,
+  FindAllUserByManagementHttpController,
 ];
 
 const messageControllers = [];
@@ -26,6 +29,7 @@ const commandHandlers: Provider[] = [];
 const queryHandlers: Provider[] = [
   FindUserWithActiveContractQueryHandler,
   FindFullUserInforQueryHandler,
+  FindAllUserByManagementQueryHandler,
 ];
 
 const mappers: Provider[] = [BsUserMapper];

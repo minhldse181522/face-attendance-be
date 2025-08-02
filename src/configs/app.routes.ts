@@ -95,6 +95,7 @@ export const routesV1 = {
     user: {
       ...baseRoutes(`${businessRoot}/get-user-with-active-contract`),
       fullUserInfor: `${businessRoot}/get-user-with-full-infor`,
+      allUserByManagement: `${businessRoot}/get-user-by-management`,
     },
     userBranch: {
       ...baseRoutes(`${userBranchRoot}`),
