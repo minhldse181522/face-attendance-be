@@ -1,6 +1,12 @@
 import { Logger, Module, Provider } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
+import { BRANCH_REPOSITORY } from '../branch/branch.di-tokens';
+import { BranchModule } from '../branch/branch.module';
+import { PrismaBranchRepository } from '../branch/database/branch.repository.prisma';
+import { PrismaUserContractRepository } from '../user-contract/database/user-contract.repository.prisma';
+import { USER_CONTRACT_REPOSITORY } from '../user-contract/user-contract.di-tokens';
+import { UserContractModule } from '../user-contract/user-contract.module';
 import { CreateUserBranchHttpController } from './commands/create-user-branch/create-user-branch.http.controller';
 import { CreateUserBranchService } from './commands/create-user-branch/create-user-branch.service';
 import { DeleteUserBranchHttpController } from './commands/delete-user-branch/delete-user-branch.http.controller';
@@ -9,15 +15,10 @@ import { UpdateUserBranchHttpController } from './commands/update-user-branch/up
 import { UpdateUserBranchService } from './commands/update-user-branch/update-user-branch.service';
 import { PrismaUserBranchRepository } from './database/user-branch.repository.prisma';
 import { UserBranchMapper } from './mappers/user-branch.mapper';
+import { FindUserBranchByParamsQueryHandler } from './queries/find-user-branch-by-params/find-user-branch-by-params.query-handler';
 import { FindUserBranchesHttpController } from './queries/find-user-branches/find-user-branches.http.controller';
 import { FindUserBranchesQueryHandler } from './queries/find-user-branches/find-user-branches.query-handler';
 import { USER_BRANCH_REPOSITORY } from './user-branch.di-tokens';
-import { UserContractModule } from '../user-contract/user-contract.module';
-import { USER_CONTRACT_REPOSITORY } from '../user-contract/user-contract.di-tokens';
-import { PrismaUserContractRepository } from '../user-contract/database/user-contract.repository.prisma';
-import { BRANCH_REPOSITORY } from '../branch/branch.di-tokens';
-import { PrismaBranchRepository } from '../branch/database/branch.repository.prisma';
-import { BranchModule } from '../branch/branch.module';
 
 const httpControllers = [
   FindUserBranchesHttpController,
@@ -38,7 +39,10 @@ const commandHandlers: Provider[] = [
   DeleteUserBranchService,
 ];
 
-const queryHandlers: Provider[] = [FindUserBranchesQueryHandler];
+const queryHandlers: Provider[] = [
+  FindUserBranchesQueryHandler,
+  FindUserBranchByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [UserBranchMapper];
 

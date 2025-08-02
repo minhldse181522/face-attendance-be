@@ -6,6 +6,7 @@ export class UpdateFormCommand extends Command {
   readonly title?: string | null;
   readonly description?: string | null;
   readonly roleCode?: string | null;
+  readonly status?: string | null;
   readonly updatedBy: string | null;
 
   constructor(props: CommandProps<UpdateFormCommand>) {

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "dt_form" ADD COLUMN     "status" VARCHAR(20) NOT NULL DEFAULT 'ACTIVE';

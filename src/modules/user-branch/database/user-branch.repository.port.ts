@@ -1,8 +1,12 @@
 import { Paginated, RepositoryPort } from '@libs/ddd';
-import { DropDownResult } from '@src/libs/utils/dropdown.util';
-import { UserBranchEntity } from '../domain/user-branch.entity';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
 import { Prisma } from '@prisma/client';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
+import { DropDownResult } from '@src/libs/utils/dropdown.util';
+import { Option } from 'oxide.ts';
+import { UserBranchEntity } from '../domain/user-branch.entity';
 
 export interface UserBranchRepositoryPort
   extends RepositoryPort<UserBranchEntity> {
@@ -13,4 +17,7 @@ export interface UserBranchRepositoryPort
       quickSearch?: string | number;
     },
   ): Promise<Paginated<UserBranchEntity>>;
+  findUserBranchByParams(
+    params: PrismaQueryBase<Prisma.UserBranchWhereInput>,
+  ): Promise<Option<UserBranchEntity>>;
 }

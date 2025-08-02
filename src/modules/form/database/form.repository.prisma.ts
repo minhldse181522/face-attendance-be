@@ -27,11 +27,13 @@ export class PrismaFormRepository
     params: PrismaPaginatedQueryParams<Prisma.FormWhereInput> & {
       quickSearch?: string;
     },
+    status?: string,
   ): Promise<Paginated<FormEntity>> {
     const searchableFields: IField[] = [
       { field: 'title', type: 'string' },
       { field: 'description', type: 'string' },
       { field: 'roleCode', type: 'string' },
+      { field: 'status', type: 'string' },
     ];
     const { quickSearch, ...rest } = params;
     return await this.findAllPaginatedWithQuickSearch<Prisma.FormWhereInput>({

@@ -10,7 +10,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -24,17 +24,17 @@ import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator'
 import { ReqUser } from '@src/libs/decorators/request-user.decorator';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 import { match } from 'oxide.ts';
-import { UserContractMapper } from '../../mappers/user-contract.mapper';
-import { UserContractResponseDto } from '../../dtos/user-contract.response.dto';
+import { UserContractEntity } from '../../domain/user-contract.entity';
 import {
   UserContractAlreadyExistsError,
   UserContractAlreadyInUseError,
   UserContractNotFoundError,
 } from '../../domain/user-contract.error';
-import { UpdateUserContractRequestDto } from './update-user-contract.request.dto';
+import { UserContractResponseDto } from '../../dtos/user-contract.response.dto';
+import { UserContractMapper } from '../../mappers/user-contract.mapper';
 import { UpdateUserContractCommand } from './update-user-contract.command';
+import { UpdateUserContractRequestDto } from './update-user-contract.request.dto';
 import { UpdateUserContractServiceResult } from './update-user-contract.service';
-import { UserContractEntity } from '../../domain/user-contract.entity';
 
 @Controller(routesV1.version)
 export class UpdateUserContractHttpController {

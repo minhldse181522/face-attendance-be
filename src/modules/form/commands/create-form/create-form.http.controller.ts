@@ -61,6 +61,7 @@ export class CreateFormHttpController {
   ): Promise<FormResponseDto> {
     const command = new CreateFormCommand({
       ...body,
+      status: "ACTIVE",
       createdBy: user.userName,
     });
 

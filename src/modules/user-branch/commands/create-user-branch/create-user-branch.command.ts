@@ -1,6 +1,7 @@
 import { Command, CommandProps } from '@libs/ddd';
 
 export class CreateUserBranchCommand extends Command {
+  readonly code: string;
   readonly branchCode: string;
   readonly userContractCode: string;
   readonly createdBy: string;

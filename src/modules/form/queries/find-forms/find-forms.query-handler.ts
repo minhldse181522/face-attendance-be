@@ -9,9 +9,11 @@ import { FormRepositoryPort } from '../../database/form.repository.port';
 import { FORM_REPOSITORY } from '../../form.di-tokens';
 import { GeneratedFindOptions } from '@chax-at/prisma-filter';
 export class FindFormQuery extends PrismaPaginatedQueryBase<Prisma.FormWhereInput> {
+  status?: string;
   constructor(
     props: GeneratedFindOptions<Prisma.FormWhereInput> & {
       quickSearch?: string | number;
+      status?: string;
     },
   ) {
     super(props);
@@ -29,9 +31,9 @@ export class FindFormQueryHandler {
   ) {}
 
   async execute(query: FindFormQuery): Promise<FindFormQueryResult> {
-    const result = await this.formRepo.findAllPaginatedQuickSearch({
-      ...query,
-    });
+    const result = await this.formRepo.findAllPaginatedQuickSearch(
+      { ...query },
+    );
 
     return Ok(
       new Paginated({

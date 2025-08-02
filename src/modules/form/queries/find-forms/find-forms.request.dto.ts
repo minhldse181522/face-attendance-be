@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { FilterDtoWithQuickSearch } from '@src/libs/application/validators/prisma-filter.validator';
 

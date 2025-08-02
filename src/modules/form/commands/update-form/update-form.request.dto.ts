@@ -25,4 +25,12 @@ export class UpdateFormRequestDto {
   @IsOptional()
   @MaxLength(50)
   roleCode?: string | null;
+
+  @ApiPropertyOptional({
+    example: 'ACTIVE',
+    description: 'Trạng thái',
+  })
+  @IsOptional()
+  @MaxLength(20)
+  status?: string | null;
 }
