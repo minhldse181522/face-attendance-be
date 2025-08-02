@@ -41,6 +41,9 @@ export class FindAllUserByManagementHttpController {
       new FindAllUserByManagementQuery({
         ...queryParams.findOptions,
         userCode: queryParams.userCode,
+        isActive: queryParams.isActive,
+        branch: queryParams.branch,
+        position: queryParams.position,
       }),
     );
 

@@ -49,3 +49,47 @@ export class FormNotFoundError extends ExceptionBase {
     super(FormNotFoundError.message, cause, metadata);
   }
 }
+
+export class UserToUpdateFaceNotFoundError extends ExceptionBase {
+  static readonly message = 'Không tìm thấy người dùng này để cập nhật';
+
+  public readonly code = 'FORM_DESCRIPTION.USER_TO_UPDATE_FACE_NOT_FOUND';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(UserToUpdateFaceNotFoundError.message, cause, metadata);
+  }
+}
+
+export class UserContractToEndNotFoundError extends ExceptionBase {
+  static readonly message =
+    'Không tìm thấy hợp đồng người dùng này để cập nhật';
+
+  public readonly code = 'FORM_DESCRIPTION.USER_CONTRACT_TO_END_NOT_FOUND';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(UserContractToEndNotFoundError.message, cause, metadata);
+  }
+}
+
+export class WorkingScheduleForOverTimeNotFoundError extends ExceptionBase {
+  static readonly message =
+    'Không tìm thấy lịch làm việc của nhân viên này cho tăng ca';
+
+  public readonly code =
+    'FORM_DESCRIPTION.WORKING_SCHEDULE_FOR_OVERTIME_NOT_FOUND';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(WorkingScheduleForOverTimeNotFoundError.message, cause, metadata);
+  }
+}
+
+export class TimeKeepingAlreadyOverlap extends ExceptionBase {
+  static readonly message =
+    'Đơn này đã có lịch làm việc trùng với thời gian tăng ca';
+
+  public readonly code = 'FORM_DESCRIPTION.TIME_KEEPING_ALREADY_OVERLAP';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(TimeKeepingAlreadyOverlap.message, cause, metadata);
+  }
+}

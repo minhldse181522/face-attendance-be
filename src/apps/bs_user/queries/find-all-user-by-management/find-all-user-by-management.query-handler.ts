@@ -11,13 +11,22 @@ import { BsUserRepositoryPort } from '../../database/bs-user.repository.port';
 
 export class FindAllUserByManagementQuery extends PrismaPaginatedQueryBase<Prisma.UserWhereInput> {
   userCode?: string;
+  isActive?: boolean;
+  position?: string;
+  branch?: string;
   constructor(
     props: GeneratedFindOptions<Prisma.UserWhereInput> & {
       userCode?: string;
+      isActive?: boolean;
+      position?: string;
+      branch?: string;
     },
   ) {
     super(props);
     this.userCode = props.userCode;
+    this.isActive = props.isActive;
+    this.position = props.position;
+    this.branch = props.branch;
   }
 }
 
@@ -41,6 +50,9 @@ export class FindAllUserByManagementQueryHandler {
         ...query,
       },
       query.userCode,
+      query.isActive,
+      query.position,
+      query.branch,
     );
 
     return Ok(

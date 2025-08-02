@@ -22,6 +22,24 @@ export class UpdateFormDescriptionRequestDto {
   approvedTime?: Date;
 
   @ApiPropertyOptional({
+    example: new Date(),
+    description: 'Thời gian bắt đầu',
+  })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  startTime?: Date;
+
+  @ApiPropertyOptional({
+    example: new Date(),
+    description: 'Thời gian kết thúc',
+  })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  endTime?: Date;
+
+  @ApiPropertyOptional({
     example: 'MANAGER001',
     description: 'Mã người phê duyệt đơn',
   })
