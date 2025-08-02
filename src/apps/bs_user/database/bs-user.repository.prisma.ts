@@ -303,6 +303,9 @@ export class PrismaBsUserRepository
   async findAllUserByManagement(
     params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
     userCode?: string,
+    isActive?: boolean,
+    position?: string,
+    branch?: string,
   ): Promise<Paginated<UserEntity>> {
     const client = await this._getClient();
     const { page, limit, offset, orderBy, where = {} } = params;
@@ -312,13 +315,28 @@ export class PrismaBsUserRepository
     const currentUserCode = user?.code;
     const currentUsername = user?.userName;
 
+    const branchFilter: Prisma.UserWhereInput = branch
+      ? {
+          userContracts: {
+            some: {
+              status: 'ACTIVE',
+              userBranches: {
+                some: {
+                  branch: {
+                    code: { equals: branch },
+                  },
+                },
+              },
+            },
+          },
+        }
+      : {};
+
     let finalWhere: Prisma.UserWhereInput = {
       ...where,
+      ...branchFilter,
+      isActive: typeof isActive === 'string' ? isActive === 'true' : isActive,
     };
-
-    if (userCode) {
-      finalWhere.code = userCode;
-    }
 
     // Phân quyền theo role
     if (role === 'R1') {
@@ -349,9 +367,17 @@ export class PrismaBsUserRepository
         });
       }
 
-      finalWhere.code = {
-        in: managedUserCodes,
-      };
+      if (userCode) {
+        if (!managedUserCodes.includes(userCode)) {
+          return new Paginated({ data: [], count: 0, limit, page });
+        }
+
+        finalWhere.code = userCode;
+      } else {
+        finalWhere.code = {
+          in: managedUserCodes,
+        };
+      }
     } else if (role === 'R3') {
       // Lấy danh sách user theo chi nhánh của manager
       const currentUser = await client.user.findUnique({
@@ -374,9 +400,17 @@ export class PrismaBsUserRepository
 
       const userCodes = usersInSameBranch.map((u) => u.code);
 
-      finalWhere.code = {
-        in: userCodes,
-      };
+      if (userCode) {
+        if (!userCodes.includes(userCode)) {
+          return new Paginated({ data: [], count: 0, limit, page });
+        }
+
+        finalWhere.code = userCode;
+      } else {
+        finalWhere.code = {
+          in: userCodes,
+        };
+      }
     } else if (role === 'R4') {
       // Staff chỉ xem được của chính mình
       finalWhere.code = currentUserCode;
@@ -388,6 +422,32 @@ export class PrismaBsUserRepository
         skip: offset,
         take: limit,
         orderBy,
+        include: {
+          role: {
+            include: {
+              positions: {
+                where: {
+                  code: position,
+                },
+              },
+            },
+          },
+          userContracts: {
+            where: {
+              status: 'ACTIVE',
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            include: {
+              userBranches: {
+                include: {
+                  branch: true,
+                },
+              },
+            },
+          },
+        },
       }),
       client.user.count({
         where: finalWhere,

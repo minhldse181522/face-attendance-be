@@ -10,4 +10,25 @@ export class FindAllUserByManagementRequestDto extends FilterDto<Prisma.UserWher
   })
   @IsOptional()
   userCode?: string;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Filter theo trạng thái tài khoản',
+  })
+  @IsOptional()
+  isActive?: boolean;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Filter theo chức vụ',
+  })
+  @IsOptional()
+  position?: string;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Filter theo chi nhánh',
+  })
+  @IsOptional()
+  branch?: string;
 }
