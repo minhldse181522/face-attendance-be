@@ -8,4 +8,6 @@ export const minioConfig = {
   accessKey: get('MINIO_ACCESS_KEY').required().asString(),
   secretKey: get('MINIO_SECRET_KEY').required().asString(),
   bucketName: get('MINIO_BUCKET').required().asString(),
+
+  publicEndPoint: get('MINIO_PUBLIC_ENDPOINT').required().asString(),
 };

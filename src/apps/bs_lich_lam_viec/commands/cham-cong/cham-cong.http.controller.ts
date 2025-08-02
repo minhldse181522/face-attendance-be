@@ -26,6 +26,7 @@ import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator'
 import { ReqUser } from '@src/libs/decorators/request-user.decorator';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
+import { ShiftNotFoundError } from '@src/modules/shift/domain/shift.error';
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
 import { WorkingScheduleMapper } from '@src/modules/working-schedule/mappers/working-schedule.mapper';
 import { match } from 'oxide.ts';
@@ -33,6 +34,7 @@ import {
   AlreadyCheckInError,
   ChamCongKhongDuDieuKienError,
   CheckInTimeNotInContractError,
+  CheckInTooEarlyError,
   LateCheckInError,
 } from '../../domain/lich-lam-viec.error';
 import { ChamCongCommand } from './cham-cong.command';
@@ -91,14 +93,18 @@ export class ChamCongHttpController {
           error instanceof ChamCongKhongDuDieuKienError ||
           error instanceof CheckInTimeNotInContractError ||
           error instanceof AlreadyCheckInError ||
-          error instanceof LateCheckInError
+          error instanceof LateCheckInError ||
+          error instanceof CheckInTooEarlyError
         ) {
           throw new BadRequestException({
             message: error.message,
             errorCode: error.code,
           });
         }
-        if (error instanceof WorkingScheduleNotFoundError) {
+        if (
+          error instanceof WorkingScheduleNotFoundError ||
+          error instanceof ShiftNotFoundError
+        ) {
           throw new NotFoundException({
             message: error.message,
             errorCode: error.code,

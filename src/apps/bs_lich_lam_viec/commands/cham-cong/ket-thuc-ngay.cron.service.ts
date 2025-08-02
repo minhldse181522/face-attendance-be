@@ -1,11 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CronExpression } from '@nestjs/schedule';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
 import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
 import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
 import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
+import {
+  FindTimeKeepingByParamsQuery,
+  FindTimeKeepingByParamsQueryResult,
+} from '@src/modules/time-keeping/queries/find-time-keeping-by-params/find-time-keeping-by-params.query-handler';
+import { UpdateTimeKeepingCommand } from '@src/modules/time-keeping/commands/update-time-keeping/update-time-keeping.command';
 
 @Injectable()
 export class EndOfDayWorkingScheduleCronService {
@@ -15,6 +20,7 @@ export class EndOfDayWorkingScheduleCronService {
     @Inject(WORKING_SCHEDULE_REPOSITORY)
     private readonly workingScheduleRepo: WorkingScheduleRepositoryPort,
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Cron('59 23 * * *') // Chạy mỗi ngày lúc 23:59
@@ -49,6 +55,29 @@ export class EndOfDayWorkingScheduleCronService {
           );
           this.logger.log(
             `Updated status of schedule ${schedule.id} to NOTWORK`,
+          );
+
+          const timeKeepingFound: FindTimeKeepingByParamsQueryResult =
+            await this.queryBus.execute(
+              new FindTimeKeepingByParamsQuery({
+                where: {
+                  workingScheduleCode: schedule.getProps().code,
+                },
+              }),
+            );
+          if (timeKeepingFound.isErr()) {
+            this.logger.error(
+              `Failed to find time keeping for schedule ${schedule.id}`,
+            );
+            continue;
+          }
+          const timeKeepingProps = timeKeepingFound.unwrap().getProps();
+          await this.commandBus.execute(
+            new UpdateTimeKeepingCommand({
+              timeKeepingId: timeKeepingProps.id,
+              status: 'NOCHECKOUT',
+              updatedBy: 'system',
+            }),
           );
         }
       },
