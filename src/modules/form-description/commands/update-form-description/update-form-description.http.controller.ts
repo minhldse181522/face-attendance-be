@@ -24,17 +24,19 @@ import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator'
 import { ReqUser } from '@src/libs/decorators/request-user.decorator';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 import { match } from 'oxide.ts';
-import { FormDescriptionMapper } from '../../mappers/form-description.mapper';
-import { FormDescriptionResponseDto } from '../../dtos/form-description.response.dto';
+import { FormDescriptionEntity } from '../../domain/form-description.entity';
 import {
   FormDescriptionAlreadyExistsError,
   FormDescriptionNotFoundError,
   FormDescriptionUpdateNotAllowedError,
+  UserContractToEndNotFoundError,
+  UserToUpdateFaceNotFoundError,
 } from '../../domain/form-description.error';
-import { UpdateFormDescriptionRequestDto } from './update-form-description.request.dto';
+import { FormDescriptionResponseDto } from '../../dtos/form-description.response.dto';
+import { FormDescriptionMapper } from '../../mappers/form-description.mapper';
 import { UpdateFormDescriptionCommand } from './update-form-description.command';
+import { UpdateFormDescriptionRequestDto } from './update-form-description.request.dto';
 import { UpdateFormDescriptionServiceResult } from './update-form-description.service';
-import { FormDescriptionEntity } from '../../domain/form-description.entity';
 
 @Controller(routesV1.version)
 export class UpdateFormDescriptionHttpController {
@@ -89,7 +91,11 @@ export class UpdateFormDescriptionHttpController {
       Ok: (formDescription: FormDescriptionEntity) =>
         this.mapper.toResponse(formDescription),
       Err: (error: Error) => {
-        if (error instanceof FormDescriptionNotFoundError) {
+        if (
+          error instanceof FormDescriptionNotFoundError ||
+          error instanceof UserToUpdateFaceNotFoundError ||
+          error instanceof UserContractToEndNotFoundError
+        ) {
           throw new NotFoundHttpException({
             message: error.message,
             errorCode: error.code,

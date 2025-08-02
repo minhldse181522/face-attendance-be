@@ -341,6 +341,9 @@ export class PrismaBsUserRepository
     // Phân quyền theo role
     if (role === 'R1') {
       // Admin - không lọc
+      if (userCode) {
+        finalWhere.code = userCode;
+      }
     } else if (role === 'R2') {
       // Nếu là HR, lọc danh sách user được quản lý
       const contracts = await client.userContract.findMany({

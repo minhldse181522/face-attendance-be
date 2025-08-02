@@ -6,6 +6,8 @@ export class UpdateFormDescriptionCommand extends Command {
   readonly response?: string | null;
   readonly status?: string | null;
   readonly approvedTime?: Date | null;
+  readonly startTime?: Date | null;
+  readonly endTime?: Date | null;
   readonly approvedBy?: string | null;
   readonly statusOvertime?: boolean | null;
   readonly updatedBy: string | null;
