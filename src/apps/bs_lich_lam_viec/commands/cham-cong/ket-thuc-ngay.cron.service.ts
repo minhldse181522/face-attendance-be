@@ -1,16 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
-import { CronExpression } from '@nestjs/schedule';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
-import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
-import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
+import { Cron } from '@nestjs/schedule';
 import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
+import { UpdateTimeKeepingCommand } from '@src/modules/time-keeping/commands/update-time-keeping/update-time-keeping.command';
 import {
   FindTimeKeepingByParamsQuery,
   FindTimeKeepingByParamsQueryResult,
 } from '@src/modules/time-keeping/queries/find-time-keeping-by-params/find-time-keeping-by-params.query-handler';
-import { UpdateTimeKeepingCommand } from '@src/modules/time-keeping/commands/update-time-keeping/update-time-keeping.command';
+import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
+import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
+import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
 
 @Injectable()
 export class EndOfDayWorkingScheduleCronService {
