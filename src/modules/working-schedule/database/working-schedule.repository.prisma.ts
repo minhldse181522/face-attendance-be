@@ -19,6 +19,7 @@ import { None, Option, Some } from 'oxide.ts';
 import { Paginated } from '@src/libs/ddd';
 import { endOfDay, startOfDay } from 'date-fns';
 import { equals } from 'class-validator';
+import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
 
 @Injectable()
 export class PrismaWorkingScheduleRepository
@@ -54,20 +55,87 @@ export class PrismaWorkingScheduleRepository
   ): Promise<Paginated<WorkingScheduleEntity>> {
     const client = await this._getClient();
 
-    const { limit, offset, page } = params;
+    const { limit, offset, page, where = {} } = params;
+    const user = RequestContextService.getRequestUser();
+    const role = user?.roleCode;
+    const currentUserCode = user?.code;
+    const currentUsername = user?.userName;
+
+    let finalWhere: Prisma.WorkingScheduleWhereInput = { ...where, userCode };
+
+    if (role === 'R1') {
+      // Admin - không lọc
+    } else if (role === 'R2') {
+      // Nếu là HR, lọc danh sách user được quản lý
+      const contracts = await client.userContract.findMany({
+        where: {
+          managedBy: currentUsername,
+          status: 'ACTIVE',
+        },
+        select: {
+          userCode: true,
+        },
+      });
+
+      const managedUserCodes = contracts
+        .map((c) => c.userCode)
+        .filter((code): code is string => code !== null);
+      console.log(managedUserCodes);
+
+      if (managedUserCodes.length === 0) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+
+      finalWhere.userCode = {
+        in: managedUserCodes,
+      };
+    } else if (role === 'R3') {
+      // Lấy danh sách user theo chi nhánh của manager
+      const currentUser = await client.user.findUnique({
+        where: { code: currentUserCode },
+        select: { addressCode: true },
+      });
+
+      if (!currentUser?.addressCode) {
+        throw new Error('Không tìm thấy địa chỉ chi nhánh của người dùng');
+      }
+
+      const usersInSameBranch = await client.user.findMany({
+        where: {
+          addressCode: currentUser.addressCode,
+        },
+        select: {
+          code: true,
+        },
+      });
+
+      const userCodes = usersInSameBranch.map((u) => u.code);
+
+      finalWhere.userCode = {
+        in: userCodes,
+      };
+    } else if (role === 'R4') {
+      // Staff chỉ xem được của chính mình
+      finalWhere.userCode = currentUserCode;
+    }
 
     const [data, count] = await Promise.all([
       client.workingSchedule.findMany({
         skip: offset,
         take: limit,
         where: {
+          ...finalWhere,
           AND: [
             { date: { gte: fromDate } },
             {
               date: { lte: toDate },
             },
           ],
-          userCode,
         },
         include: {
           user: true,
@@ -85,13 +153,13 @@ export class PrismaWorkingScheduleRepository
 
       client.workingSchedule.count({
         where: {
+          ...finalWhere,
           AND: [
             { date: { gte: fromDate } },
             {
               date: { lte: toDate },
             },
           ],
-          userCode,
         },
       }),
     ]);
