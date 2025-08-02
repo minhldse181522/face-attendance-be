@@ -47,8 +47,8 @@ export class FormSeedService implements OnModuleInit {
       },
       {
         id: '5',
-        title: 'Đơn thay đổi ảnh xác thực khuôn mặt',
-        description: 'Đơn thay đổi ảnh xác thực khuôn mặt.',
+        title: 'Đơn xác thực khuôn mặt',
+        description: 'Đơn xác thực khuôn mặt.',
         roleCode: 'R2',
         createdBy: 'SYSTEM',
       },
