@@ -399,9 +399,15 @@ export class UpdateFormDescriptionService
           const { isRead, ...notificationPayload } =
             createdNotification.getProps();
 
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
           await this.websocketService.publish({
             event: 'NOTIFICATION_CREATED',
-            data: notificationPayload,
+            data: safePayload,
           });
 
           const updatedResult = formDescription.update({
