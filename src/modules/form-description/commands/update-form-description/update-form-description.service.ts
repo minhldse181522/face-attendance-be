@@ -303,12 +303,11 @@ export class UpdateFormDescriptionService
 
           // Cập nhật toàn bộ trạng thái workingSchedule của người nộp đơn
           const currentDate = new Date();
-          const futureWorkingSchedules: FindWorkingScheduleArrayStopByParamsQueryResult =
+          const futureWorkingSchedules: FindWorkingScheduleArrayByParamsQueryResult =
             await this.queryBus.execute(
-              new FindWorkingScheduleArrayStopByParamsQuery({
+              new FindWorkingScheduleArrayByParamsQuery({
                 userCode: userContractProps.userCode!,
                 status: 'NOTSTARTED',
-                fromDate: currentDate,
               }),
             );
           if (futureWorkingSchedules.isErr()) {
