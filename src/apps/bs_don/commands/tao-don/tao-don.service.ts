@@ -15,6 +15,10 @@ import { FORM_DESCRIPTION_REPOSITORY } from '@src/modules/form-description/form-
 import { FormNotFoundError } from '@src/modules/form/domain/form.error';
 import { UserNotFoundError } from '@src/modules/user/domain/user.error';
 import { TaoDonCommand } from './tao-don.command';
+import {
+  FindFormDescriptionByParamsQuery,
+  FindFormDescriptionByParamsQueryResult,
+} from '@src/modules/form-description/queries/find-form-description-by-params/find-form-description-by-params.query-handler';
 
 export enum FormDescriptionStatus {
   PENDING = 'PENDING',
@@ -45,30 +49,46 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
     const formDescription = command.getExtendedProps<TaoDonCommand>();
     const code = await this.generateCode.generateCode('FORMDES', 4);
 
-    // Validate status if it exists
     if (
       formDescription.status &&
-      !Object.values(FormDescriptionStatus).includes(
-        formDescription.status as FormDescriptionStatus,
-      )
+      formDescription.submittedBy &&
+      formDescription.formId
     ) {
-      return Err(
-        new FormDescriptionInvalidStatusError(undefined, {
-          providedStatus: formDescription.status,
-        }),
-      );
+      const formDescriptionFound: FindFormDescriptionByParamsQueryResult =
+        await this.queryBus.execute(
+          new FindFormDescriptionByParamsQuery({
+            where: {
+              formId: BigInt(formDescription.formId),
+              status: formDescription.status,
+              submittedBy: formDescription.submittedBy,
+            },
+          }),
+        );
+      if (formDescriptionFound.isErr()) {
+        return Err(new FormDescriptionInvalidStatusError());
+      }
     }
+
+    // if (
+    //   formDescription.status &&
+    //   !Object.values(FormDescriptionStatus).includes(
+    //     formDescription.status as FormDescriptionStatus,
+    //   )
+    // ) {
+    //   // Validate status if it exists
+    //   return Err(
+    //     new FormDescriptionInvalidStatusError(undefined, {
+    //       providedStatus: formDescription.status,
+    //     }),
+    //   );
+    // }
 
     // Check if the referenced formId exists
     const formId = BigInt(formDescription.formId);
     const formExists = await this.formRepository.checkExist(formId);
 
     if (!formExists) {
-      return Err(
-        new FormNotFoundError(undefined, {
-          formId: formDescription.formId,
-        }),
-      );
+      return Err(new FormNotFoundError());
     }
 
     // Provide default values for optional properties

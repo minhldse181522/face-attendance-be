@@ -25,4 +25,7 @@ export interface FormDescriptionRepositoryPort
   findManyFormDescriptionByParams(
     params: PrismaQueryBase<Prisma.FormDescriptionWhereInput>,
   ): Promise<FormDescriptionEntity[]>;
+  findFormDescriptionByParams(
+    params: PrismaQueryBase<Prisma.FormDescriptionWhereInput>,
+  ): Promise<Option<FormDescriptionEntity>>;
 }
