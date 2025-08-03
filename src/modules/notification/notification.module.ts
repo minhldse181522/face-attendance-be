@@ -11,12 +11,15 @@ import { DeleteNotificationHttpController } from './commands/delete-notification
 import { CreateNotificationService } from './commands/create-notification/create-notification.service';
 import { UpdateNotificationService } from './commands/update-notification/update-notification.service';
 import { DeleteNotificationService } from './commands/delete-notification/delete-notification.service';
+import { MarkAllReadHttpController } from './commands/mark-all-read/mark-all-read.http.controller';
+import { MarkAllReadService } from './commands/mark-all-read/mark-all-read.service';
 
 const httpControllers = [
   FindNotificationsHttpController,
   CreateNotificationHttpController,
   UpdateNotificationHttpController,
   DeleteNotificationHttpController,
+  MarkAllReadHttpController,
 ];
 
 const messageControllers = [];
@@ -29,6 +32,7 @@ const commandHandlers: Provider[] = [
   CreateNotificationService,
   UpdateNotificationService,
   DeleteNotificationService,
+  MarkAllReadService,
 ];
 
 const queryHandlers: Provider[] = [FindNotificationsQueryHandler];

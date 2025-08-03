@@ -5,6 +5,7 @@ export interface NotificationProps {
   message: string;
   type: string;
   isRead: boolean;
+  userCode?: string;
 
   createdBy: string;
   updatedBy?: string | null;
@@ -16,6 +17,7 @@ export interface CreateNotificationProps {
   message: string;
   type: string;
   isRead: boolean;
+  userCode?: string;
 
   createdBy: string;
 }
@@ -26,6 +28,7 @@ export interface UpdateNotificationProps {
   message?: string | null;
   type?: string | null;
   isRead?: boolean | null;
+  userCode?: string | null;
 
   updatedBy: string | null;
 }

@@ -8,6 +8,9 @@ export interface NotificationRepositoryPort
   findPaginatedWithQuickSearch(
     params: PrismaPaginatedQueryBase<Prisma.NotificationWhereInput> & {
       quickSearch?: string | number;
+      userCode?: string;
     },
   ): Promise<Paginated<NotificationEntity>>;
+
+  markAllAsReadByUserCode(userCode: string, updatedBy: string): Promise<number>;
 }

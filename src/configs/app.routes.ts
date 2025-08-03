@@ -52,6 +52,7 @@ export const routesV1 = {
     },
     notification: {
       ...baseRoutes(`${notificationRoot}`),
+      markAllRead: `/${notificationRoot}/mark-all-read`,
     },
     branch: {
       ...baseRoutes(`${branchRoot}`),

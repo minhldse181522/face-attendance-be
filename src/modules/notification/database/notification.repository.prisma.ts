@@ -27,10 +27,19 @@ export class PrismaNotificationRepository
   async findPaginatedWithQuickSearch(
     params: PrismaPaginatedQueryBase<Prisma.NotificationWhereInput> & {
       quickSearch?: string | number;
+      userCode?: string;
     },
   ): Promise<Paginated<NotificationEntity>> {
     const client = await this._getClient();
-    const { quickSearch, page, limit, offset, orderBy, where = {} } = params;
+    const {
+      quickSearch,
+      userCode,
+      page,
+      limit,
+      offset,
+      orderBy,
+      where = {},
+    } = params;
 
     const searchableFieldsEmf: IField[] = [
       { field: 'title', type: 'string' },
@@ -48,12 +57,16 @@ export class PrismaNotificationRepository
       );
     }
 
+    // Add userCode filter if provided
+    const userCodeFilter = userCode ? { userCode } : {};
+
     const [data, count] = await Promise.all([
       client.notification.findMany({
         skip: offset,
         take: limit,
         where: {
           ...where,
+          ...userCodeFilter,
           ...(searchConditions && {
             ...searchConditions,
           }),
@@ -64,6 +77,7 @@ export class PrismaNotificationRepository
       client.notification.count({
         where: {
           ...where,
+          ...userCodeFilter,
           ...(searchConditions && {
             ...searchConditions,
           }),
@@ -77,5 +91,26 @@ export class PrismaNotificationRepository
       limit,
       page,
     });
+  }
+
+  async markAllAsReadByUserCode(
+    userCode: string,
+    updatedBy: string,
+  ): Promise<number> {
+    const client = await this._getClient();
+
+    const result = await client.notification.updateMany({
+      where: {
+        userCode,
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+        updatedBy,
+        updatedAt: new Date(),
+      },
+    });
+
+    return result.count;
   }
 }

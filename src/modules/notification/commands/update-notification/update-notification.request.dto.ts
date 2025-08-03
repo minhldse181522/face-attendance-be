@@ -31,4 +31,12 @@ export class UpdateNotificationRequestDto {
     description: 'Trạng thái đọc thông báo',
   })
   isRead?: boolean | null;
+
+  @ApiPropertyOptional({
+    example: 'USER001',
+    description: 'Mã người dùng',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  userCode?: string | null;
 }

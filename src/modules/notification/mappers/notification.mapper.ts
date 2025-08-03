@@ -18,6 +18,7 @@ export class NotificationMapper
       message: copy.message,
       type: copy.type,
       isRead: copy.isRead,
+      userCode: copy.userCode || '',
       createdAt: copy.createdAt,
       createdBy: copy.createdBy,
       updatedAt: copy.updatedAt,
@@ -38,6 +39,7 @@ export class NotificationMapper
         message: record.message,
         type: record.type,
         isRead: record.isRead,
+        userCode: record.userCode,
         createdBy: record.createdBy,
         updatedBy: record.updatedBy,
       },
@@ -53,6 +55,7 @@ export class NotificationMapper
     response.message = props.message;
     response.type = props.type;
     response.isRead = props.isRead;
+    response.userCode = props.userCode;
     return response;
   }
 }

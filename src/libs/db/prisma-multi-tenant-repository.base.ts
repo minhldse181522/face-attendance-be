@@ -34,6 +34,12 @@ export abstract class PrismaMultiTenantRepositoryBase<
     // Get client by context
     const client = await this._getClient();
 
+    // Validate ID format - should be numeric
+    const idStr = String(id);
+    if (!idStr || !/^\d+$/.test(idStr)) {
+      return None;
+    }
+
     const result = await client[this.modelName].findFirst({
       where: { id },
     });

@@ -5,6 +5,7 @@ model Notification {
   message      String    @map("message") @db.VarChar(200)
   type         String    @map("type") @db.VarChar(10)
   isRead       Boolean   @default(false) @map("is_read") @db.Boolean
+  userCode     String    @map("user_code") @db.VarChar(36)
 
   createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
   createdBy String    @map("created_by") @db.VarChar(36)

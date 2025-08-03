@@ -1,5 +1,5 @@
 import { ResponseBase } from '@libs/api/response.base';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class NotificationResponseDto extends ResponseBase<any> {
   @ApiProperty({
@@ -25,4 +25,10 @@ export class NotificationResponseDto extends ResponseBase<any> {
     description: 'Trạng thái thông báo',
   })
   isRead: boolean;
+
+  @ApiPropertyOptional({
+    example: 'USER001',
+    description: 'Mã người dùng',
+  })
+  userCode?: string;
 }
