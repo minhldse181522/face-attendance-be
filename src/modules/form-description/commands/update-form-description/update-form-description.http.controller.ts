@@ -29,6 +29,7 @@ import {
   FormDescriptionAlreadyExistsError,
   FormDescriptionNotFoundError,
   FormDescriptionUpdateNotAllowedError,
+  InvalidFormStatusError,
   UserContractToEndNotFoundError,
   UserToUpdateFaceNotFoundError,
 } from '../../domain/form-description.error';
@@ -94,7 +95,8 @@ export class UpdateFormDescriptionHttpController {
         if (
           error instanceof FormDescriptionNotFoundError ||
           error instanceof UserToUpdateFaceNotFoundError ||
-          error instanceof UserContractToEndNotFoundError
+          error instanceof UserContractToEndNotFoundError ||
+          error instanceof InvalidFormStatusError
         ) {
           throw new NotFoundHttpException({
             message: error.message,

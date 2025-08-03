@@ -1,11 +1,10 @@
-import { ConflictException, Inject } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import {
   CommandBus,
   CommandHandler,
   ICommandHandler,
   QueryBus,
 } from '@nestjs/cqrs';
-import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
 import { MinioService } from '@src/libs/minio/minio.service';
 import { UpdatePayrollCommand } from '@src/modules/payroll/commands/update-payroll/update-payroll.command';
 import { PayrollNotFoundError } from '@src/modules/payroll/domain/payroll.error';
@@ -44,6 +43,7 @@ import {
   FormDescriptionAlreadyExistsError,
   FormDescriptionNotFoundError,
   FormDescriptionUpdateNotAllowedError,
+  InvalidFormStatusError,
   TimeKeepingAlreadyOverlap,
   UserContractToEndNotFoundError,
   UserToUpdateFaceNotFoundError,
@@ -63,6 +63,7 @@ export type UpdateFormDescriptionServiceResult = Result<
   | PayrollNotFoundError
   | WorkingScheduleForOverTimeNotFoundError
   | TimeKeepingAlreadyOverlap
+  | InvalidFormStatusError
 >;
 
 function normalizeDateOnly(date: Date): Date {
@@ -90,9 +91,6 @@ export class UpdateFormDescriptionService
     if (found.isNone()) {
       return Err(new FormDescriptionNotFoundError());
     }
-
-    const user = RequestContextService.getRequestUser();
-    const currentUserCode = user?.code;
 
     const formDescription = found.unwrap();
     const fileImage = formDescription.getProps().file;
@@ -367,28 +365,8 @@ export class UpdateFormDescriptionService
         break;
       default:
         // Không xác định
-        break;
+        return Err(new InvalidFormStatusError());
     }
-
-    const updatedResult = formDescription.update({
-      ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
-      approvedBy: currentUserCode,
-      approvedTime: new Date(),
-    });
-
-    if (updatedResult.isErr()) {
-      return updatedResult;
-    }
-
-    try {
-      const updatedFormDescription =
-        await this.formDescriptionRepo.update(formDescription);
-      return Ok(updatedFormDescription);
-    } catch (error: any) {
-      if (error instanceof ConflictException) {
-        return Err(new FormDescriptionAlreadyExistsError());
-      }
-      throw error;
-    }
+    return Ok(formDescription);
   }
 }
