@@ -53,6 +53,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayInit {
       server.emit(event, data);
       this.logger.log(`Socket emitted: ${event}`);
     });
+    // check socket
   }
 
   handleConnection(client: Socket) {
