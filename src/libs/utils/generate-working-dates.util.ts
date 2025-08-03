@@ -4,10 +4,27 @@ import {
   ShiftCreatedConflictError,
 } from '@src/apps/bs_lich_lam_viec/domain/lich-lam-viec.error';
 import { addDays, endOfMonth, endOfWeek, format } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
+import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
 
 function normalizeDate(date: Date | string): string {
-  return format(new Date(date), 'yyyy-MM-dd');
+  // Always format in Vietnam timezone to ensure consistency
+  return formatInTimeZone(new Date(date), 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+}
+
+function createDateInVietnamTimezone(dateStr: string): Date {
+  // Create a date that represents the correct day in Vietnam timezone
+  // by parsing the date string and setting it to noon Vietnam time
+  const vnDate = new Date(dateStr + 'T12:00:00.000+07:00');
+  console.log('>>> createDateInVietnamTimezone:', {
+    input: dateStr,
+    output: vnDate.toISOString(),
+    vnTime: formatInTimeZone(
+      vnDate,
+      'Asia/Ho_Chi_Minh',
+      'yyyy-MM-dd HH:mm:ss zzz',
+    ),
+  });
+  return vnDate;
 }
 
 function isOverlappingWithExistingShift(
@@ -57,13 +74,17 @@ function isOverlappingWithExistingShift(
 
 function isToday(date: Date): boolean {
   const now = toZonedTime(new Date(), 'Asia/Ho_Chi_Minh');
-  const zoned = toZonedTime(date, 'Asia/Ho_Chi_Minh');
+  const targetDate = toZonedTime(date, 'Asia/Ho_Chi_Minh');
 
-  return (
-    zoned.getFullYear() === now.getFullYear() &&
-    zoned.getMonth() === now.getMonth() &&
-    zoned.getDate() === now.getDate()
+  // Compare date strings to avoid time component issues
+  const nowDateStr = formatInTimeZone(now, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+  const targetDateStr = formatInTimeZone(
+    targetDate,
+    'Asia/Ho_Chi_Minh',
+    'yyyy-MM-dd',
   );
+
+  return nowDateStr === targetDateStr;
 }
 
 function isAfterShiftStartOnDate(date: Date, startTimeStr: string): boolean {
@@ -117,7 +138,9 @@ export class GenerateWorkingDate {
     console.log('Generated shifts', alreadyGeneratedShifts);
 
     const dates: Date[] = [];
-    const realStartDate = new Date(normalizeDate(startDate));
+    // Ensure the start date is properly normalized to Vietnam timezone
+    const startDateStr = normalizeDate(startDate);
+    const realStartDate = createDateInVietnamTimezone(startDateStr);
 
     let overlapCount = 0;
     let lateStartCount = 0;
@@ -198,7 +221,9 @@ export class GenerateWorkingDate {
 
         // Nếu pass tất cả kiểm tra thì thêm vào danh sách
         console.log('>>> Successfully passed all checks, adding date');
-        dates.push(d);
+        const normalizedDateStr = normalizeDate(d);
+        const vnDate = createDateInVietnamTimezone(normalizedDateStr);
+        dates.push(vnDate);
         // Không cần add vào createdSet nữa vì cho phép nhiều shift/ngày
       }
     };
@@ -208,10 +233,14 @@ export class GenerateWorkingDate {
     }
 
     if (option === 'TUAN') {
-      const endOfWeekDate = endOfWeek(new Date(realStartDate), {
+      // Work with normalized date strings to avoid timezone issues
+      const startDateStr = normalizeDate(realStartDate);
+      const startDateForCalc = createDateInVietnamTimezone(startDateStr);
+      const endOfWeekDate = endOfWeek(startDateForCalc, {
         weekStartsOn: 1,
       });
-      let current = new Date(realStartDate);
+
+      let current = startDateForCalc;
       while (current <= endOfWeekDate) {
         addValidDate(current);
         current = addDays(current, 1);
@@ -219,8 +248,12 @@ export class GenerateWorkingDate {
     }
 
     if (option === 'THANG') {
-      const end = endOfMonth(realStartDate);
-      let current = new Date(realStartDate);
+      // Work with normalized date strings to avoid timezone issues
+      const startDateStr = normalizeDate(realStartDate);
+      const startDateForCalc = createDateInVietnamTimezone(startDateStr);
+      const end = endOfMonth(startDateForCalc);
+
+      let current = startDateForCalc;
       while (current <= end) {
         addValidDate(current);
         current = addDays(current, 1);

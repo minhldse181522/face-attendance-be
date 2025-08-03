@@ -240,7 +240,7 @@ export class CreateLichLamViecService
               code: generatedCode,
               userCode: command.userCode,
               userContractCode: userContractProps.code,
-              date: new Date(date),
+              date: date, // Use the date directly without creating a new Date object
               status: 'NOTSTARTED',
               shiftCode: command.shiftCode,
               branchCode: command.branchCode,
