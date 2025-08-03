@@ -91,8 +91,16 @@ export class PrismaUserContractRepository
         // Nếu branchCodes được cung cấp, tạo các mục UserBranch cho từng mã
         if (branchCodes && branchCodes.length > 0) {
           const userBranchPromises = branchCodes.map(async (branchCode) => {
+            let ubCode: string = '';
+            let isDuplicate = true;
             // Tạo mã duy nhất cho mỗi UserBranch
-            const ubCode = await this.generateCode.generateCode('UB', 4);
+            while (isDuplicate) {
+              ubCode = await this.generateCode.generateCode('UB', 4);
+              const existing = await tx.userBranch.findUnique({
+                where: { code: ubCode },
+              });
+              isDuplicate = !!existing;
+            }
 
             return tx.userBranch.create({
               data: {

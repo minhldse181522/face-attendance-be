@@ -166,6 +166,25 @@ export class UpdateFormDescriptionService
               }),
             );
           }
+
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
         }
         break;
       case '2':
@@ -276,6 +295,24 @@ export class UpdateFormDescriptionService
               }),
             );
           }
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
         }
         break;
       case '4':
@@ -351,6 +388,25 @@ export class UpdateFormDescriptionService
               updatedBy: 'system',
             }),
           );
+
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
         }
         break;
       case '5':
@@ -399,9 +455,15 @@ export class UpdateFormDescriptionService
           const { isRead, ...notificationPayload } =
             createdNotification.getProps();
 
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
           await this.websocketService.publish({
             event: 'NOTIFICATION_CREATED',
-            data: notificationPayload,
+            data: safePayload,
           });
 
           const updatedResult = formDescription.update({
@@ -430,6 +492,26 @@ export class UpdateFormDescriptionService
       default:
         // Không xác định
         return Err(new InvalidFormStatusError());
+    }
+    if (command.status === 'REJECTED') {
+      const updatedResult = formDescription.update({
+        ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+        approvedBy: currentUserCode,
+        approvedTime: new Date(),
+      });
+      if (updatedResult.isErr()) {
+        return updatedResult;
+      }
+      try {
+        const updatedForm =
+          await this.formDescriptionRepo.update(formDescription);
+        return Ok(updatedForm);
+      } catch (error: any) {
+        if (error instanceof ConflictException) {
+          return Err(new FormAlreadyExistsError());
+        }
+        throw error;
+      }
     }
     return Ok(formDescription);
   }
