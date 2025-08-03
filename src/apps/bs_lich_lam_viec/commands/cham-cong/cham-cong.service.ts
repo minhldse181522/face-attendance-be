@@ -58,8 +58,6 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
   ) {}
 
   async execute(command: ChamCongCommand): Promise<ChamCongServiceResult> {
-    const code = await this.generateCode.generateCode('TK', 4);
-
     const found = await this.workingScheduleRepo.findOneById(
       command.workingScheduleId,
     );
@@ -168,9 +166,24 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
       );
 
       // insert vào bảng time keeping
+      let generatedCode: string;
+      let retryCount = 0;
+      do {
+        generatedCode = await this.generateCode.generateCode('TK', 4);
+        const exists =
+          await this.workingScheduleRepo.existsByCode(generatedCode);
+        if (!exists) break;
+
+        retryCount++;
+        if (retryCount > 5) {
+          throw new Error(
+            `Cannot generate unique code after ${retryCount} tries`,
+          );
+        }
+      } while (true);
       const createdTimeKeeping = await this.commandBus.execute(
         new CreateTimeKeepingCommand({
-          code: code,
+          code: generatedCode,
           checkInTime: command.checkInTime,
           checkOutTime: null,
           date: workingScheduleProps.date,

@@ -26,6 +26,16 @@ export class PrismaTimeKeepingRepository
     super(manager, mapper);
   }
 
+  async existsByCode(code: string): Promise<boolean> {
+    const client = await this._getClient();
+    const result = await client.timeKeeping.findUnique({
+      where: { code },
+      select: { id: true },
+    });
+
+    return !!result;
+  }
+
   async findLichChamCongByParam(
     params: PrismaPaginatedQueryBase<Prisma.TimeKeepingWhereInput>,
     userCode: string,

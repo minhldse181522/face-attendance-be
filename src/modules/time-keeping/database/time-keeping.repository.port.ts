@@ -23,4 +23,5 @@ export interface TimeKeepingRepositoryPort
   ): Promise<TimeKeepingEntity[]>;
   findFinishWorkDate(): Promise<number>;
   findLateWorkDate(): Promise<number>;
+  existsByCode(code: string): Promise<boolean>;
 }
