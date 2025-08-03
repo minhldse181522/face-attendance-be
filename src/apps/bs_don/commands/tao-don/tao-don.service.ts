@@ -47,7 +47,6 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
 
   async execute(command: TaoDonCommand): Promise<TaoDonCommandResult> {
     const formDescription = command.getExtendedProps<TaoDonCommand>();
-    const code = await this.generateCode.generateCode('FORMDES', 4);
 
     if (
       formDescription.status &&
@@ -59,12 +58,12 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
           new FindFormDescriptionByParamsQuery({
             where: {
               formId: BigInt(formDescription.formId),
-              status: formDescription.status,
+              status: 'PENDING',
               submittedBy: formDescription.submittedBy,
             },
           }),
         );
-      if (formDescriptionFound.isErr()) {
+      if (formDescriptionFound.isOk()) {
         return Err(new FormDescriptionInvalidStatusError());
       }
     }
@@ -82,6 +81,22 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
     //     }),
     //   );
     // }
+
+    let code: string;
+    let retryCount = 0;
+
+    do {
+      code = await this.generateCode.generateCode('FORMDES', 4);
+      const isExisted = await this.repository.existsByCode(code);
+      if (!isExisted) break;
+
+      retryCount++;
+      if (retryCount > 5) {
+        throw new ConflictException(
+          'Cannot generate unique code after 5 attempts',
+        );
+      }
+    } while (true);
 
     // Check if the referenced formId exists
     const formId = BigInt(formDescription.formId);

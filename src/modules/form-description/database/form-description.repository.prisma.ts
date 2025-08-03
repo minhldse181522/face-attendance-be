@@ -49,6 +49,16 @@ export class PrismaFormDescriptionRepository
     return result ? Some(this.mapper.toDomain(result)) : None;
   }
 
+  async existsByCode(code: string): Promise<boolean> {
+    const client = await this._getClient();
+    const result = await client.formDescription.findUnique({
+      where: { code },
+      select: { id: true },
+    });
+
+    return !!result;
+  }
+
   async findAllPaginatedQuickSearch(
     params: PrismaPaginatedQueryParams<Prisma.FormDescriptionWhereInput> & {
       fromDate?: string;
