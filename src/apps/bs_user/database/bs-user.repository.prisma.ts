@@ -359,9 +359,24 @@ export class PrismaBsUserRepository
       const managedUserCodes = contracts
         .map((c) => c.userCode)
         .filter((code): code is string => code !== null);
-      console.log(managedUserCodes);
 
-      if (managedUserCodes.length === 0) {
+      // Kiểm tra từng user được quản lý xem có contract không
+      const usersWithoutContract: string[] = [];
+      for (const code of managedUserCodes) {
+        const existingContract = await client.userContract.findFirst({
+          where: { userCode: code },
+        });
+        if (!existingContract) {
+          usersWithoutContract.push(code);
+        }
+      }
+
+      // Kết hợp user được quản lý và user chưa có contract
+      const finalUserCodes = [
+        ...new Set([...managedUserCodes, ...usersWithoutContract]),
+      ];
+
+      if (finalUserCodes.length === 0) {
         return new Paginated({
           data: [],
           count: 0,
@@ -419,6 +434,186 @@ export class PrismaBsUserRepository
       finalWhere.code = currentUserCode;
     }
 
+    // Lọc theo position nếu có
+    if (position) {
+      const userContractsWithPosition = await client.userContract.findMany({
+        where: {
+          status: 'ACTIVE',
+          positionCode: position,
+        },
+        select: {
+          userCode: true,
+        },
+      });
+
+      const userCodesWithPosition = userContractsWithPosition
+        .map((c) => c.userCode)
+        .filter((code): code is string => code !== null);
+
+      if (userCodesWithPosition.length === 0) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+
+      // Kết hợp với điều kiện code hiện tại
+      if (finalWhere.code) {
+        if (typeof finalWhere.code === 'string') {
+          // Nếu là string đơn, kiểm tra xem có trong danh sách position không
+          if (!userCodesWithPosition.includes(finalWhere.code)) {
+            return new Paginated({ data: [], count: 0, limit, page });
+          }
+        } else if (finalWhere.code.in && Array.isArray(finalWhere.code.in)) {
+          // Nếu là array, lấy giao của 2 mảng
+          const intersection = finalWhere.code.in.filter((code: string) =>
+            userCodesWithPosition.includes(code),
+          );
+          if (intersection.length === 0) {
+            return new Paginated({ data: [], count: 0, limit, page });
+          }
+          finalWhere.code = { in: intersection };
+        } else {
+          // Nếu không phải array hoặc string, chỉ dùng position filter
+          finalWhere.code = { in: userCodesWithPosition };
+        }
+      } else {
+        finalWhere.code = { in: userCodesWithPosition };
+      }
+    }
+
+    // Lọc theo branch nếu có
+    if (branch) {
+      const userContractsWithBranch = await client.userContract.findMany({
+        where: {
+          status: 'ACTIVE',
+          userBranches: {
+            some: {
+              branch: {
+                code: branch,
+              },
+            },
+          },
+        },
+        select: {
+          userCode: true,
+        },
+      });
+
+      const userCodesWithBranch = userContractsWithBranch
+        .map((c) => c.userCode)
+        .filter((code): code is string => code !== null);
+
+      if (userCodesWithBranch.length === 0) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+
+      // Kết hợp với điều kiện code hiện tại
+      if (finalWhere.code) {
+        if (typeof finalWhere.code === 'string') {
+          // Nếu là string đơn, kiểm tra xem có trong danh sách branch không
+          if (!userCodesWithBranch.includes(finalWhere.code)) {
+            return new Paginated({ data: [], count: 0, limit, page });
+          }
+        } else if (finalWhere.code.in && Array.isArray(finalWhere.code.in)) {
+          // Nếu là array, lấy giao của 2 mảng
+          const intersection = finalWhere.code.in.filter((code: string) =>
+            userCodesWithBranch.includes(code),
+          );
+          if (intersection.length === 0) {
+            return new Paginated({ data: [], count: 0, limit, page });
+          }
+          finalWhere.code = { in: intersection };
+        } else {
+          // Nếu không phải array hoặc string, chỉ dùng branch filter
+          finalWhere.code = { in: userCodesWithBranch };
+        }
+      } else {
+        finalWhere.code = { in: userCodesWithBranch };
+      }
+    }
+
+    // Lấy danh sách user chưa có contract cho R2 và R3
+    let usersWithoutContract: string[] = [];
+    if (role === 'R2' || role === 'R3') {
+      let allowedUserCodes: string[] = [];
+
+      if (role === 'R2') {
+        // HR chỉ lấy user có role STAFF (R4) và chưa có contract
+        const staffUsers = await client.user.findMany({
+          where: {
+            roleCode: 'R4', // Chỉ lấy user có role STAFF
+          },
+          select: {
+            code: true,
+          },
+        });
+        allowedUserCodes = staffUsers.map((u) => u.code);
+      } else if (role === 'R3') {
+        // Manager chỉ lấy user có role HR (R2) hoặc STAFF (R4) trong cùng chi nhánh
+        const currentUser = await client.user.findUnique({
+          where: { code: currentUserCode },
+          select: { addressCode: true },
+        });
+
+        if (currentUser?.addressCode) {
+          const usersInSameBranch = await client.user.findMany({
+            where: {
+              addressCode: currentUser.addressCode,
+              roleCode: { in: ['R2', 'R4'] }, // Chỉ lấy user có role HR hoặc STAFF
+            },
+            select: {
+              code: true,
+            },
+          });
+          allowedUserCodes = usersInSameBranch.map((u) => u.code);
+        }
+      }
+
+      // Lấy tất cả userCode đã tồn tại trong userContract
+      const existingUserCodes = await client.userContract.findMany({
+        select: {
+          userCode: true,
+        },
+      });
+
+      const existingCodes = existingUserCodes
+        .map((contract) => contract.userCode)
+        .filter((code): code is string => code !== null);
+
+      // Tìm user thuộc quyền quản lý nhưng chưa có trong userContract
+      usersWithoutContract = allowedUserCodes.filter(
+        (userCode) => !existingCodes.includes(userCode),
+      );
+    }
+
+    // Kết hợp user đã có trong kết quả filter với user chưa có contract
+    if (usersWithoutContract.length > 0) {
+      let currentUserCodes: string[] = [];
+
+      if (finalWhere.code) {
+        if (typeof finalWhere.code === 'string') {
+          currentUserCodes = [finalWhere.code];
+        } else if (finalWhere.code.in && Array.isArray(finalWhere.code.in)) {
+          currentUserCodes = finalWhere.code.in;
+        }
+      }
+
+      // Cộng user chưa có contract vào danh sách kết quả
+      const combinedUserCodes = [
+        ...new Set([...currentUserCodes, ...usersWithoutContract]),
+      ];
+      finalWhere.code = { in: combinedUserCodes };
+    }
+
+    // Lấy danh sách user theo điều kiện đã lọc
     const [data, count] = await Promise.all([
       client.user.findMany({
         where: finalWhere,
