@@ -36,6 +36,8 @@ import {
 } from '@src/modules/shift/queries/find-shift-by-params/find-shift-by-params.query-handler';
 import { ShiftNotFoundError } from '@src/modules/shift/domain/shift.error';
 import { getShiftStartDateTime } from '@src/libs/utils/get-shift-start-time.util';
+import { TimeKeepingRepositoryPort } from '@src/modules/time-keeping/database/time-keeping.repository.port';
+import { TIME_KEEPING_REPOSITORY } from '@src/modules/time-keeping/time-keeping.di-tokens';
 
 export type ChamCongServiceResult = Result<
   WorkingScheduleEntity,
@@ -54,6 +56,8 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
   constructor(
     @Inject(WORKING_SCHEDULE_REPOSITORY)
     protected readonly workingScheduleRepo: WorkingScheduleRepositoryPort,
+    @Inject(TIME_KEEPING_REPOSITORY)
+    protected readonly timeKeepingRepo: TimeKeepingRepositoryPort,
     protected readonly generateCode: GenerateCode,
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
@@ -171,8 +175,24 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
       );
 
       // insert vào bảng time keeping
+      let code: string;
+      let retryCount = 0;
+
+      do {
+        code = await this.generateCode.generateCode('FORMDES', 4);
+        const isExisted = await this.timeKeepingRepo.existsByCode(code);
+        if (!isExisted) break;
+
+        retryCount++;
+        if (retryCount > 5) {
+          throw new Error(
+            `Cannot generate unique code after ${retryCount} tries`,
+          );
+        }
+      } while (true);
       const timeKeepingResult = await this.commandBus.execute(
         new CreateTimeKeepingCommand({
+          code: code,
           checkInTime: command.checkInTime,
           checkOutTime: null,
           date: workingScheduleProps.date,
