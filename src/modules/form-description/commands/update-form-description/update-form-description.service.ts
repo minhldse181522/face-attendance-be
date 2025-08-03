@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { ConflictException, Inject } from '@nestjs/common';
 import {
   CommandBus,
   CommandHandler,
@@ -51,6 +51,7 @@ import {
 } from '../../domain/form-description.error';
 import { FORM_DESCRIPTION_REPOSITORY } from '../../form-description.di-tokens';
 import { UpdateFormDescriptionCommand } from './update-form-description.command';
+import { FormAlreadyExistsError } from '@src/modules/form/domain/form.error';
 
 export type UpdateFormDescriptionServiceResult = Result<
   FormDescriptionEntity,
@@ -64,6 +65,7 @@ export type UpdateFormDescriptionServiceResult = Result<
   | WorkingScheduleForOverTimeNotFoundError
   | TimeKeepingAlreadyOverlap
   | InvalidFormStatusError
+  | FormAlreadyExistsError
 >;
 
 function normalizeDateOnly(date: Date): Date {
@@ -209,13 +211,23 @@ export class UpdateFormDescriptionService
           }
 
           // Nếu không có timekeeping hoặc không bị overlap => update form
-          await this.commandBus.execute(
-            new UpdateFormDescriptionCommand({
-              formDescriptionId: command.formDescriptionId,
-              statusOvertime: true,
-              updatedBy: command.updatedBy,
-            }),
-          );
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            statusOvertime: true,
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
         }
 
         break;
