@@ -52,6 +52,8 @@ import {
 import { FORM_DESCRIPTION_REPOSITORY } from '../../form-description.di-tokens';
 import { UpdateFormDescriptionCommand } from './update-form-description.command';
 import { FormAlreadyExistsError } from '@src/modules/form/domain/form.error';
+import { CreateNotificationCommand } from '@src/modules/notification/commands/create-notification/create-notification.command';
+import { WebsocketService } from '@src/libs/websocket/websocket.service';
 
 export type UpdateFormDescriptionServiceResult = Result<
   FormDescriptionEntity,
@@ -82,6 +84,7 @@ export class UpdateFormDescriptionService
     private readonly minioService: MinioService,
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
+    private readonly websocketService: WebsocketService,
   ) {}
 
   async execute(
@@ -370,6 +373,32 @@ export class UpdateFormDescriptionService
               updatedBy: 'system',
             }),
           );
+
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn cập nhật khuôn mặt',
+              message: 'Khuôn mặt của bạn đã được cập nhật thành công.',
+              type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
+              isRead: false,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          await this.websocketService.publish({
+            event: 'NOTIFICATION_CREATED',
+            data: notificationPayload,
+          });
         }
         break;
       case '6':

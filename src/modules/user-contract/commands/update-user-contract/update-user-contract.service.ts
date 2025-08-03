@@ -76,8 +76,9 @@ export class UpdateUserContractService
 
     // Kiểm tra nếu dừng hợp đồng (INACTIVE)
     if (command.status === 'INACTIVE') {
-      // Lấy ngày hiện tại
       const currentDate = new Date();
+
+      // Tìm các lịch làm việc tương lai
       const futureWorkingSchedules: FindWorkingScheduleArrayStopByParamsQueryResult =
         await this.queryBus.execute(
           new FindWorkingScheduleArrayStopByParamsQuery({
@@ -86,25 +87,32 @@ export class UpdateUserContractService
             fromDate: currentDate,
           }),
         );
-      if (futureWorkingSchedules.isErr()) {
-        return Err(new WorkingScheduleFutureNotFoundError());
-      }
-      const workingScheduleProps = futureWorkingSchedules.unwrap();
 
-      // Cập nhật trạng thái của tất cả lịch làm việc tương lai
-      for (const schedule of workingScheduleProps) {
-        await this.commandBus.execute(
-          new UpdateWorkingScheduleCommand({
-            workingScheduleId: schedule.id,
-            status: 'NOTWORK',
-            note: `Hợp đồng đã được chấm dứt vào ngày ${currentDate.toISOString()}`,
-            updatedBy: 'system',
-          }),
+      if (futureWorkingSchedules.isOk()) {
+        const workingScheduleProps = futureWorkingSchedules.unwrap();
+
+        for (const schedule of workingScheduleProps) {
+          await this.commandBus.execute(
+            new UpdateWorkingScheduleCommand({
+              workingScheduleId: schedule.id,
+              status: 'NOTWORK',
+              note: `Hợp đồng đã được chấm dứt vào ngày ${currentDate.toISOString()}`,
+              updatedBy: 'system',
+            }),
+          );
+        }
+      } else {
+        console.warn(
+          `[WARN] Không tìm thấy lịch làm việc tương lai cho user ${userContractProps.userCode}`,
         );
       }
 
-      const currentMonth = `${currentDate.getMonth() + 1}/${currentDate.getFullYear().toString().slice(-2)}`;
-      // Tìm user trong bảng lương để cập nhật trạng thái
+      // Tìm payroll để cập nhật nếu có
+      const currentMonth = `${currentDate.getMonth() + 1}/${currentDate
+        .getFullYear()
+        .toString()
+        .slice(-2)}`;
+
       const timeKeepingOfUser: FindPayrollByParamsQueryResult =
         await this.queryBus.execute(
           new FindPayrollByParamsQuery({
@@ -114,17 +122,20 @@ export class UpdateUserContractService
             },
           }),
         );
-      if (timeKeepingOfUser.isErr()) {
-        return Err(new TimeKeepingNotFoundError());
-      }
 
-      await this.commandBus.execute(
-        new UpdatePayrollCommand({
-          payrollId: timeKeepingOfUser.unwrap().getProps().id,
-          status: 'STOP',
-          updatedBy: 'system',
-        }),
-      );
+      if (timeKeepingOfUser.isOk()) {
+        await this.commandBus.execute(
+          new UpdatePayrollCommand({
+            payrollId: timeKeepingOfUser.unwrap().getProps().id,
+            status: 'STOP',
+            updatedBy: 'system',
+          }),
+        );
+      } else {
+        console.warn(
+          `[WARN] Không tìm thấy bảng lương tháng ${currentMonth} cho user ${userContractProps.userCode}`,
+        );
+      }
     }
 
     // Xử lý cập nhật branch codes
