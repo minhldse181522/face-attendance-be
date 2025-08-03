@@ -39,6 +39,7 @@ import { ReportModule } from './apps/report/report.module';
 import { WebsocketModule } from './libs/websocket/websocket.module';
 import { socketConfig } from './configs/socket.config';
 import { DonModule } from './apps/bs_don/don.module';
+import { NotificationModule } from './modules/notification/notification.module';
 // import { ApiLogInterceptor } from './libs/application/interceptors/api-log.interceptor';
 const interceptors = [
   // {
@@ -107,6 +108,7 @@ const interceptors = [
     TimeKeepingModule,
     FaceReferenceModule,
     PayrollModule,
+    NotificationModule,
 
     // Business
     ReportModule,
