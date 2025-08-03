@@ -32,6 +32,11 @@ import {
   FindUserBranchByParamsQueryResult,
 } from '@src/modules/user-branch/queries/find-user-branch-by-params/find-user-branch-by-params.query-handler';
 import { CreateUserBranchCommand } from '@src/modules/user-branch/commands/create-user-branch/create-user-branch.command';
+import { DeleteUserBranchCommand } from '@src/modules/user-branch/commands/delete-user-branch/delete-user-branch.command';
+import {
+  FindUserBranchArrayByParamsQuery,
+  FindUserBranchArrayByParamsQueryResult,
+} from '@src/modules/user-branch/queries/find-user-branch-array-by-params/find-user-branch-array-by-params.query-handler';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
 
 export type UpdateUserContractServiceResult = Result<
@@ -122,19 +127,52 @@ export class UpdateUserContractService
       );
     }
 
-    for (const branchCode of command.branchCodes ?? []) {
-      const ubCode = await this.generateCode.generateCode('UB', 4);
-      const isBranchExist: FindUserBranchByParamsQueryResult =
+    // Xử lý cập nhật branch codes
+    if (command.branchCodes !== undefined) {
+      // Lấy tất cả user-branch hiện tại
+      const existingUserBranches: FindUserBranchArrayByParamsQueryResult =
         await this.queryBus.execute(
-          new FindUserBranchByParamsQuery({
+          new FindUserBranchArrayByParamsQuery({
             where: {
-              branchCode: branchCode,
               userContractCode: userContractProps.code,
             },
           }),
         );
 
-      if (isBranchExist.isErr()) {
+      const existingBranchCodes = existingUserBranches.isOk()
+        ? existingUserBranches.unwrap().map((ub) => ub.getProps().branchCode)
+        : [];
+
+      const newBranchCodes = command.branchCodes || [];
+
+      // Xóa các branch codes không còn trong danh sách mới
+      const branchCodesToDelete = existingBranchCodes.filter(
+        (code) => !newBranchCodes.includes(code),
+      );
+
+      for (const branchCodeToDelete of branchCodesToDelete) {
+        const userBranchToDelete = existingUserBranches.isOk()
+          ? existingUserBranches
+              .unwrap()
+              .find((ub) => ub.getProps().branchCode === branchCodeToDelete)
+          : null;
+
+        if (userBranchToDelete) {
+          await this.commandBus.execute(
+            new DeleteUserBranchCommand({
+              userBranchId: userBranchToDelete.getProps().id,
+            }),
+          );
+        }
+      }
+
+      // Tạo mới các branch codes chưa tồn tại
+      const branchCodesToCreate = newBranchCodes.filter(
+        (code) => !existingBranchCodes.includes(code),
+      );
+
+      for (const branchCode of branchCodesToCreate) {
+        const ubCode = await this.generateCode.generateCode('UB', 4);
         await this.commandBus.execute(
           new CreateUserBranchCommand({
             code: ubCode,
