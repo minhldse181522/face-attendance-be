@@ -310,6 +310,65 @@ export class PrismaBsUserRepository
     const client = await this._getClient();
     const { page, limit, offset, orderBy, where = {} } = params;
 
+    // Nếu có userCode, ưu tiên lấy user theo userCode
+    if (userCode) {
+      const userData = await client.user.findUnique({
+        where: { code: userCode },
+        include: {
+          role: {
+            include: {
+              positions: {
+                where: {
+                  code: position,
+                },
+              },
+            },
+          },
+          userContracts: {
+            where: {
+              status: 'ACTIVE',
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            include: {
+              userBranches: {
+                include: {
+                  branch: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!userData) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+
+      // Kiểm tra isActive nếu có
+      if (typeof isActive !== 'undefined' && userData.isActive !== isActive) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
+      }
+
+      return new Paginated({
+        data: [this.mapper.toDomain(userData)],
+        count: 1,
+        limit,
+        page,
+      });
+    }
+
     const user = RequestContextService.getRequestUser();
     const role = user?.roleCode;
     const currentUserCode = user?.code;
@@ -341,9 +400,6 @@ export class PrismaBsUserRepository
     // Phân quyền theo role
     if (role === 'R1') {
       // Admin - không lọc
-      if (userCode) {
-        finalWhere.code = userCode;
-      }
     } else if (role === 'R2') {
       // Nếu là HR, lọc danh sách user được quản lý
       const contracts = await client.userContract.findMany({
@@ -385,17 +441,9 @@ export class PrismaBsUserRepository
         });
       }
 
-      if (userCode) {
-        if (!managedUserCodes.includes(userCode)) {
-          return new Paginated({ data: [], count: 0, limit, page });
-        }
-
-        finalWhere.code = userCode;
-      } else {
-        finalWhere.code = {
-          in: managedUserCodes,
-        };
-      }
+      finalWhere.code = {
+        in: managedUserCodes,
+      };
     } else if (role === 'R3') {
       // Lấy danh sách user theo chi nhánh của manager
       const currentUser = await client.user.findUnique({
@@ -418,17 +466,9 @@ export class PrismaBsUserRepository
 
       const userCodes = usersInSameBranch.map((u) => u.code);
 
-      if (userCode) {
-        if (!userCodes.includes(userCode)) {
-          return new Paginated({ data: [], count: 0, limit, page });
-        }
-
-        finalWhere.code = userCode;
-      } else {
-        finalWhere.code = {
-          in: userCodes,
-        };
-      }
+      finalWhere.code = {
+        in: userCodes,
+      };
     } else if (role === 'R4') {
       // Staff chỉ xem được của chính mình
       finalWhere.code = currentUserCode;
