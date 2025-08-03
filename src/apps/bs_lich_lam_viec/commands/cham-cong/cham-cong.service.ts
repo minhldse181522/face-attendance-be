@@ -29,6 +29,7 @@ import {
   FindTimeKeepingByParamsQuery,
   FindTimeKeepingByParamsQueryResult,
 } from '@src/modules/time-keeping/queries/find-time-keeping-by-params/find-time-keeping-by-params.query-handler';
+import { TimeKeepingAlreadyExistsError } from '@src/modules/time-keeping/domain/time-keeping.error';
 import {
   FindShiftByParamsQuery,
   FindShiftByParamsQueryResult,
@@ -45,6 +46,7 @@ export type ChamCongServiceResult = Result<
   | LateCheckInError
   | ShiftNotFoundError
   | CheckInTooEarlyError
+  | TimeKeepingAlreadyExistsError
 >;
 
 @CommandHandler(ChamCongCommand)
@@ -144,6 +146,9 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
           where: {
             AND: [
               {
+                userCode: command.userCode,
+              },
+              {
                 startTime: { lte: command.checkInTime },
                 endTime: {
                   gte: command.checkInTime,
@@ -166,24 +171,8 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
       );
 
       // insert vào bảng time keeping
-      let generatedCode: string;
-      let retryCount = 0;
-      do {
-        generatedCode = await this.generateCode.generateCode('TK', 4);
-        const exists =
-          await this.workingScheduleRepo.existsByCode(generatedCode);
-        if (!exists) break;
-
-        retryCount++;
-        if (retryCount > 5) {
-          throw new Error(
-            `Cannot generate unique code after ${retryCount} tries`,
-          );
-        }
-      } while (true);
-      const createdTimeKeeping = await this.commandBus.execute(
+      const timeKeepingResult = await this.commandBus.execute(
         new CreateTimeKeepingCommand({
-          code: generatedCode,
           checkInTime: command.checkInTime,
           checkOutTime: null,
           date: workingScheduleProps.date,
@@ -193,7 +182,12 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
           createdBy: command.updatedBy,
         }),
       );
-      return Ok(createdTimeKeeping.unwrap());
+
+      if (timeKeepingResult.isErr()) {
+        return Err(timeKeepingResult.unwrapErr());
+      }
+
+      return Ok(workingSchedule);
     } else {
       return Err(new ChamCongKhongDuDieuKienError());
     }

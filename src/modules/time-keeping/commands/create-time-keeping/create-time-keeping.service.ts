@@ -26,7 +26,9 @@ export class CreateTimeKeepingService
   async execute(
     command: CreateTimeKeepingCommand,
   ): Promise<CreateTimeKeepingServiceResult> {
-    const code = await this.generateCode.generateCode('WS', 4);
+    // Use the code from the command if provided, otherwise generate a new one
+    const code =
+      command.code || (await this.generateCode.generateCode('TK', 4));
     // let workingHourReal: number;
     // if (command.checkInTime && command.checkOutTime) {
     //   workingHourReal = command.checkOutTime - command.checkInTime;

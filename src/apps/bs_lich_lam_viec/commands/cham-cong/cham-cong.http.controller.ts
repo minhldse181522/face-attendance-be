@@ -27,6 +27,7 @@ import { ReqUser } from '@src/libs/decorators/request-user.decorator';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
 import { ShiftNotFoundError } from '@src/modules/shift/domain/shift.error';
+import { TimeKeepingAlreadyExistsError } from '@src/modules/time-keeping/domain/time-keeping.error';
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
 import { WorkingScheduleMapper } from '@src/modules/working-schedule/mappers/working-schedule.mapper';
 import { match } from 'oxide.ts';
@@ -94,7 +95,8 @@ export class ChamCongHttpController {
           error instanceof CheckInTimeNotInContractError ||
           error instanceof AlreadyCheckInError ||
           error instanceof LateCheckInError ||
-          error instanceof CheckInTooEarlyError
+          error instanceof CheckInTooEarlyError ||
+          error instanceof TimeKeepingAlreadyExistsError
         ) {
           throw new BadRequestException({
             message: error.message,
