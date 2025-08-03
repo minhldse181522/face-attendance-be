@@ -20,4 +20,7 @@ export interface UserBranchRepositoryPort
   findUserBranchByParams(
     params: PrismaQueryBase<Prisma.UserBranchWhereInput>,
   ): Promise<Option<UserBranchEntity>>;
+  findUserBranchArrayByParams(
+    params: PrismaQueryBase<Prisma.UserBranchWhereInput>,
+  ): Promise<UserBranchEntity[]>;
 }

@@ -16,6 +16,7 @@ import { UpdateUserBranchService } from './commands/update-user-branch/update-us
 import { PrismaUserBranchRepository } from './database/user-branch.repository.prisma';
 import { UserBranchMapper } from './mappers/user-branch.mapper';
 import { FindUserBranchByParamsQueryHandler } from './queries/find-user-branch-by-params/find-user-branch-by-params.query-handler';
+import { FindUserBranchArrayByParamsQueryHandler } from './queries/find-user-branch-array-by-params/find-user-branch-array-by-params.query-handler';
 import { FindUserBranchesHttpController } from './queries/find-user-branches/find-user-branches.http.controller';
 import { FindUserBranchesQueryHandler } from './queries/find-user-branches/find-user-branches.query-handler';
 import { USER_BRANCH_REPOSITORY } from './user-branch.di-tokens';
@@ -42,6 +43,7 @@ const commandHandlers: Provider[] = [
 const queryHandlers: Provider[] = [
   FindUserBranchesQueryHandler,
   FindUserBranchByParamsQueryHandler,
+  FindUserBranchArrayByParamsQueryHandler,
 ];
 
 const mappers: Provider[] = [UserBranchMapper];
