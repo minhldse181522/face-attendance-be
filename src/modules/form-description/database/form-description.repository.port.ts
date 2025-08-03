@@ -28,4 +28,5 @@ export interface FormDescriptionRepositoryPort
   findFormDescriptionByParams(
     params: PrismaQueryBase<Prisma.FormDescriptionWhereInput>,
   ): Promise<Option<FormDescriptionEntity>>;
+  existsByCode(code: string): Promise<boolean>;
 }
