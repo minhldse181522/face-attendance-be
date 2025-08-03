@@ -27,14 +27,22 @@ export class CreateTimeKeepingService
     command: CreateTimeKeepingCommand,
   ): Promise<CreateTimeKeepingServiceResult> {
     // Use the code from the command if provided, otherwise generate a new one
-    const code =
-      command.code || (await this.generateCode.generateCode('TK', 4));
-    // let workingHourReal: number;
-    // if (command.checkInTime && command.checkOutTime) {
-    //   workingHourReal = command.checkOutTime - command.checkInTime;
-    // }
+    let generatedCode: string;
+    let retryCount = 0;
+    do {
+      generatedCode = await this.generateCode.generateCode('TK', 4);
+      const exists = await this.timeKeepingRepo.existsByCode(generatedCode);
+      if (!exists) break;
+
+      retryCount++;
+      if (retryCount > 5) {
+        throw new Error(
+          `Cannot generate unique code after ${retryCount} tries`,
+        );
+      }
+    } while (true);
     const TimeKeeping = TimeKeepingEntity.create({
-      code: code,
+      code: generatedCode,
       ...command.getExtendedProps<CreateTimeKeepingCommand>(),
     });
 
