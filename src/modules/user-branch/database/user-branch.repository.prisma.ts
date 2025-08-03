@@ -161,4 +161,16 @@ export class PrismaUserBranchRepository
     });
     return result ? Some(this.mapper.toDomain(result)) : None;
   }
+
+  async findUserBranchArrayByParams(
+    params: PrismaQueryBase<Prisma.UserBranchWhereInput>,
+  ): Promise<UserBranchEntity[]> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const results = await client.userBranch.findMany({
+      where: { ...where },
+      orderBy,
+    });
+    return results.map((item) => this.mapper.toDomain(item));
+  }
 }

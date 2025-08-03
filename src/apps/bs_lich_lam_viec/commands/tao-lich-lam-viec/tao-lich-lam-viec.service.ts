@@ -28,6 +28,7 @@ import {
   BranchNotBelongToContractError,
   ManagerNotAssignToUserError,
   NotGeneratedError,
+  ShiftCreatedConflictError,
   UserContractDoesNotExistError,
   WorkingDateAlreadyExistError,
 } from '../../domain/lich-lam-viec.error';
@@ -48,6 +49,7 @@ export type CreateLichLamViecServiceResult = Result<
   | BranchNotBelongToContractError
   | PositionNotFoundError
   | NotGeneratedError
+  | ShiftCreatedConflictError
 >;
 
 @CommandHandler(CreateLichLamViecCommand)
@@ -70,10 +72,7 @@ export class CreateLichLamViecService
   async execute(
     command: CreateLichLamViecCommand,
   ): Promise<CreateLichLamViecServiceResult> {
-    const timeZone = 'Asia/Ho_Chi_Minh';
-    // Convert command.date (UTC) → về giờ Việt Nam
-    const localDate = toZonedTime(command.date, timeZone);
-
+    const createWorkingDate = command.date;
     // Đảm bảo người tạo là quản lý của nhân viên đó
     const checkManager = await this.userContractRepo.checkManagedBy(
       command.createdBy,
@@ -86,8 +85,8 @@ export class CreateLichLamViecService
           new FindUserContractByParamsQuery({
             where: {
               userCode: command.userCode,
-              startTime: { lte: localDate },
-              endTime: { gte: localDate },
+              startTime: { lte: createWorkingDate },
+              endTime: { gte: createWorkingDate },
               status: 'ACTIVE',
             },
           }),
@@ -123,18 +122,26 @@ export class CreateLichLamViecService
       }
       const shiftProps = checkExistShift.unwrap().getProps();
       const start = shiftProps.startTime;
-      const shiftStartTimeStr = `${start!.getHours().toString().padStart(2, '0')}:${start!.getMinutes().toString().padStart(2, '0')}`;
+
+      // Convert UTC time to VN timezone before formatting
+      const startVN = toZonedTime(start!, 'Asia/Ho_Chi_Minh');
+      const shiftStartTimeStr = `${startVN.getHours().toString().padStart(2, '0')}:${startVN.getMinutes().toString().padStart(2, '0')}`;
+      console.log('>>> Raw shift startTime:', shiftProps.startTime);
+      console.log('>>> VN shift startTime:', shiftStartTimeStr);
+
       const end = shiftProps.endTime;
-      const shiftEndTimeStr = `${end!.getHours().toString().padStart(2, '0')}:${end!.getMinutes().toString().padStart(2, '0')}`;
+      const endVN = toZonedTime(end!, 'Asia/Ho_Chi_Minh');
+      const shiftEndTimeStr = `${endVN.getHours().toString().padStart(2, '0')}:${endVN.getMinutes().toString().padStart(2, '0')}`;
+      console.log('>>> VN shift endTime:', shiftEndTimeStr);
 
       //#region Tao Lich lam viec
-      const fromDate = localDate;
+      const fromDate = createWorkingDate;
       const toDate =
         command.optionCreate === 'THANG'
-          ? endOfMonth(localDate)
+          ? endOfMonth(createWorkingDate)
           : command.optionCreate === 'TUAN'
-            ? addDays(localDate, 6)
-            : localDate;
+            ? addDays(createWorkingDate, 6)
+            : createWorkingDate;
 
       // Gọi truy vấn để lấy các ngày đã có
       const existingSchedules =
@@ -164,10 +171,29 @@ export class CreateLichLamViecService
 
           if (!date || !startTime || !endTime) return null; // bỏ ca không đầy đủ thông tin
 
+          // Convert UTC time to VN timezone before formatting
+          console.log('>>> Debug existing shift:', {
+            originalStartTime: startTime,
+            originalEndTime: endTime,
+          });
+
+          const startVN = toZonedTime(startTime, 'Asia/Ho_Chi_Minh');
+          const endVN = toZonedTime(endTime, 'Asia/Ho_Chi_Minh');
+
+          const startTimeStr = `${startVN.getHours().toString().padStart(2, '0')}:${startVN.getMinutes().toString().padStart(2, '0')}`;
+          const endTimeStr = `${endVN.getHours().toString().padStart(2, '0')}:${endVN.getMinutes().toString().padStart(2, '0')}`;
+
+          console.log('>>> Debug converted time:', {
+            startVN: startVN.toString(),
+            endVN: endVN.toString(),
+            startTimeStr,
+            endTimeStr,
+          });
+
           return {
             date,
-            startTime: startTime.toTimeString().slice(0, 5),
-            endTime: endTime.toTimeString().slice(0, 5),
+            startTime: startTimeStr,
+            endTime: endTimeStr,
           };
         })
         .filter(
@@ -175,9 +201,14 @@ export class CreateLichLamViecService
             s !== null,
         ); // lọc null
 
+      console.log(
+        '>>> Already generated shifts (VN time):',
+        alreadyGeneratedShifts,
+      );
+
       try {
         const workingDates = await this.generateWorkingDate.generateWorkingDate(
-          localDate,
+          createWorkingDate,
           command.optionCreate,
           command.holidayMode ?? [],
           existingDates,
@@ -223,6 +254,9 @@ export class CreateLichLamViecService
 
         return Ok(results);
       } catch (error) {
+        if (error instanceof ShiftCreatedConflictError) {
+          return Err(new ShiftCreatedConflictError());
+        }
         return Err(new NotGeneratedError());
       }
     } else {

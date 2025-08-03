@@ -5,7 +5,6 @@ import {
   ICommandHandler,
   QueryBus,
 } from '@nestjs/cqrs';
-import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
 import { MinioService } from '@src/libs/minio/minio.service';
 import { UpdatePayrollCommand } from '@src/modules/payroll/commands/update-payroll/update-payroll.command';
 import { PayrollNotFoundError } from '@src/modules/payroll/domain/payroll.error';
@@ -14,9 +13,9 @@ import {
   FindPayrollByParamsQueryResult,
 } from '@src/modules/payroll/queries/find-payroll-by-params/find-payroll-by-params.query-handler';
 import {
-  FindTimeKeepingByParamsQuery,
-  FindTimeKeepingByParamsQueryResult,
-} from '@src/modules/time-keeping/queries/find-time-keeping-by-params/find-time-keeping-by-params.query-handler';
+  FindManyTimeKeepingByParamsQuery,
+  FindManyTimeKeepingByParamsQueryResult,
+} from '@src/modules/time-keeping/queries/find-many-time-keeping-by-params/find-many-time-keeping-by-params.query-handler';
 import { UpdateUserContractCommand } from '@src/modules/user-contract/commands/update-user-contract/update-user-contract.command';
 import { WorkingScheduleFutureNotFoundError } from '@src/modules/user-contract/domain/user-contract.error';
 import {
@@ -30,9 +29,9 @@ import {
 } from '@src/modules/user/queries/find-user-by-params/find-user-by-params.query-handler';
 import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
 import {
-  FindWorkingScheduleArrayStopByParamsQuery,
-  FindWorkingScheduleArrayStopByParamsQueryResult,
-} from '@src/modules/working-schedule/queries/find-working-schedule-array-stop-by-params/find-working-schedule-array-stop-by-params.query-handler';
+  FindWorkingScheduleArrayByParamsQuery,
+  FindWorkingScheduleArrayByParamsQueryResult,
+} from '@src/modules/working-schedule/queries/find-working-schedule-array-by-params/find-working-schedule-array-by-params.query-handler';
 import {
   FindWorkingScheduleByParamsQuery,
   FindWorkingScheduleByParamsQueryResult,
@@ -44,6 +43,7 @@ import {
   FormDescriptionAlreadyExistsError,
   FormDescriptionNotFoundError,
   FormDescriptionUpdateNotAllowedError,
+  InvalidFormStatusError,
   TimeKeepingAlreadyOverlap,
   UserContractToEndNotFoundError,
   UserToUpdateFaceNotFoundError,
@@ -51,6 +51,10 @@ import {
 } from '../../domain/form-description.error';
 import { FORM_DESCRIPTION_REPOSITORY } from '../../form-description.di-tokens';
 import { UpdateFormDescriptionCommand } from './update-form-description.command';
+import { FormAlreadyExistsError } from '@src/modules/form/domain/form.error';
+import { CreateNotificationCommand } from '@src/modules/notification/commands/create-notification/create-notification.command';
+import { WebsocketService } from '@src/libs/websocket/websocket.service';
+import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
 
 export type UpdateFormDescriptionServiceResult = Result<
   FormDescriptionEntity,
@@ -63,7 +67,13 @@ export type UpdateFormDescriptionServiceResult = Result<
   | PayrollNotFoundError
   | WorkingScheduleForOverTimeNotFoundError
   | TimeKeepingAlreadyOverlap
+  | InvalidFormStatusError
+  | FormAlreadyExistsError
 >;
+
+function normalizeDateOnly(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
 
 @CommandHandler(UpdateFormDescriptionCommand)
 export class UpdateFormDescriptionService
@@ -75,6 +85,7 @@ export class UpdateFormDescriptionService
     private readonly minioService: MinioService,
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
+    private readonly websocketService: WebsocketService,
   ) {}
 
   async execute(
@@ -128,12 +139,13 @@ export class UpdateFormDescriptionService
           }
 
           // Cập nhật lịch làm việc của người nộp đơn
-          const futureWorkingSchedules: FindWorkingScheduleArrayStopByParamsQueryResult =
+          const futureWorkingSchedules: FindWorkingScheduleArrayByParamsQueryResult =
             await this.queryBus.execute(
-              new FindWorkingScheduleArrayStopByParamsQuery({
+              new FindWorkingScheduleArrayByParamsQuery({
                 userCode: userProps.code,
                 status: 'NOTSTARTED',
-                fromDate: startTime,
+                startDate: new Date(command.startTime),
+                endDate: new Date(command.endTime),
               }),
             );
 
@@ -157,74 +169,114 @@ export class UpdateFormDescriptionService
         }
         break;
       case '2':
-        // Đơn tăng ca
         if (
           command.status === 'APPROVED' &&
           command.startTime &&
           command.endTime
         ) {
-          const startDate = new Date(command.startTime);
-          const dateOnly = new Date(
-            Date.UTC(
-              startDate.getUTCFullYear(),
-              startDate.getUTCMonth(),
-              startDate.getUTCDate(),
-            ),
-          );
-          // Tìm trong ngày đó nhân viên này có làm việc không
-          const workingScheduleFound: FindWorkingScheduleByParamsQueryResult =
+          const formStart = new Date(command.startTime);
+          const formEnd = new Date(command.endTime);
+
+          // Lấy ngày bắt đầu của form
+          const formDateOnly = normalizeDateOnly(formStart);
+          const startOfDay = new Date(formDateOnly);
+          const endOfDay = new Date(formDateOnly);
+          endOfDay.setHours(23, 59, 59, 999);
+
+          // Truy vấn tất cả timekeeping trong ngày đó với status 'END'
+          const timeKeepingResult: FindManyTimeKeepingByParamsQueryResult =
             await this.queryBus.execute(
-              new FindWorkingScheduleByParamsQuery({
+              new FindManyTimeKeepingByParamsQuery({
                 where: {
                   userCode: userSubmit,
-                  date: dateOnly,
+                  date: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                  },
                 },
               }),
             );
-          if (workingScheduleFound.isErr()) {
-            return Err(new WorkingScheduleFutureNotFoundError());
-          }
-
-          // Kiểm tra xem người đó có đi làm ngày đó
-          const timeKeepingResult: FindTimeKeepingByParamsQueryResult =
-            await this.queryBus.execute(
-              new FindTimeKeepingByParamsQuery({
-                where: {
-                  userCode: userSubmit,
-                  date: dateOnly,
-                  status: 'END',
-                },
-              }),
-            );
-
           if (timeKeepingResult.isOk()) {
-            const timeKeepingProps = timeKeepingResult.unwrap().getProps();
-            const checkInTime = new Date(timeKeepingProps.checkInTime!);
-            const checkoutTime = new Date(timeKeepingProps.checkOutTime!);
-
-            const formStart = new Date(command.startTime);
-            const formEnd = new Date(command.endTime);
-
-            if (
-              (checkInTime <= formStart && checkoutTime >= formEnd) ||
-              (checkInTime >= formStart && checkInTime <= formEnd) ||
-              (checkoutTime >= formStart && checkoutTime <= formEnd)
-            ) {
-              return Err(new TimeKeepingAlreadyOverlap());
-            } else {
-              await this.commandBus.execute(
-                new UpdateFormDescriptionCommand({
-                  formDescriptionId: command.formDescriptionId,
-                  statusOvertime: true,
-                  updatedBy: command.updatedBy,
-                }),
+            const timeKeepings = timeKeepingResult.unwrap();
+            // Lọc các bản ghi có checkInTime và checkOutTime đầy đủ
+            const validTimeKeepings = timeKeepings.filter(
+              (tk) => tk.getProps().checkInTime && tk.getProps().checkOutTime,
+            );
+            const isOverlap = validTimeKeepings.some((tk) => {
+              const checkInTime = new Date(tk.getProps().checkInTime!);
+              const checkOutTime = new Date(tk.getProps().checkOutTime!);
+              return (
+                (checkInTime <= formStart && checkOutTime >= formEnd) ||
+                (checkInTime >= formStart && checkInTime <= formEnd) ||
+                (checkOutTime >= formStart && checkOutTime <= formEnd)
               );
+            });
+
+            if (isOverlap) {
+              return Err(new TimeKeepingAlreadyOverlap());
             }
           }
+
+          // Nếu không có timekeeping hoặc không bị overlap => update form
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            statusOvertime: true,
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
         }
+
         break;
       case '3':
         // Đơn quên chấm công
+        if (command.status === 'APPROVED') {
+          // Nếu là đơn quên check-in + check-out -> cần cả startTime và endTime
+          if (command.startTime && command.endTime) {
+            const startDate = new Date(command.startTime);
+            const dateOnly = new Date(
+              Date.UTC(
+                startDate.getUTCFullYear(),
+                startDate.getUTCMonth(),
+                startDate.getUTCDate(),
+              ),
+            );
+            // Tìm trong ngày đó nhân viên này có làm việc không
+            const workingScheduleFound: FindWorkingScheduleByParamsQueryResult =
+              await this.queryBus.execute(
+                new FindWorkingScheduleByParamsQuery({
+                  where: {
+                    userCode: userSubmit,
+                    date: dateOnly,
+                  },
+                }),
+              );
+            if (workingScheduleFound.isErr()) {
+              return Err(new WorkingScheduleFutureNotFoundError());
+            }
+            const workingScheduleProps = workingScheduleFound
+              .unwrap()
+              .getProps();
+            // Cập nhật trạng thái làm việc của người nộp đơn sang FORGET
+            await this.commandBus.execute(
+              new UpdateWorkingScheduleCommand({
+                workingScheduleId: workingScheduleProps.id,
+                status: 'FORGET',
+                updatedBy: 'system',
+              }),
+            );
+          }
+        }
         break;
       case '4':
         // Đơn thôi việc
@@ -252,12 +304,11 @@ export class UpdateFormDescriptionService
 
           // Cập nhật toàn bộ trạng thái workingSchedule của người nộp đơn
           const currentDate = new Date();
-          const futureWorkingSchedules: FindWorkingScheduleArrayStopByParamsQueryResult =
+          const futureWorkingSchedules: FindWorkingScheduleArrayByParamsQueryResult =
             await this.queryBus.execute(
-              new FindWorkingScheduleArrayStopByParamsQuery({
+              new FindWorkingScheduleArrayByParamsQuery({
                 userCode: userContractProps.userCode!,
                 status: 'NOTSTARTED',
-                fromDate: currentDate,
               }),
             );
           if (futureWorkingSchedules.isErr()) {
@@ -326,6 +377,51 @@ export class UpdateFormDescriptionService
               updatedBy: 'system',
             }),
           );
+
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn cập nhật khuôn mặt',
+              message: 'Khuôn mặt của bạn đã được cập nhật thành công.',
+              type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
+              isRead: false,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          await this.websocketService.publish({
+            event: 'NOTIFICATION_CREATED',
+            data: notificationPayload,
+          });
+
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
         }
         break;
       case '6':
@@ -333,28 +429,8 @@ export class UpdateFormDescriptionService
         break;
       default:
         // Không xác định
-        break;
+        return Err(new InvalidFormStatusError());
     }
-
-    const updatedResult = formDescription.update({
-      ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
-      approvedBy: currentUserCode,
-      approvedTime: new Date(),
-    });
-
-    if (updatedResult.isErr()) {
-      return updatedResult;
-    }
-
-    try {
-      const updatedFormDescription =
-        await this.formDescriptionRepo.update(formDescription);
-      return Ok(updatedFormDescription);
-    } catch (error: any) {
-      if (error instanceof ConflictException) {
-        return Err(new FormDescriptionAlreadyExistsError());
-      }
-      throw error;
-    }
+    return Ok(formDescription);
   }
 }

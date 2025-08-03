@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { NotGeneratedError } from '@src/apps/bs_lich_lam_viec/domain/lich-lam-viec.error';
+import {
+  NotGeneratedError,
+  ShiftCreatedConflictError,
+} from '@src/apps/bs_lich_lam_viec/domain/lich-lam-viec.error';
 import { addDays, endOfMonth, endOfWeek, format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 
@@ -8,45 +11,48 @@ function normalizeDate(date: Date | string): string {
 }
 
 function isOverlappingWithExistingShift(
-  targetDate: Date,
-  newStartTime: string,
+  date: Date,
+  startTime: string,
+  endTime: string,
   existingShifts: { date: Date; startTime: string; endTime: string }[],
-  newEndTime: string,
 ): boolean {
-  const timeZone = 'Asia/Ho_Chi_Minh';
+  const dateStr = normalizeDate(date); // 'yyyy-MM-dd'
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
+  const newStart = new Date(date);
+  const newEnd = new Date(date);
+  newStart.setHours(startHour, startMinute, 0, 0);
+  newEnd.setHours(endHour, endMinute, 0, 0);
 
-  const normalizeDateOnly = (d: Date) =>
-    toZonedTime(d, timeZone).toISOString().split('T')[0];
+  for (const shift of existingShifts) {
+    const shiftDay = normalizeDate(shift.date);
+    if (shiftDay !== dateStr) continue;
 
-  const getDateTimeInVN = (date: Date, timeStr: string): Date => {
-    const [h, m] = timeStr.split(':').map(Number);
-    const zoned = toZonedTime(date, timeZone);
-    return new Date(
-      zoned.getFullYear(),
-      zoned.getMonth(),
-      zoned.getDate(),
-      h,
-      m,
-      0,
-      0,
-    );
-  };
+    const [existStartHour, existStartMinute] = shift.startTime
+      .split(':')
+      .map(Number);
+    const [existEndHour, existEndMinute] = shift.endTime.split(':').map(Number);
 
-  const targetDay = normalizeDateOnly(targetDate);
-  const newStart = getDateTimeInVN(targetDate, newStartTime);
-  const newEnd = getDateTimeInVN(targetDate, newEndTime);
+    const existStart = new Date(shift.date);
+    const existEnd = new Date(shift.date);
+    existStart.setHours(existStartHour, existStartMinute, 0, 0);
+    existEnd.setHours(existEndHour, existEndMinute, 0, 0);
 
-  return existingShifts.some((shift) => {
-    const shiftDay = normalizeDateOnly(shift.date);
-    if (shiftDay !== targetDay) return false;
+    const isOverlap = newStart < existEnd && existStart < newEnd;
 
-    const existStart = getDateTimeInVN(shift.date, shift.startTime);
-    const existEnd = getDateTimeInVN(shift.date, shift.endTime);
+    if (isOverlap) {
+      console.log('[Overlap Detected]', {
+        newStart,
+        newEnd,
+        existStart,
+        existEnd,
+        isOverlap,
+      });
+      return true;
+    }
+  }
 
-    const isOverlap = newStart < existEnd && newEnd > existStart;
-
-    return isOverlap;
-  });
+  return false;
 }
 
 function isToday(date: Date): boolean {
@@ -60,17 +66,28 @@ function isToday(date: Date): boolean {
   );
 }
 
-function isAfterShiftStartOnDate(date: Date, shiftStartTime: string): boolean {
-  const [startHour, startMinute] = shiftStartTime.split(':').map(Number);
+function isAfterShiftStartOnDate(date: Date, startTimeStr: string): boolean {
+  const timeZone = 'Asia/Ho_Chi_Minh';
+  const now = toZonedTime(new Date(), timeZone);
+  const targetZoned = toZonedTime(date, timeZone);
 
-  const shiftDateInVN = toZonedTime(date, 'Asia/Ho_Chi_Minh');
-
-  const shiftStart = new Date(shiftDateInVN);
+  // Tạo thời gian bắt đầu shift trong ngày đó
+  const [startHour, startMinute] = startTimeStr.split(':').map(Number);
+  const shiftStart = new Date(targetZoned);
   shiftStart.setHours(startHour, startMinute, 0, 0);
 
-  const now = toZonedTime(new Date(), 'Asia/Ho_Chi_Minh');
+  // Convert về VN timezone
+  const shiftStartVN = toZonedTime(shiftStart, timeZone);
 
-  return now >= shiftStart;
+  console.log('[Check Late]', {
+    now: now.toString(),
+    nowTime: `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`,
+    shiftStart: shiftStartVN.toString(),
+    shiftTime: startTimeStr,
+    isAfter: now.getTime() > shiftStartVN.getTime(),
+  });
+
+  return now.getTime() > shiftStartVN.getTime();
 }
 
 @Injectable()
@@ -97,8 +114,13 @@ export class GenerateWorkingDate {
       endTime: string;
     }[] = [],
   ): Promise<Date[]> {
+    console.log('Generated shifts', alreadyGeneratedShifts);
+
     const dates: Date[] = [];
     const realStartDate = new Date(normalizeDate(startDate));
+
+    let overlapCount = 0;
+    let lateStartCount = 0;
 
     // Danh sách ngày đã tạo trước đó, dưới dạng chuỗi YYYY-MM-DD
     const createdSet = new Set(
@@ -114,23 +136,70 @@ export class GenerateWorkingDate {
       const key = normalizeDate(d);
       const weekday = d.getDay();
 
-      // Nếu chưa được tạo và không nằm trong ngày nghỉ
-      if (
-        !holidayWeekdays.includes(weekday) &&
-        !(
-          isToday(d) &&
-          shiftStartTime &&
-          isAfterShiftStartOnDate(d, shiftStartTime)
-        ) &&
-        !isOverlappingWithExistingShift(
-          d,
-          shiftStartTime!,
-          alreadyGeneratedShifts,
-          shiftEndTimeStr,
-        )
-      ) {
+      const isHoliday = holidayWeekdays.includes(weekday);
+      const isTodayDate = isToday(d);
+
+      console.log('--- Check date ---');
+      console.log('Date:', d);
+      console.log('Is today:', isTodayDate);
+      console.log('Shift start time:', shiftStartTime);
+      console.log('Is holiday:', isHoliday);
+      console.log('Already exists in createdSet:', createdSet.has(key));
+      console.log('CreatedSet contents:', Array.from(createdSet));
+
+      // Chỉ kiểm tra holiday, không kiểm tra đã tồn tại ngày
+      // Vì có thể tạo nhiều shift trong 1 ngày, chỉ cần không overlap
+      if (!isHoliday) {
+        console.log('>>> Passed initial checks, proceeding...');
+        // Case 1: Nếu tạo lịch trong ngày hôm nay
+        if (isTodayDate) {
+          console.log('>>> Processing today case');
+          const isLate =
+            shiftStartTime && isAfterShiftStartOnDate(d, shiftStartTime);
+          console.log('isLate (today):', isLate);
+
+          if (isLate) {
+            console.log('>>> Rejected due to late start');
+            lateStartCount++;
+            return;
+          }
+
+          // Nếu hôm nay nhưng chưa quá giờ, vẫn cần kiểm tra overlap
+          console.log('>>> Checking overlap for today');
+          const isOverlap = isOverlappingWithExistingShift(
+            d,
+            shiftStartTime!,
+            shiftEndTimeStr,
+            alreadyGeneratedShifts,
+          );
+          console.log('isOverlap (today but not late):', isOverlap);
+
+          if (isOverlap) {
+            console.log('>>> Rejected due to overlap');
+            overlapCount++;
+            return;
+          }
+        }
+        // Case 2: Nếu tạo lịch tương lai - chỉ kiểm tra overlap
+        else {
+          const isOverlap = isOverlappingWithExistingShift(
+            d,
+            shiftStartTime!,
+            shiftEndTimeStr,
+            alreadyGeneratedShifts,
+          );
+          console.log('isOverlap (future):', isOverlap);
+
+          if (isOverlap) {
+            overlapCount++;
+            return;
+          }
+        }
+
+        // Nếu pass tất cả kiểm tra thì thêm vào danh sách
+        console.log('>>> Successfully passed all checks, adding date');
         dates.push(d);
-        createdSet.add(key); // đánh dấu là đã tạo
+        // Không cần add vào createdSet nữa vì cho phép nhiều shift/ngày
       }
     };
 
@@ -159,6 +228,9 @@ export class GenerateWorkingDate {
     }
 
     if (dates.length === 0) {
+      if (overlapCount > 0) {
+        throw new ShiftCreatedConflictError();
+      }
       throw new NotGeneratedError();
     }
 

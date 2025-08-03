@@ -138,6 +138,10 @@ datasource db {
 // From dt_branch.prisma
 
 // From dt_branch.prisma
+
+// From dt_branch.prisma
+
+// From dt_branch.prisma
 model Branch {
   id           BigInt  @id @default(autoincrement())
 
@@ -229,6 +233,23 @@ model FormDescription {
   approver      User?    @relation("FormApprover", fields: [approvedBy], references: [code], onUpdate: Cascade)
 
   @@map("dt_form_description")
+}
+
+// From dt_notification.prisma
+model Notification {
+  id BigInt @id @default(autoincrement())
+
+  title        String    @map("title") @db.VarChar(100)
+  message      String    @map("message") @db.VarChar(200)
+  type         String    @map("type") @db.VarChar(10)
+  isRead       Boolean   @default(false) @map("is_read") @db.Boolean
+
+  createdAt DateTime? @default(now()) @map("created_date") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.VarChar(36)
+  updatedAt DateTime? @updatedAt @map("modified_date") @db.Timestamptz(3)
+  updatedBy String?   @map("modified_by") @db.VarChar(36)
+
+  @@map("dt_notification")
 }
 
 // From dt_payroll.prisma

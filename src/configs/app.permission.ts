@@ -22,6 +22,11 @@ export const resourcesV1 = {
     displayName: 'Vai trò',
     parent: 'Tác vụ',
   },
+  NOTIFICATION: {
+    name: 'notification',
+    displayName: 'Thông báo',
+    parent: 'Tác vụ',
+  },
   BRANCH: {
     name: 'branch',
     displayName: 'Chi nhánh',

@@ -3,6 +3,7 @@ const humanRoot = 'user';
 const roleRoot = 'role';
 const branchRoot = 'branch';
 const positionRoot = 'position';
+const notificationRoot = 'notification';
 const dropdown = 'dropdown';
 const formRoot = 'form';
 const formDescriptionRoot = 'form-description';
@@ -48,6 +49,9 @@ export const routesV1 = {
     },
     role: {
       ...baseRoutes(`${roleRoot}`),
+    },
+    notification: {
+      ...baseRoutes(`${notificationRoot}`),
     },
     branch: {
       ...baseRoutes(`${branchRoot}`),

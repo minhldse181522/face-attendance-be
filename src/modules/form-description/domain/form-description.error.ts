@@ -93,3 +93,13 @@ export class TimeKeepingAlreadyOverlap extends ExceptionBase {
     super(TimeKeepingAlreadyOverlap.message, cause, metadata);
   }
 }
+
+export class InvalidFormStatusError extends ExceptionBase {
+  static readonly message = 'Trạng thái đơn không hợp lệ';
+
+  public readonly code = 'FORM_DESCRIPTION.IN_VALID_FORM_ERROR';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(InvalidFormStatusError.message, cause, metadata);
+  }
+}

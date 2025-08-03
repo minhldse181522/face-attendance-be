@@ -32,6 +32,11 @@ import {
   FindUserBranchByParamsQueryResult,
 } from '@src/modules/user-branch/queries/find-user-branch-by-params/find-user-branch-by-params.query-handler';
 import { CreateUserBranchCommand } from '@src/modules/user-branch/commands/create-user-branch/create-user-branch.command';
+import { DeleteUserBranchCommand } from '@src/modules/user-branch/commands/delete-user-branch/delete-user-branch.command';
+import {
+  FindUserBranchArrayByParamsQuery,
+  FindUserBranchArrayByParamsQueryResult,
+} from '@src/modules/user-branch/queries/find-user-branch-array-by-params/find-user-branch-array-by-params.query-handler';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
 
 export type UpdateUserContractServiceResult = Result<
@@ -71,8 +76,9 @@ export class UpdateUserContractService
 
     // Kiểm tra nếu dừng hợp đồng (INACTIVE)
     if (command.status === 'INACTIVE') {
-      // Lấy ngày hiện tại
       const currentDate = new Date();
+
+      // Tìm các lịch làm việc tương lai
       const futureWorkingSchedules: FindWorkingScheduleArrayStopByParamsQueryResult =
         await this.queryBus.execute(
           new FindWorkingScheduleArrayStopByParamsQuery({
@@ -81,25 +87,32 @@ export class UpdateUserContractService
             fromDate: currentDate,
           }),
         );
-      if (futureWorkingSchedules.isErr()) {
-        return Err(new WorkingScheduleFutureNotFoundError());
-      }
-      const workingScheduleProps = futureWorkingSchedules.unwrap();
 
-      // Cập nhật trạng thái của tất cả lịch làm việc tương lai
-      for (const schedule of workingScheduleProps) {
-        await this.commandBus.execute(
-          new UpdateWorkingScheduleCommand({
-            workingScheduleId: schedule.id,
-            status: 'NOTWORK',
-            note: `Hợp đồng đã được chấm dứt vào ngày ${currentDate.toISOString()}`,
-            updatedBy: 'system',
-          }),
+      if (futureWorkingSchedules.isOk()) {
+        const workingScheduleProps = futureWorkingSchedules.unwrap();
+
+        for (const schedule of workingScheduleProps) {
+          await this.commandBus.execute(
+            new UpdateWorkingScheduleCommand({
+              workingScheduleId: schedule.id,
+              status: 'NOTWORK',
+              note: `Hợp đồng đã được chấm dứt vào ngày ${currentDate.toISOString()}`,
+              updatedBy: 'system',
+            }),
+          );
+        }
+      } else {
+        console.warn(
+          `[WARN] Không tìm thấy lịch làm việc tương lai cho user ${userContractProps.userCode}`,
         );
       }
 
-      const currentMonth = `${currentDate.getMonth() + 1}/${currentDate.getFullYear().toString().slice(-2)}`;
-      // Tìm user trong bảng lương để cập nhật trạng thái
+      // Tìm payroll để cập nhật nếu có
+      const currentMonth = `${currentDate.getMonth() + 1}/${currentDate
+        .getFullYear()
+        .toString()
+        .slice(-2)}`;
+
       const timeKeepingOfUser: FindPayrollByParamsQueryResult =
         await this.queryBus.execute(
           new FindPayrollByParamsQuery({
@@ -109,32 +122,68 @@ export class UpdateUserContractService
             },
           }),
         );
-      if (timeKeepingOfUser.isErr()) {
-        return Err(new TimeKeepingNotFoundError());
-      }
 
-      await this.commandBus.execute(
-        new UpdatePayrollCommand({
-          payrollId: timeKeepingOfUser.unwrap().getProps().id,
-          status: 'STOP',
-          updatedBy: 'system',
-        }),
-      );
+      if (timeKeepingOfUser.isOk()) {
+        await this.commandBus.execute(
+          new UpdatePayrollCommand({
+            payrollId: timeKeepingOfUser.unwrap().getProps().id,
+            status: 'STOP',
+            updatedBy: 'system',
+          }),
+        );
+      } else {
+        console.warn(
+          `[WARN] Không tìm thấy bảng lương tháng ${currentMonth} cho user ${userContractProps.userCode}`,
+        );
+      }
     }
 
-    for (const branchCode of command.branchCodes ?? []) {
-      const ubCode = await this.generateCode.generateCode('UB', 4);
-      const isBranchExist: FindUserBranchByParamsQueryResult =
+    // Xử lý cập nhật branch codes
+    if (command.branchCodes !== undefined) {
+      // Lấy tất cả user-branch hiện tại
+      const existingUserBranches: FindUserBranchArrayByParamsQueryResult =
         await this.queryBus.execute(
-          new FindUserBranchByParamsQuery({
+          new FindUserBranchArrayByParamsQuery({
             where: {
-              branchCode: branchCode,
               userContractCode: userContractProps.code,
             },
           }),
         );
 
-      if (isBranchExist.isErr()) {
+      const existingBranchCodes = existingUserBranches.isOk()
+        ? existingUserBranches.unwrap().map((ub) => ub.getProps().branchCode)
+        : [];
+
+      const newBranchCodes = command.branchCodes || [];
+
+      // Xóa các branch codes không còn trong danh sách mới
+      const branchCodesToDelete = existingBranchCodes.filter(
+        (code) => !newBranchCodes.includes(code),
+      );
+
+      for (const branchCodeToDelete of branchCodesToDelete) {
+        const userBranchToDelete = existingUserBranches.isOk()
+          ? existingUserBranches
+              .unwrap()
+              .find((ub) => ub.getProps().branchCode === branchCodeToDelete)
+          : null;
+
+        if (userBranchToDelete) {
+          await this.commandBus.execute(
+            new DeleteUserBranchCommand({
+              userBranchId: userBranchToDelete.getProps().id,
+            }),
+          );
+        }
+      }
+
+      // Tạo mới các branch codes chưa tồn tại
+      const branchCodesToCreate = newBranchCodes.filter(
+        (code) => !existingBranchCodes.includes(code),
+      );
+
+      for (const branchCode of branchCodesToCreate) {
+        const ubCode = await this.generateCode.generateCode('UB', 4);
         await this.commandBus.execute(
           new CreateUserBranchCommand({
             code: ubCode,
