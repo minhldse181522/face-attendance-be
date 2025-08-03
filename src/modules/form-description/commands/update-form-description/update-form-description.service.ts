@@ -14,9 +14,9 @@ import {
   FindPayrollByParamsQueryResult,
 } from '@src/modules/payroll/queries/find-payroll-by-params/find-payroll-by-params.query-handler';
 import {
-  FindTimeKeepingByParamsQuery,
-  FindTimeKeepingByParamsQueryResult,
-} from '@src/modules/time-keeping/queries/find-time-keeping-by-params/find-time-keeping-by-params.query-handler';
+  FindManyTimeKeepingByParamsQuery,
+  FindManyTimeKeepingByParamsQueryResult,
+} from '@src/modules/time-keeping/queries/find-many-time-keeping-by-params/find-many-time-keeping-by-params.query-handler';
 import { UpdateUserContractCommand } from '@src/modules/user-contract/commands/update-user-contract/update-user-contract.command';
 import { WorkingScheduleFutureNotFoundError } from '@src/modules/user-contract/domain/user-contract.error';
 import {
@@ -33,10 +33,6 @@ import {
   FindWorkingScheduleArrayByParamsQuery,
   FindWorkingScheduleArrayByParamsQueryResult,
 } from '@src/modules/working-schedule/queries/find-working-schedule-array-by-params/find-working-schedule-array-by-params.query-handler';
-import {
-  FindWorkingScheduleArrayStopByParamsQuery,
-  FindWorkingScheduleArrayStopByParamsQueryResult,
-} from '@src/modules/working-schedule/queries/find-working-schedule-array-stop-by-params/find-working-schedule-array-stop-by-params.query-handler';
 import {
   FindWorkingScheduleByParamsQuery,
   FindWorkingScheduleByParamsQueryResult,
@@ -166,21 +162,24 @@ export class UpdateFormDescriptionService
         }
         break;
       case '2':
-        // Đơn tăng ca
         if (
           command.status === 'APPROVED' &&
           command.startTime &&
           command.endTime
         ) {
-          const formDateOnly = normalizeDateOnly(new Date(command.startTime));
+          const formStart = new Date(command.startTime);
+          const formEnd = new Date(command.endTime);
+
+          // Lấy ngày bắt đầu của form
+          const formDateOnly = normalizeDateOnly(formStart);
           const startOfDay = new Date(formDateOnly);
           const endOfDay = new Date(formDateOnly);
           endOfDay.setHours(23, 59, 59, 999);
 
-          // Tìm trong ngày đó nhân viên này có làm việc không
-          const workingScheduleFound: FindWorkingScheduleByParamsQueryResult =
+          // Truy vấn tất cả timekeeping trong ngày đó với status 'END'
+          const timeKeepingResult: FindManyTimeKeepingByParamsQueryResult =
             await this.queryBus.execute(
-              new FindWorkingScheduleByParamsQuery({
+              new FindManyTimeKeepingByParamsQuery({
                 where: {
                   userCode: userSubmit,
                   date: {
@@ -190,44 +189,28 @@ export class UpdateFormDescriptionService
                 },
               }),
             );
-          if (workingScheduleFound.isErr()) {
-            return Err(new WorkingScheduleFutureNotFoundError());
-          }
-          console.log('wsf', workingScheduleFound);
-
-          // Kiểm tra xem người đó có đi làm ngày đó
-          const timeKeepingResult: FindTimeKeepingByParamsQueryResult =
-            await this.queryBus.execute(
-              new FindTimeKeepingByParamsQuery({
-                where: {
-                  userCode: userSubmit,
-                  date: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                  },
-                  status: 'END',
-                },
-              }),
-            );
-
           if (timeKeepingResult.isOk()) {
-            const timeKeepingProps = timeKeepingResult.unwrap().getProps();
-            const checkInTime = new Date(timeKeepingProps.checkInTime!);
-            const checkoutTime = new Date(timeKeepingProps.checkOutTime!);
-
-            const formStart = new Date(command.startTime);
-            const formEnd = new Date(command.endTime);
-
-            const isOverlap =
-              (checkInTime <= formStart && checkoutTime >= formEnd) ||
-              (checkInTime >= formStart && checkInTime <= formEnd) ||
-              (checkoutTime >= formStart && checkoutTime <= formEnd);
+            const timeKeepings = timeKeepingResult.unwrap();
+            // Lọc các bản ghi có checkInTime và checkOutTime đầy đủ
+            const validTimeKeepings = timeKeepings.filter(
+              (tk) => tk.getProps().checkInTime && tk.getProps().checkOutTime,
+            );
+            const isOverlap = validTimeKeepings.some((tk) => {
+              const checkInTime = new Date(tk.getProps().checkInTime!);
+              const checkOutTime = new Date(tk.getProps().checkOutTime!);
+              return (
+                (checkInTime <= formStart && checkOutTime >= formEnd) ||
+                (checkInTime >= formStart && checkInTime <= formEnd) ||
+                (checkOutTime >= formStart && checkOutTime <= formEnd)
+              );
+            });
 
             if (isOverlap) {
               return Err(new TimeKeepingAlreadyOverlap());
             }
           }
 
+          // Nếu không có timekeeping hoặc không bị overlap => update form
           await this.commandBus.execute(
             new UpdateFormDescriptionCommand({
               formDescriptionId: command.formDescriptionId,
@@ -236,6 +219,7 @@ export class UpdateFormDescriptionService
             }),
           );
         }
+
         break;
       case '3':
         // Đơn quên chấm công
