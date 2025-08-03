@@ -175,6 +175,39 @@ export class UpdateFormDescriptionService
           if (updatedResult.isErr()) {
             return updatedResult;
           }
+
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn vắng mặt',
+              message: 'Đơn vắng mặt của bạn đã được phê duyệt thành công.',
+              type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
+              isRead: false,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
+          await this.websocketService.publish({
+            event: 'NOTIFICATION_CREATED',
+            data: safePayload,
+          });
+
           try {
             const updatedForm =
               await this.formDescriptionRepo.update(formDescription);
@@ -244,6 +277,39 @@ export class UpdateFormDescriptionService
           if (updatedResult.isErr()) {
             return updatedResult;
           }
+
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn làm thêm giờ',
+              message: 'Đơn làm thêm giờ của bạn đã được phê duyệt thành công.',
+              type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
+              isRead: false,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
+          await this.websocketService.publish({
+            event: 'NOTIFICATION_CREATED',
+            data: safePayload,
+          });
+
           try {
             const updatedForm =
               await this.formDescriptionRepo.update(formDescription);
@@ -303,6 +369,40 @@ export class UpdateFormDescriptionService
           if (updatedResult.isErr()) {
             return updatedResult;
           }
+
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn quên chấm công',
+              message:
+                'Đơn quên chấm công của bạn đã được phê duyệt thành công.',
+              type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
+              isRead: false,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
+          await this.websocketService.publish({
+            event: 'NOTIFICATION_CREATED',
+            data: safePayload,
+          });
+
           try {
             const updatedForm =
               await this.formDescriptionRepo.update(formDescription);
@@ -397,6 +497,39 @@ export class UpdateFormDescriptionService
           if (updatedResult.isErr()) {
             return updatedResult;
           }
+
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn thôi việc',
+              message: 'Đơn thôi việc của bạn đã được phê duyệt thành công.',
+              type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
+              isRead: false,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
+          await this.websocketService.publish({
+            event: 'NOTIFICATION_CREATED',
+            data: safePayload,
+          });
+
           try {
             const updatedForm =
               await this.formDescriptionRepo.update(formDescription);
@@ -494,10 +627,60 @@ export class UpdateFormDescriptionService
         return Err(new InvalidFormStatusError());
     }
     if (command.status === 'REJECTED') {
+      // Tạo ra Notification cho trường hợp từ chối
+      const result = await this.commandBus.execute(
+        new CreateNotificationCommand({
+          title: 'Đơn từ bị từ chối',
+          message: 'Đơn từ của bạn đã bị từ chối.',
+          type: 'NOTSUCCESS',
+          isRead: false,
+          createdBy: 'system',
+        }),
+      );
+      if (result.isErr()) {
+        throw result.unwrapErr();
+      }
+
+      // Lấy NotificationEntity
+      const createdNotification = result.unwrap();
+
+      // Lấy plain object để gửi socket
+      const { isRead, ...notificationPayload } = createdNotification.getProps();
+
+      const safePayload = JSON.parse(
+        JSON.stringify(notificationPayload, (_, val) =>
+          typeof val === 'bigint' ? val.toString() : val,
+        ),
+      );
+
+      await this.websocketService.publish({
+        event: 'NOTIFICATION_CREATED',
+        data: safePayload,
+      });
+
       const updatedResult = formDescription.update({
         ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
         approvedBy: currentUserCode,
         approvedTime: new Date(),
+      });
+      if (updatedResult.isErr()) {
+        return updatedResult;
+      }
+      try {
+        const updatedForm =
+          await this.formDescriptionRepo.update(formDescription);
+        return Ok(updatedForm);
+      } catch (error: any) {
+        if (error instanceof ConflictException) {
+          return Err(new FormAlreadyExistsError());
+        }
+        throw error;
+      }
+    }
+    if (command.status === 'CANCELED') {
+      const updatedResult = formDescription.update({
+        ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+        status: 'CANCELED',
       });
       if (updatedResult.isErr()) {
         return updatedResult;
