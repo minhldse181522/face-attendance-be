@@ -18,6 +18,7 @@ import { FindFormDescriptionFiterQueryHandler } from './queries/find-form-descri
 import { FindFormDescriptionHttpController } from './queries/find-form-descriptions/find-form-descriptions.http.controller';
 import { FindFormDescriptionQueryHandler } from './queries/find-form-descriptions/find-form-descriptions.query-handler';
 import { FindManyFormDescriptionByParamsQueryHandler } from './queries/find-many-form-description-by-params/find-many-form-description-by-params.query-handler';
+import { FindFormDescriptionByParamsQueryHandler } from './queries/find-form-description-by-params/find-form-description-by-params.query-handler';
 
 const httpControllers = [
   FindFormDescriptionFilterHttpController,
@@ -43,6 +44,7 @@ const queryHandlers: Provider[] = [
   FindFormDescriptionQueryHandler,
   FindFormDescriptionFiterQueryHandler,
   FindManyFormDescriptionByParamsQueryHandler,
+  FindFormDescriptionByParamsQueryHandler,
 ];
 
 const mappers: Provider[] = [FormDescriptionMapper];

@@ -37,6 +37,18 @@ export class PrismaFormDescriptionRepository
     super(manager, mapper);
   }
 
+  async findFormDescriptionByParams(
+    params: PrismaQueryBase<Prisma.FormDescriptionWhereInput>,
+  ): Promise<Option<FormDescriptionEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.formDescription.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
+  }
+
   async findAllPaginatedQuickSearch(
     params: PrismaPaginatedQueryParams<Prisma.FormDescriptionWhereInput> & {
       fromDate?: string;
