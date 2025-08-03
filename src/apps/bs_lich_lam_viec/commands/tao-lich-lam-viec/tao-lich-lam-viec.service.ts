@@ -22,12 +22,12 @@ import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/work
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
 import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
 import { addDays, endOfMonth } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
 import { Err, Ok, Result } from 'oxide.ts';
 import {
   BranchNotBelongToContractError,
   ManagerNotAssignToUserError,
   NotGeneratedError,
+  ShiftCreatedConflictError,
   UserContractDoesNotExistError,
   WorkingDateAlreadyExistError,
 } from '../../domain/lich-lam-viec.error';
@@ -48,6 +48,7 @@ export type CreateLichLamViecServiceResult = Result<
   | BranchNotBelongToContractError
   | PositionNotFoundError
   | NotGeneratedError
+  | ShiftCreatedConflictError
 >;
 
 @CommandHandler(CreateLichLamViecCommand)
@@ -70,10 +71,7 @@ export class CreateLichLamViecService
   async execute(
     command: CreateLichLamViecCommand,
   ): Promise<CreateLichLamViecServiceResult> {
-    const timeZone = 'Asia/Ho_Chi_Minh';
-    // Convert command.date (UTC) → về giờ Việt Nam
-    const localDate = toZonedTime(command.date, timeZone);
-
+    const createWorkingDate = command.date;
     // Đảm bảo người tạo là quản lý của nhân viên đó
     const checkManager = await this.userContractRepo.checkManagedBy(
       command.createdBy,
@@ -86,8 +84,8 @@ export class CreateLichLamViecService
           new FindUserContractByParamsQuery({
             where: {
               userCode: command.userCode,
-              startTime: { lte: localDate },
-              endTime: { gte: localDate },
+              startTime: { lte: createWorkingDate },
+              endTime: { gte: createWorkingDate },
               status: 'ACTIVE',
             },
           }),
@@ -128,13 +126,13 @@ export class CreateLichLamViecService
       const shiftEndTimeStr = `${end!.getHours().toString().padStart(2, '0')}:${end!.getMinutes().toString().padStart(2, '0')}`;
 
       //#region Tao Lich lam viec
-      const fromDate = localDate;
+      const fromDate = createWorkingDate;
       const toDate =
         command.optionCreate === 'THANG'
-          ? endOfMonth(localDate)
+          ? endOfMonth(createWorkingDate)
           : command.optionCreate === 'TUAN'
-            ? addDays(localDate, 6)
-            : localDate;
+            ? addDays(createWorkingDate, 6)
+            : createWorkingDate;
 
       // Gọi truy vấn để lấy các ngày đã có
       const existingSchedules =
@@ -177,7 +175,7 @@ export class CreateLichLamViecService
 
       try {
         const workingDates = await this.generateWorkingDate.generateWorkingDate(
-          localDate,
+          createWorkingDate,
           command.optionCreate,
           command.holidayMode ?? [],
           existingDates,
@@ -223,6 +221,9 @@ export class CreateLichLamViecService
 
         return Ok(results);
       } catch (error) {
+        if (error instanceof ShiftCreatedConflictError) {
+          return Err(new ShiftCreatedConflictError());
+        }
         return Err(new NotGeneratedError());
       }
     } else {

@@ -8,7 +8,6 @@ import {
   Controller,
   HttpStatus,
   NotFoundException,
-  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -16,7 +15,6 @@ import { CommandBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -32,6 +30,7 @@ import { match } from 'oxide.ts';
 import {
   ManagerNotAssignToUserError,
   NotGeneratedError,
+  ShiftCreatedConflictError,
   UserContractDoesNotExistError,
   WorkingDateAlreadyExistError,
 } from '../../domain/lich-lam-viec.error';
@@ -82,7 +81,8 @@ export class CreateLichLamViecHttpController {
           error instanceof ManagerNotAssignToUserError ||
           error instanceof UserContractDoesNotExistError ||
           error instanceof WorkingDateAlreadyExistError ||
-          error instanceof NotGeneratedError
+          error instanceof NotGeneratedError ||
+          error instanceof ShiftCreatedConflictError
         ) {
           throw new BadRequestException({
             message: error.message,

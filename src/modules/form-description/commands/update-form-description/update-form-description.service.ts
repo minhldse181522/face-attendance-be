@@ -30,6 +30,10 @@ import {
 } from '@src/modules/user/queries/find-user-by-params/find-user-by-params.query-handler';
 import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
 import {
+  FindWorkingScheduleArrayByParamsQuery,
+  FindWorkingScheduleArrayByParamsQueryResult,
+} from '@src/modules/working-schedule/queries/find-working-schedule-array-by-params/find-working-schedule-array-by-params.query-handler';
+import {
   FindWorkingScheduleArrayStopByParamsQuery,
   FindWorkingScheduleArrayStopByParamsQueryResult,
 } from '@src/modules/working-schedule/queries/find-working-schedule-array-stop-by-params/find-working-schedule-array-stop-by-params.query-handler';
@@ -64,6 +68,10 @@ export type UpdateFormDescriptionServiceResult = Result<
   | WorkingScheduleForOverTimeNotFoundError
   | TimeKeepingAlreadyOverlap
 >;
+
+function normalizeDateOnly(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
 
 @CommandHandler(UpdateFormDescriptionCommand)
 export class UpdateFormDescriptionService
@@ -128,12 +136,13 @@ export class UpdateFormDescriptionService
           }
 
           // Cập nhật lịch làm việc của người nộp đơn
-          const futureWorkingSchedules: FindWorkingScheduleArrayStopByParamsQueryResult =
+          const futureWorkingSchedules: FindWorkingScheduleArrayByParamsQueryResult =
             await this.queryBus.execute(
-              new FindWorkingScheduleArrayStopByParamsQuery({
+              new FindWorkingScheduleArrayByParamsQuery({
                 userCode: userProps.code,
                 status: 'NOTSTARTED',
-                fromDate: startTime,
+                startDate: new Date(command.startTime),
+                endDate: new Date(command.endTime),
               }),
             );
 
@@ -163,27 +172,28 @@ export class UpdateFormDescriptionService
           command.startTime &&
           command.endTime
         ) {
-          const startDate = new Date(command.startTime);
-          const dateOnly = new Date(
-            Date.UTC(
-              startDate.getUTCFullYear(),
-              startDate.getUTCMonth(),
-              startDate.getUTCDate(),
-            ),
-          );
+          const formDateOnly = normalizeDateOnly(new Date(command.startTime));
+          const startOfDay = new Date(formDateOnly);
+          const endOfDay = new Date(formDateOnly);
+          endOfDay.setHours(23, 59, 59, 999);
+
           // Tìm trong ngày đó nhân viên này có làm việc không
           const workingScheduleFound: FindWorkingScheduleByParamsQueryResult =
             await this.queryBus.execute(
               new FindWorkingScheduleByParamsQuery({
                 where: {
                   userCode: userSubmit,
-                  date: dateOnly,
+                  date: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                  },
                 },
               }),
             );
           if (workingScheduleFound.isErr()) {
             return Err(new WorkingScheduleFutureNotFoundError());
           }
+          console.log('wsf', workingScheduleFound);
 
           // Kiểm tra xem người đó có đi làm ngày đó
           const timeKeepingResult: FindTimeKeepingByParamsQueryResult =
@@ -191,7 +201,10 @@ export class UpdateFormDescriptionService
               new FindTimeKeepingByParamsQuery({
                 where: {
                   userCode: userSubmit,
-                  date: dateOnly,
+                  date: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                  },
                   status: 'END',
                 },
               }),
@@ -205,26 +218,64 @@ export class UpdateFormDescriptionService
             const formStart = new Date(command.startTime);
             const formEnd = new Date(command.endTime);
 
-            if (
+            const isOverlap =
               (checkInTime <= formStart && checkoutTime >= formEnd) ||
               (checkInTime >= formStart && checkInTime <= formEnd) ||
-              (checkoutTime >= formStart && checkoutTime <= formEnd)
-            ) {
+              (checkoutTime >= formStart && checkoutTime <= formEnd);
+
+            if (isOverlap) {
               return Err(new TimeKeepingAlreadyOverlap());
-            } else {
-              await this.commandBus.execute(
-                new UpdateFormDescriptionCommand({
-                  formDescriptionId: command.formDescriptionId,
-                  statusOvertime: true,
-                  updatedBy: command.updatedBy,
-                }),
-              );
             }
           }
+
+          await this.commandBus.execute(
+            new UpdateFormDescriptionCommand({
+              formDescriptionId: command.formDescriptionId,
+              statusOvertime: true,
+              updatedBy: command.updatedBy,
+            }),
+          );
         }
         break;
       case '3':
         // Đơn quên chấm công
+        if (command.status === 'APPROVED') {
+          // Nếu là đơn quên check-in + check-out -> cần cả startTime và endTime
+          if (command.startTime && command.endTime) {
+            const startDate = new Date(command.startTime);
+            const dateOnly = new Date(
+              Date.UTC(
+                startDate.getUTCFullYear(),
+                startDate.getUTCMonth(),
+                startDate.getUTCDate(),
+              ),
+            );
+            // Tìm trong ngày đó nhân viên này có làm việc không
+            const workingScheduleFound: FindWorkingScheduleByParamsQueryResult =
+              await this.queryBus.execute(
+                new FindWorkingScheduleByParamsQuery({
+                  where: {
+                    userCode: userSubmit,
+                    date: dateOnly,
+                  },
+                }),
+              );
+            if (workingScheduleFound.isErr()) {
+              return Err(new WorkingScheduleFutureNotFoundError());
+            }
+            const workingScheduleProps = workingScheduleFound
+              .unwrap()
+              .getProps();
+            // Cập nhật trạng thái làm việc của người nộp đơn sang FORGET
+            await this.commandBus.execute(
+              new UpdateWorkingScheduleCommand({
+                workingScheduleId: workingScheduleProps.id,
+                status: 'FORGET',
+                updatedBy: 'system',
+              }),
+            );
+          }
+        }
         break;
       case '4':
         // Đơn thôi việc

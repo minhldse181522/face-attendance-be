@@ -100,3 +100,14 @@ export class NotGeneratedError extends ExceptionBase {
     super(NotGeneratedError.message, cause, metadata);
   }
 }
+
+export class ShiftCreatedConflictError extends ExceptionBase {
+  static readonly message =
+    'Không thể tạo lịch làm việc này vì đã bị chồng lên ca trước';
+
+  public readonly code = 'SHIFT.CREATED_CONFLICT';
+
+  constructor(cause?: Error, metadata?: unknown) {
+    super(ShiftCreatedConflictError.message, cause, metadata);
+  }
+}
