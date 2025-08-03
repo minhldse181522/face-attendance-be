@@ -54,6 +54,7 @@ import { UpdateFormDescriptionCommand } from './update-form-description.command'
 import { FormAlreadyExistsError } from '@src/modules/form/domain/form.error';
 import { CreateNotificationCommand } from '@src/modules/notification/commands/create-notification/create-notification.command';
 import { WebsocketService } from '@src/libs/websocket/websocket.service';
+import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
 
 export type UpdateFormDescriptionServiceResult = Result<
   FormDescriptionEntity,
@@ -96,6 +97,9 @@ export class UpdateFormDescriptionService
     if (found.isNone()) {
       return Err(new FormDescriptionNotFoundError());
     }
+
+    const user = RequestContextService.getRequestUser();
+    const currentUserCode = user?.code;
 
     const formDescription = found.unwrap();
     const fileImage = formDescription.getProps().file;
@@ -399,6 +403,25 @@ export class UpdateFormDescriptionService
             event: 'NOTIFICATION_CREATED',
             data: notificationPayload,
           });
+
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
         }
         break;
       case '6':
