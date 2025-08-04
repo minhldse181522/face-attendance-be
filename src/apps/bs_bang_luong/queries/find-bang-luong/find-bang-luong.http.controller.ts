@@ -12,6 +12,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { AuthPermission } from '@src/libs/decorators/auth-permissions.decorator';
 import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
+import { PayrollScalarFieldEnum } from '@src/modules/payroll/database/payroll.repository.prisma';
 import { BangLuongPaginatedResponseDto } from '../../dtos/bang-luong.paginated.response.dto';
 import { BangLuongMapper } from '../../mappers/bang-luong.mapper';
 import { FindBangLuongQuery } from './find-bang-luong.query-handler';
@@ -36,7 +37,11 @@ export class FindBangLuongHttpController {
   @UseGuards(JwtAuthGuard)
   @Get(routesV1.businessLogic.lichLamViec.bangLuong)
   async findBangLuong(
-    @Query(new DirectFilterPipe<any, Prisma.WorkingScheduleWhereInput>([]))
+    @Query(
+      new DirectFilterPipe<any, Prisma.PayrollWhereInput>([
+        PayrollScalarFieldEnum.status,
+      ]),
+    )
     queryParams: FindBangLuongRequestDto,
   ): Promise<BangLuongPaginatedResponseDto> {
     const result = await this.queryBus.execute(

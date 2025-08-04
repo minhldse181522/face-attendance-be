@@ -74,7 +74,22 @@ export class PrismaUserContractRepository
     const data = this.mapper.toPersistence(entity);
 
     try {
-      const ctCode = await this.generateCode.generateCode('CONTRACT', 4);
+      let ctCode: string;
+      let retryCount = 0;
+
+      do {
+        ctCode = await this.generateCode.generateCode('FORMDES', 4);
+        const isExisted = await this.checkExist(ctCode);
+        if (!isExisted) break;
+
+        retryCount++;
+        if (retryCount > 5) {
+          throw new Error(
+            `Cannot generate unique code after ${retryCount} tries`,
+          );
+        }
+      } while (true);
+
       // Sử dụng transaction để đảm bảo tất cả các hoạt động thành công hoặc thất bại cùng nhau
       const result = await client.$transaction(async (tx) => {
         const { id, ...dataWithoutId } = data;

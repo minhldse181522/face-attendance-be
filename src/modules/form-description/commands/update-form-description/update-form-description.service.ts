@@ -277,7 +277,7 @@ export class UpdateFormDescriptionService
           // Nếu không có timekeeping hoặc không bị overlap => update form
           const updatedResult = formDescription.update({
             ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
-            status: 'OVERTIME',
+            status: 'APPROVED',
           });
           if (updatedResult.isErr()) {
             return updatedResult;
