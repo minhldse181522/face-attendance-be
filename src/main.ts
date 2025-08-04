@@ -47,6 +47,7 @@ const allowedOrigins = [
   'http://localhost:8081',
   'http://localhost:5173',
   'https://api.128-199-119-151.sslip.io',
+  'https://api.faceattendance.dev',
 ];
 
 async function bootstrap() {
