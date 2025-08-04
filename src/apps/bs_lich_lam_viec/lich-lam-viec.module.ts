@@ -13,7 +13,7 @@ import { WorkingScheduleModule } from '@src/modules/working-schedule/working-sch
 import { BS_USER_REPOSITORY } from '../bs_user/bs-user.di-tokens';
 import { PrismaBsUserRepository } from '../bs_user/database/bs-user.repository.prisma';
 import { BsUserMapper } from '../bs_user/mappers/bs-user.mapper';
-import { WorkingScheduleCronService } from './commands/cham-cong/cham-cong-tre.cron.service';
+// import { WorkingScheduleCronService } from './commands/cham-cong/cham-cong-tre.cron.service';
 import { ChamCongHttpController } from './commands/cham-cong/cham-cong.http.controller';
 import { UpdateChamCongService } from './commands/cham-cong/cham-cong.service';
 import { CreateLichLamViecHttpController } from './commands/tao-lich-lam-viec/tao-lich-lam-viec.http.controller';
@@ -25,6 +25,7 @@ import { FindLichLamViecHttpController } from './queries/find-lich-lam-viec/find
 import { FindLichLamViecQueryHandler } from './queries/find-lich-lam-viec/find-lich-lam-viec.query-handler';
 import { FindUserByManagementHttpController } from './queries/find-user-by-management/find-user-by-management.http.controller';
 import { FindUserByManagementQueryHandler } from './queries/find-user-by-management/find-user-by-management.query-handler';
+import { EndOfDayWorkingScheduleCronService } from './commands/cham-cong/ket-thuc-ngay.cron.service';
 
 const httpControllers = [
   FindLichLamViecHttpController,
@@ -42,8 +43,8 @@ const graphqlResolvers: Provider[] = [];
 const commandHandlers: Provider[] = [
   CreateLichLamViecService,
   UpdateChamCongService,
-  WorkingScheduleCronService,
-  // EndOfDayWorkingScheduleCronService,
+  // WorkingScheduleCronService,
+  EndOfDayWorkingScheduleCronService,
 ];
 
 const queryHandlers: Provider[] = [

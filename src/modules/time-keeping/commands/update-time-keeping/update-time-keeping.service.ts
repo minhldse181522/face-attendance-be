@@ -100,12 +100,18 @@ export class UpdateTimeKeepingService
     // Không cho checkout trước khi hết ca làm
     const shiftEndTime = shift.unwrap().getProps().endTime;
     const shiftDate = workingScheduleProps.date!; // Đây là 00:00 UTC
-    const allowCheckOutTime = new Date(shiftDate);
-    allowCheckOutTime.setUTCHours(shiftEndTime!.getHours());
-    allowCheckOutTime.setUTCMinutes(shiftEndTime!.getMinutes());
-    allowCheckOutTime.setUTCSeconds(0);
-    allowCheckOutTime.setUTCMilliseconds(0);
+    console.log('shiftDate', shiftDate);
+
+    const allowCheckOutTime = new Date(shiftDate); //08-03
+    allowCheckOutTime.setHours(shiftEndTime!.getHours());
+    allowCheckOutTime.setMinutes(shiftEndTime!.getMinutes());
+    allowCheckOutTime.setSeconds(0);
+    allowCheckOutTime.setMilliseconds(0);
+    console.log('allowCheckOutTime', allowCheckOutTime);
+
     const checkOutTime = new Date(command.checkOutTime!);
+    console.log('checkOutTime', checkOutTime);
+    
 
     if (checkOutTime < allowCheckOutTime) {
       return Err(new NotAllowToCheckout());
@@ -113,8 +119,9 @@ export class UpdateTimeKeepingService
 
     // không được checkout sau 12h đêm
     const midnightUTC = new Date(shiftDate);
-    midnightUTC.setUTCDate(midnightUTC.getUTCDate() + 1);
-    midnightUTC.setUTCHours(0, 0, 0, 0);
+    midnightUTC.setDate(midnightUTC.getDate() + 1);
+    midnightUTC.setHours(0, 0, 0, 0);
+    console.log('midnightUTC', midnightUTC);
 
     if (checkOutTime >= midnightUTC) {
       return Err(new NotAllowToCheckoutAfterMidNight());
@@ -123,10 +130,12 @@ export class UpdateTimeKeepingService
     // Kiểm tra giờ checkin
     const shiftStartTime = shift.unwrap().getProps().startTime;
     const shiftStartDateTime = new Date(shiftDate);
-    shiftStartDateTime.setUTCHours(shiftStartTime!.getHours());
-    shiftStartDateTime.setUTCMinutes(shiftStartTime!.getMinutes());
-    shiftStartDateTime.setUTCSeconds(0);
-    shiftStartDateTime.setUTCMilliseconds(0);
+    
+    shiftStartDateTime.setHours(shiftStartTime!.getHours());
+    shiftStartDateTime.setMinutes(shiftStartTime!.getMinutes());
+    shiftStartDateTime.setSeconds(0);
+    shiftStartDateTime.setMilliseconds(0);
+    console.log('shiftStartDateTime', shiftStartDateTime);
 
     const TimeKeeping = found.unwrap();
     const currentStatus = TimeKeeping.getProps().status;
@@ -137,10 +146,12 @@ export class UpdateTimeKeepingService
 
     const checkinTime = TimeKeeping.getProps().checkInTime!;
     const shiftEndDateTime = new Date(shiftDate);
-    shiftEndDateTime.setUTCHours(shiftEndTime!.getHours());
-    shiftEndDateTime.setUTCMinutes(shiftEndTime!.getMinutes());
-    shiftEndDateTime.setUTCSeconds(0);
-    shiftEndDateTime.setUTCMilliseconds(0);
+    shiftEndDateTime.setHours(shiftEndTime!.getHours());
+    shiftEndDateTime.setMinutes(shiftEndTime!.getMinutes());
+    shiftEndDateTime.setSeconds(0);
+    shiftEndDateTime.setMilliseconds(0);
+    console.log('shiftEndDateTime', shiftEndDateTime);
+    
 
     const workingHourMs =
       shiftEndDateTime.getTime() -
