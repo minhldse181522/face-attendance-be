@@ -341,6 +341,33 @@ export class PrismaWorkingScheduleRepository
     return result.map((record) => this.mapper.toDomain(record));
   }
 
+  async findWorkingScheduleArrayStatusByParams(
+    userCode: string,
+    status: string[],
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<WorkingScheduleEntity[]> {
+    const client = await this._getClient();
+    const where: any = {
+      userCode,
+      status,
+    };
+
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = startDate;
+      if (endDate) where.date.lte = endDate;
+    }
+
+    const result = await client.workingSchedule.findMany({
+      where: {
+        status: { in: status },
+      },
+    });
+
+    return result.map((record) => this.mapper.toDomain(record));
+  }
+
   async findWorkingScheduleArrayStopByParams(
     userCode: string,
     status: string,

@@ -83,10 +83,13 @@ export class PrismaFormDescriptionRepository
     // Định nghĩa các trường có thể tìm kiếm trong Form
     const searchableFieldsForm: IField[] = [{ field: 'title', type: 'string' }];
 
-    const { quickSearch, ...rest } = params;
-    // Gọi hàm xử lý tìm kiếm chính
+    const { orderBy, quickSearch, ...rest } = params;
+    // Gọi hàm xử lý tìm kiếm chính - Force desc order for createdAt
     const data = this.findAllPaginatedWithQuickSearchFiter(
-      rest,
+      {
+        ...rest,
+        orderBy: [{ createdAt: 'desc' }], // Always order by createdAt desc for latest first
+      },
       quickSearch
         ? {
             quickSearchString: quickSearch,
@@ -392,7 +395,7 @@ export class PrismaFormDescriptionRepository
             }, // Lấy thông tin người gửi đơn
             approver: true, // Lấy thông tin người duyệt
           },
-          orderBy, // Sắp xếp kết quả
+          orderBy: orderBy ?? [{ createdAt: 'desc' }],
           skip: offset, // Bỏ qua các bản ghi theo phân trang
           take: limit, // Giới hạn số lượng bản ghi trả về
         })
