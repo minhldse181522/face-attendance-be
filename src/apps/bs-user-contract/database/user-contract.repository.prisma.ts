@@ -76,6 +76,7 @@ export class PrismaUserContractRepository
     try {
       let ctCode: string;
       let retryCount = 0;
+      const maxRetries = 10;
 
       do {
         ctCode = await this.generateCode.generateCode('FORMDES', 4);
@@ -83,7 +84,7 @@ export class PrismaUserContractRepository
         if (!isExisted) break;
 
         retryCount++;
-        if (retryCount > 5) {
+        if (retryCount > maxRetries) {
           throw new Error(
             `Cannot generate unique code after ${retryCount} tries`,
           );

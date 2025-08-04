@@ -370,14 +370,14 @@ export class PrismaWorkingScheduleRepository
 
   async findWorkingScheduleArrayStopByParams(
     userCode: string,
-    status: string,
+    status: string[],
     dateFrom: Date,
   ): Promise<WorkingScheduleEntity[]> {
     const client = await this._getClient();
     const result = await client.workingSchedule.findMany({
       where: {
         userCode,
-        status,
+        status: { in: status },
         ...(dateFrom && {
           date: {
             gt: dateFrom,

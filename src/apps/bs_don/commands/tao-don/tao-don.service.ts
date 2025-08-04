@@ -1,5 +1,5 @@
 import { ConflictException, Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { GenerateCode } from '@src/libs/utils/generate-code.util';
 import { FormRepositoryPort } from '@src/modules/form/database/form.repository.port';
 import { FORM_REPOSITORY } from '@src/modules/form/form.di-tokens';
@@ -15,10 +15,6 @@ import { FORM_DESCRIPTION_REPOSITORY } from '@src/modules/form-description/form-
 import { FormNotFoundError } from '@src/modules/form/domain/form.error';
 import { UserNotFoundError } from '@src/modules/user/domain/user.error';
 import { TaoDonCommand } from './tao-don.command';
-import {
-  FindFormDescriptionByParamsQuery,
-  FindFormDescriptionByParamsQueryResult,
-} from '@src/modules/form-description/queries/find-form-description-by-params/find-form-description-by-params.query-handler';
 
 export enum FormDescriptionStatus {
   PENDING = 'PENDING',
@@ -42,7 +38,6 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
     @Inject(FORM_REPOSITORY)
     private readonly formRepository: FormRepositoryPort,
     private readonly generateCode: GenerateCode,
-    private readonly queryBus: QueryBus,
   ) {}
 
   async execute(command: TaoDonCommand): Promise<TaoDonCommandResult> {
@@ -82,22 +77,6 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
     //   );
     // }
 
-    let code: string;
-    let retryCount = 0;
-
-    do {
-      code = await this.generateCode.generateCode('FORMDES', 4);
-      const isExisted = await this.repository.existsByCode(code);
-      if (!isExisted) break;
-
-      retryCount++;
-      if (retryCount > 5) {
-        throw new ConflictException(
-          'Cannot generate unique code after 5 attempts',
-        );
-      }
-    } while (true);
-
     // Check if the referenced formId exists
     const formId = BigInt(formDescription.formId);
     const formExists = await this.formRepository.checkExist(formId);
@@ -105,6 +84,23 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
     if (!formExists) {
       return Err(new FormNotFoundError());
     }
+
+    let code: string;
+    let retryCount = 0;
+    const maxRetries = 10;
+
+    do {
+      code = await this.generateCode.generateCode('FORMDES', 4);
+      const isExisted = await this.repository.existsByCode(code);
+      if (!isExisted) break;
+
+      retryCount++;
+      if (retryCount > maxRetries) {
+        throw new ConflictException(
+          `Cannot generate unique code after ${maxRetries} attempts`,
+        );
+      }
+    } while (true);
 
     // Provide default values for optional properties
     const newFormDescription = FormDescriptionEntity.create({
