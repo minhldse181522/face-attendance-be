@@ -1,4 +1,10 @@
-import { IsArray, IsEnum, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateLichLamViecRequestDto {
@@ -24,6 +30,13 @@ export class CreateLichLamViecRequestDto {
   @IsNotEmpty()
   @MaxLength(50)
   shiftCode: string;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Có phải hôm nay không',
+  })
+  @IsOptional()
+  isToday?: boolean;
 
   @ApiProperty({
     example: 'SHIFT001',

@@ -147,7 +147,7 @@ export class UpdateFormDescriptionService
             await this.queryBus.execute(
               new FindWorkingScheduleArrayStatusByParamsQuery({
                 userCode: userProps.code,
-                status: ['NOTSTARTED', 'STARTED'],
+                status: ['NOTSTARTED', 'ACTIVE'],
                 startDate: new Date(command.startTime),
                 endDate: new Date(command.endTime),
               }),
@@ -278,6 +278,7 @@ export class UpdateFormDescriptionService
           const updatedResult = formDescription.update({
             ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
             status: 'APPROVED',
+            statusOvertime: true,
           });
           if (updatedResult.isErr()) {
             return updatedResult;

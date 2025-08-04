@@ -5,12 +5,10 @@ import { RequestContextService } from '@src/libs/application/context/AppRequestC
 import { WebsocketService } from '@src/libs/websocket/websocket.service';
 import { CreateNotificationCommand } from '@src/modules/notification/commands/create-notification/create-notification.command';
 import { UpdateNotificationCommand } from '@src/modules/notification/commands/update-notification/update-notification.command';
-import { NotificationRepositoryPort } from '@src/modules/notification/database/notification.repository.port';
 import {
   FindNotificationByParamsQuery,
   FindNotificationByParamsQueryResult,
 } from '@src/modules/notification/queries/find-notification-by-params/find-notification-by-params.query-handler';
-import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
 import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
 import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
 
@@ -169,7 +167,7 @@ export class EndOfDayWorkingScheduleCronService {
             );
 
             await this.websocketService.publish({
-              event: `WORKINGSCHEDULE_NOTICE_${userCodeEachSchedule}`,
+              event: `NOTIFICATION_CREATED_${userCodeEachSchedule}`,
               data: { ...safePayload },
             });
           } else {
@@ -201,7 +199,7 @@ export class EndOfDayWorkingScheduleCronService {
             );
 
             await this.websocketService.publish({
-              event: `WORKINGSCHEDULE_NOTICE_${userCodeEachSchedule}`,
+              event: `NOTIFICATION_CREATED_${userCodeEachSchedule}`,
               data: { ...safePayload },
             });
           }
