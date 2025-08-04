@@ -11,6 +11,7 @@ import { FindNotificationsRequestDto } from './find-notifications.request.dto';
 
 export class FindNotificationsQuery extends PrismaPaginatedQueryWithQuickSearchBase<Prisma.NotificationWhereInput> {
   quickSearch?: string | number;
+  userCode?: string;
   constructor(props: FindNotificationsRequestDto) {
     super(props.findOptions);
     Object.assign(this, props);

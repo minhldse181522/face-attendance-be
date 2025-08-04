@@ -1,5 +1,5 @@
-import { IsNotEmpty, MaxLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, MaxLength, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateNotificationRequestDto {
   @ApiProperty({
@@ -31,4 +31,12 @@ export class CreateNotificationRequestDto {
     description: 'Trạng thái đọc thông báo',
   })
   isRead: boolean;
+
+  @ApiPropertyOptional({
+    example: 'USER001',
+    description: 'Mã người dùng',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  userCode?: string;
 }

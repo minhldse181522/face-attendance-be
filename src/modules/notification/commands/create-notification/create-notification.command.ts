@@ -5,6 +5,7 @@ export class CreateNotificationCommand extends Command {
   readonly message: string;
   readonly type: string;
   readonly isRead: boolean;
+  readonly userCode?: string;
 
   readonly createdBy: string;
 

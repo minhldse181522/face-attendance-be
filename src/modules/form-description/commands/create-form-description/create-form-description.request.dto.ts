@@ -29,13 +29,12 @@ export class CreateFormDescriptionRequestDto {
   @IsNotEmpty()
   status: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'bằng chứng đâu ní',
     description: 'Bằng chứng đính kèm',
-    required: true,
+    required: false,
   })
   @IsOptional()
-  @IsNotEmpty()
   file?: string;
 
   @ApiProperty({

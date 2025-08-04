@@ -7,6 +7,7 @@ import {
   HttpStatus,
   NotFoundException as NotFoundHttpException,
   Param,
+  ParseIntPipe,
   Put,
   UseGuards,
 } from '@nestjs/common';
@@ -73,11 +74,11 @@ export class UpdateNotificationHttpController {
   @Put(routesV1.tacVu.notification.update)
   async update(
     @ReqUser() user: RequestUser,
-    @Param('id') notificationId: bigint,
+    @Param('id', ParseIntPipe) notificationId: number,
     @Body() body: UpdateNotificationRequestDto,
   ): Promise<NotificationResponseDto> {
     const command = new UpdateNotificationCommand({
-      notificationId,
+      notificationId: BigInt(notificationId),
       ...body,
       updatedBy: user.userName,
     });

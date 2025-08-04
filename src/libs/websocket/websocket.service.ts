@@ -51,7 +51,7 @@ export class WebsocketService implements OnModuleInit {
       if (!message.targetType) {
         message.targetType = WebsocketMessageTargetType.BROADCAST;
       }
-      
+
       await this._pubClient.publish(
         `${this._channelPrefix}_serverMessage`,
         JSON.stringify(message),
@@ -59,6 +59,27 @@ export class WebsocketService implements OnModuleInit {
       console.log('Message published:', message);
     } catch (error) {
       console.error('Error publishing message: ', error);
+    }
+  }
+
+  async publishToUser(
+    userCode: string,
+    message: Omit<ServerMessageDto, 'targetType' | 'targetId'>,
+  ): Promise<void> {
+    try {
+      const targetedMessage: ServerMessageDto = {
+        ...message,
+        targetType: WebsocketMessageTargetType.USER,
+        target: userCode,
+      };
+
+      await this._pubClient.publish(
+        `${this._channelPrefix}_serverMessage`,
+        JSON.stringify(targetedMessage),
+      );
+      console.log('Message published to user:', userCode, targetedMessage);
+    } catch (error) {
+      console.error('Error publishing message to user: ', error);
     }
   }
 }

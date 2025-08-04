@@ -40,6 +40,12 @@ export class FindNotificationsHttpController {
     description: 'Filter to apply',
     name: 'quickSearch',
   })
+  @ApiQuery({
+    type: String,
+    required: false,
+    description: 'Mã người dùng',
+    name: 'userCode',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: NotificationPaginatedResponseDto,

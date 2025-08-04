@@ -183,6 +183,7 @@ export class UpdateFormDescriptionService
               message: 'Đơn vắng mặt của bạn đã được phê duyệt thành công.',
               type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
               isRead: false,
+              userCode: userSubmit,
               createdBy: 'system',
             }),
           );
@@ -204,7 +205,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -272,7 +273,7 @@ export class UpdateFormDescriptionService
           // Nếu không có timekeeping hoặc không bị overlap => update form
           const updatedResult = formDescription.update({
             ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
-            statusOvertime: true,
+            status: 'OVERTIME',
           });
           if (updatedResult.isErr()) {
             return updatedResult;
@@ -285,6 +286,7 @@ export class UpdateFormDescriptionService
               message: 'Đơn làm thêm giờ của bạn đã được phê duyệt thành công.',
               type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
               isRead: false,
+              userCode: userSubmit,
               createdBy: 'system',
             }),
           );
@@ -306,7 +308,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -378,6 +380,7 @@ export class UpdateFormDescriptionService
                 'Đơn quên chấm công của bạn đã được phê duyệt thành công.',
               type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
               isRead: false,
+              userCode: userSubmit,
               createdBy: 'system',
             }),
           );
@@ -399,7 +402,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -505,6 +508,7 @@ export class UpdateFormDescriptionService
               message: 'Đơn thôi việc của bạn đã được phê duyệt thành công.',
               type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
               isRead: false,
+              userCode: userSubmit,
               createdBy: 'system',
             }),
           );
@@ -526,7 +530,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -574,6 +578,7 @@ export class UpdateFormDescriptionService
               message: 'Khuôn mặt của bạn đã được cập nhật thành công.',
               type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
               isRead: false,
+              userCode: userSubmit,
               createdBy: 'system',
             }),
           );
@@ -595,8 +600,8 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
-            data: safePayload,
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
+            data: { ...safePayload, formId: '5' },
           });
 
           const updatedResult = formDescription.update({
@@ -619,10 +624,64 @@ export class UpdateFormDescriptionService
           }
         }
         break;
-      case '6':
-        // Đơn khác
-        break;
       default:
+        if (command.status === 'APPROVED' || command.status === 'REJECTED') {
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn khác',
+              message:
+                command.status === 'APPROVED'
+                  ? 'Đơn của bạn đã được phê duyệt thành công.'
+                  : 'Đơn của bạn đã bị từ chối.',
+              type: command.status === 'APPROVED' ? 'SUCCESS' : 'NOTSUCCESS',
+              isRead: false,
+              userCode: userSubmit,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
+          await this.websocketService.publish({
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
+            data: safePayload,
+          });
+
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
+        }
         // Không xác định
         return Err(new InvalidFormStatusError());
     }
@@ -634,6 +693,7 @@ export class UpdateFormDescriptionService
           message: 'Đơn từ của bạn đã bị từ chối.',
           type: 'NOTSUCCESS',
           isRead: false,
+          userCode: userSubmit,
           createdBy: 'system',
         }),
       );
@@ -654,7 +714,7 @@ export class UpdateFormDescriptionService
       );
 
       await this.websocketService.publish({
-        event: 'NOTIFICATION_CREATED',
+        event: `NOTIFICATION_CREATED_${userSubmit}`,
         data: safePayload,
       });
 

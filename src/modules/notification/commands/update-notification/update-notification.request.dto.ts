@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, MaxLength } from 'class-validator';
+import { IsBoolean, IsOptional, MaxLength } from 'class-validator';
 
 export class UpdateNotificationRequestDto {
   @ApiPropertyOptional({
@@ -30,5 +30,15 @@ export class UpdateNotificationRequestDto {
     example: false,
     description: 'Trạng thái đọc thông báo',
   })
+  @IsOptional()
+  @IsBoolean()
   isRead?: boolean | null;
+
+  @ApiPropertyOptional({
+    example: 'USER001',
+    description: 'Mã người dùng',
+  })
+  @IsOptional()
+  @MaxLength(50)
+  userCode?: string | null;
 }
