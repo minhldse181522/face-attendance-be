@@ -27,6 +27,23 @@ function createDateInUTC(dateStr: string): Date {
   return utcDate;
 }
 
+function convertTodayDateToUTCMinus7(date: Date): Date {
+  // Chuyển ngày về đầu ngày UTC, sau đó trừ đi 7 tiếng
+  // Ví dụ: 2025-08-04 09:27:03+00 → 2025-08-03 17:00:00+00
+  const dateStr = normalizeDate(date); // Get YYYY-MM-DD format
+  const startOfDayUTC = new Date(dateStr + 'T00:00:00.000Z'); // Start of day in UTC
+  const utcMinus7 = new Date(startOfDayUTC.getTime() - 7 * 60 * 60 * 1000); // Subtract 7 hours
+
+  console.log('>>> convertTodayDateToUTCMinus7:', {
+    input: date.toISOString(),
+    dateStr: dateStr,
+    startOfDayUTC: startOfDayUTC.toISOString(),
+    utcMinus7: utcMinus7.toISOString(),
+  });
+
+  return utcMinus7;
+}
+
 function isOverlappingWithExistingShift(
   date: Date,
   startTime: string,
@@ -254,9 +271,23 @@ export class GenerateWorkingDate {
 
         // Nếu pass tất cả kiểm tra thì thêm vào danh sách
         console.log('>>> Successfully passed all checks, adding date');
-        const normalizedDateStr = normalizeDate(d);
-        const utcDate = createDateInUTC(normalizedDateStr);
-        dates.push(d);
+
+        let dateToAdd: Date;
+        if (isTodayDate) {
+          // Nếu là hôm nay, convert về UTC-7 (đầu ngày UTC trừ 7 tiếng)
+          dateToAdd = convertTodayDateToUTCMinus7(d);
+          console.log(
+            '>>> Using UTC-7 converted date for today:',
+            dateToAdd.toISOString(),
+          );
+        } else {
+          // Nếu không phải hôm nay, sử dụng ngày bình thường
+          const normalizedDateStr = normalizeDate(d);
+          dateToAdd = createDateInUTC(normalizedDateStr);
+          console.log('>>> Using normal UTC date:', dateToAdd.toISOString());
+        }
+
+        dates.push(dateToAdd);
         // Không cần add vào createdSet nữa vì cho phép nhiều shift/ngày
       }
     };
