@@ -96,6 +96,7 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
     const shiftStartDateTime = getShiftStartDateTime(
       workingDate,
       shiftStartTime!,
+      checkinTime,
     );
     console.log('shiftStartDateTime', shiftStartDateTime);
 
