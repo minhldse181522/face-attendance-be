@@ -10,9 +10,9 @@ import { WORKING_SCHEDULE_REPOSITORY } from '../../working-schedule.di-tokens';
 
 export class FindWorkingScheduleArrayStopByParamsQuery extends PrismaQueryBase<Prisma.WorkingScheduleWhereInput> {
   userCode: string;
-  status: string;
+  status: string[];
   fromDate: Date;
-  constructor(params: { userCode: string; status: string; fromDate: Date }) {
+  constructor(params: { userCode: string; status: string[]; fromDate: Date }) {
     super();
     this.userCode = params.userCode;
     this.status = params.status;

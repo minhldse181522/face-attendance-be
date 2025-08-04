@@ -17,4 +17,5 @@ export interface ShiftRepositoryPort extends RepositoryPort<ShiftEntity> {
     params: PrismaPaginatedQueryBase<Prisma.ShiftWhereInput>,
     status?: string,
   );
+  checkExist(shiftCode: string): Promise<boolean>;
 }

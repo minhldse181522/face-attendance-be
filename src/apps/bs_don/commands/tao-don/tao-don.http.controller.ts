@@ -25,7 +25,6 @@ import { ReqUser } from '@src/libs/decorators/request-user.decorator';
 import { MinioService } from '@src/libs/minio/minio.service';
 import { RequestUser } from '@src/modules/auth/domain/value-objects/request-user.value-objects';
 import { JwtAuthGuard } from '@src/modules/auth/guards/auth.guard';
-import { CreateFormDescriptionCommand } from '@src/modules/form-description/commands/create-form-description/create-form-description.command';
 import { FormDescriptionEntity } from '@src/modules/form-description/domain/form-description.entity';
 import {
   FormDescriptionAlreadyExistsError,
@@ -35,6 +34,7 @@ import { FormDescriptionResponseDto } from '@src/modules/form-description/dtos/f
 import { FormDescriptionMapper } from '@src/modules/form-description/mappers/form-description.mapper';
 import { match } from 'oxide.ts';
 import { TaoDonRequestDto } from './tao-don.request.dto';
+import { TaoDonCommand } from './tao-don.command';
 import { TaoDonCommandResult } from './tao-don.service';
 import { FormNotFoundError } from '@src/modules/form/domain/form.error';
 
@@ -82,7 +82,7 @@ export class XuLiDonHttpController {
       imagePath = publicUrl;
     }
 
-    const command = new CreateFormDescriptionCommand({
+    const command = new TaoDonCommand({
       ...body,
       status: body.status || 'PENDING',
       createdBy: user.userName,

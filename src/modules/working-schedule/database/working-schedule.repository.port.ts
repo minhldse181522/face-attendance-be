@@ -68,7 +68,7 @@ export interface WorkingScheduleRepositoryPort
   ): Promise<WorkingScheduleEntity[]>;
   findWorkingScheduleArrayStopByParams(
     userCode: string,
-    status: string,
+    status: string[],
     dateFrom: Date,
   ): Promise<WorkingScheduleEntity[]>;
 }

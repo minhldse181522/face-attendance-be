@@ -29,6 +29,16 @@ export class PrismaUserRepository
     super(manager, mapper);
   }
 
+  async existsByCode(code: string): Promise<boolean> {
+    const client = await this._getClient();
+    const result = await client.formDescription.findUnique({
+      where: { code },
+      select: { id: true },
+    });
+
+    return !!result;
+  }
+
   async findUserWithActiveContract(
     params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
   ) {

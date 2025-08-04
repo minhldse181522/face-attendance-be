@@ -326,14 +326,28 @@ export class PrismaBsUserRepository
   }
 
   async findAllUserByManagement(
-    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput> & {
+      quickSearch?: string;
+    },
     userCode?: string,
     isActive?: boolean,
     position?: string,
     branch?: string,
   ): Promise<Paginated<UserEntity>> {
+    const searchableFields: IField[] = [
+      { field: 'code', type: 'string' },
+      { field: 'userName', type: 'string' },
+      { field: 'firstName', type: 'string' },
+      { field: 'lastName', type: 'string' },
+      { field: 'email', type: 'string' },
+      { field: 'gender', type: 'string' },
+      { field: 'phone', type: 'string' },
+      { field: 'roleCode', type: 'string' },
+      { field: 'addressCode', type: 'string' },
+    ];
     const client = await this._getClient();
-    const { page, limit, offset, orderBy, where = {} } = params;
+    const { page, limit, offset, orderBy, where = {}, quickSearch } = params;
+    console.log('QuickSearch', quickSearch);
 
     // Nếu có userCode, ưu tiên lấy user theo userCode
     if (userCode) {
@@ -399,6 +413,15 @@ export class PrismaBsUserRepository
     const currentUserCode = user?.code;
     const currentUsername = user?.userName;
 
+    // Apply quickSearch filter
+    let searchConditions: Prisma.UserWhereInput = {};
+    if (quickSearch) {
+      searchConditions = this.createQuickSearchFilter(
+        quickSearch,
+        searchableFields,
+      );
+    }
+
     const branchFilter: Prisma.UserWhereInput = branch
       ? {
           userContracts: {
@@ -418,6 +441,7 @@ export class PrismaBsUserRepository
 
     let finalWhere: Prisma.UserWhereInput = {
       ...where,
+      ...searchConditions,
       ...branchFilter,
       isActive: typeof isActive === 'string' ? isActive === 'true' : isActive,
     };

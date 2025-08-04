@@ -25,4 +25,5 @@ export interface UserRepositoryPort extends RepositoryPort<UserEntity> {
   findUserByParams(
     params: PrismaQueryBase<Prisma.UserWhereInput>,
   ): Promise<Option<UserEntity>>;
+  existsByCode(code: string): Promise<boolean>;
 }

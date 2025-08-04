@@ -7,7 +7,6 @@ import {
 } from '@nestjs/cqrs';
 import { MinioService } from '@src/libs/minio/minio.service';
 import { UpdatePayrollCommand } from '@src/modules/payroll/commands/update-payroll/update-payroll.command';
-import { PayrollNotFoundError } from '@src/modules/payroll/domain/payroll.error';
 import {
   FindPayrollByParamsQuery,
   FindPayrollByParamsQueryResult,
@@ -17,7 +16,6 @@ import {
   FindManyTimeKeepingByParamsQueryResult,
 } from '@src/modules/time-keeping/queries/find-many-time-keeping-by-params/find-many-time-keeping-by-params.query-handler';
 import { UpdateUserContractCommand } from '@src/modules/user-contract/commands/update-user-contract/update-user-contract.command';
-import { WorkingScheduleFutureNotFoundError } from '@src/modules/user-contract/domain/user-contract.error';
 import {
   FindUserContractByParamsQuery,
   FindUserContractByParamsQueryResult,
@@ -45,9 +43,7 @@ import {
   FormDescriptionUpdateNotAllowedError,
   InvalidFormStatusError,
   TimeKeepingAlreadyOverlap,
-  UserContractToEndNotFoundError,
   UserToUpdateFaceNotFoundError,
-  WorkingScheduleForOverTimeNotFoundError,
 } from '../../domain/form-description.error';
 import { FORM_DESCRIPTION_REPOSITORY } from '../../form-description.di-tokens';
 import { UpdateFormDescriptionCommand } from './update-form-description.command';
@@ -66,10 +62,6 @@ export type UpdateFormDescriptionServiceResult = Result<
   | FormDescriptionAlreadyExistsError
   | FormDescriptionUpdateNotAllowedError
   | UserToUpdateFaceNotFoundError
-  | UserContractToEndNotFoundError
-  | WorkingScheduleFutureNotFoundError
-  | PayrollNotFoundError
-  | WorkingScheduleForOverTimeNotFoundError
   | TimeKeepingAlreadyOverlap
   | InvalidFormStatusError
   | FormAlreadyExistsError
@@ -142,7 +134,7 @@ export class UpdateFormDescriptionService
             return Err(new FormDescriptionUpdateNotAllowedError());
           }
 
-          // Cập nhật lịch làm việc của người nộp đơn
+          // Cập nhật lịch làm việc của người nộp đơn (nếu có)
           const futureWorkingSchedules: FindWorkingScheduleArrayStatusByParamsQueryResult =
             await this.queryBus.execute(
               new FindWorkingScheduleArrayStatusByParamsQuery({
@@ -153,22 +145,29 @@ export class UpdateFormDescriptionService
               }),
             );
 
-          if (futureWorkingSchedules.isErr()) {
-            return Err(new WorkingScheduleFutureNotFoundError());
-          }
+          // Nếu tìm thấy lịch làm việc thì cập nhật, không tìm thấy thì bỏ qua
+          if (futureWorkingSchedules.isOk()) {
+            const workingScheduleProps = futureWorkingSchedules.unwrap();
 
-          const workingScheduleProps = futureWorkingSchedules.unwrap();
-
-          // Cập nhật trạng thái của tất cả lịch làm việc tương lai
-          for (const schedule of workingScheduleProps) {
-            await this.commandBus.execute(
-              new UpdateWorkingScheduleCommand({
-                workingScheduleId: schedule.id,
-                status: 'NOTWORK',
-                note: `Đơn vắng mặt đã được phê duyệt từ ${startTime.toISOString()} đến ${endTime.toISOString()}`,
-                updatedBy: 'system',
-              }),
-            );
+            // Cập nhật trạng thái của tất cả lịch làm việc tương lai
+            for (const schedule of workingScheduleProps) {
+              try {
+                await this.commandBus.execute(
+                  new UpdateWorkingScheduleCommand({
+                    workingScheduleId: schedule.id,
+                    status: 'NOTWORK',
+                    note: `Đơn vắng mặt đã được phê duyệt từ ${startTime.toISOString()} đến ${endTime.toISOString()}`,
+                    updatedBy: 'system',
+                  }),
+                );
+              } catch (error) {
+                // Log lỗi nhưng không dừng quá trình approve
+                console.warn(
+                  `Không thể cập nhật working schedule ${schedule.id}:`,
+                  error,
+                );
+              }
+            }
           }
 
           const updatedResult = formDescription.update({
@@ -343,7 +342,7 @@ export class UpdateFormDescriptionService
                 startDate.getUTCDate(),
               ),
             );
-            // Tìm trong ngày đó nhân viên này có làm việc không
+            // Tìm trong ngày đó nhân viên này có làm việc không (nếu có thì cập nhật)
             const workingScheduleFound: FindWorkingScheduleByParamsQueryResult =
               await this.queryBus.execute(
                 new FindWorkingScheduleByParamsQuery({
@@ -353,20 +352,29 @@ export class UpdateFormDescriptionService
                   },
                 }),
               );
-            if (workingScheduleFound.isErr()) {
-              return Err(new WorkingScheduleFutureNotFoundError());
+
+            // Nếu tìm thấy working schedule thì cập nhật, không thì bỏ qua
+            if (workingScheduleFound.isOk()) {
+              const workingScheduleProps = workingScheduleFound
+                .unwrap()
+                .getProps();
+              // Cập nhật trạng thái làm việc của người nộp đơn sang FORGET
+              try {
+                await this.commandBus.execute(
+                  new UpdateWorkingScheduleCommand({
+                    workingScheduleId: workingScheduleProps.id,
+                    status: 'FORGET',
+                    updatedBy: 'system',
+                  }),
+                );
+              } catch (error) {
+                // Log lỗi nhưng không dừng quá trình approve
+                console.warn(
+                  `Không thể cập nhật working schedule ${workingScheduleProps.id}:`,
+                  error,
+                );
+              }
             }
-            const workingScheduleProps = workingScheduleFound
-              .unwrap()
-              .getProps();
-            // Cập nhật trạng thái làm việc của người nộp đơn sang FORGET
-            await this.commandBus.execute(
-              new UpdateWorkingScheduleCommand({
-                workingScheduleId: workingScheduleProps.id,
-                status: 'FORGET',
-                updatedBy: 'system',
-              }),
-            );
           }
           const updatedResult = formDescription.update({
             ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
@@ -425,7 +433,7 @@ export class UpdateFormDescriptionService
         break;
       case '4':
         // Đơn thôi việc
-        // Đi chuyển trạng thái hợp đồng của user -> INACTIVE
+        // Đi chuyển trạng thái hợp đồng của user -> INACTIVE (nếu tìm thấy)
         if (command.status === 'APPROVED') {
           const userEndJobContract: FindUserContractByParamsQueryResult =
             await this.queryBus.execute(
@@ -434,68 +442,81 @@ export class UpdateFormDescriptionService
               }),
             );
 
-          if (userEndJobContract.isErr()) {
-            return Err(new UserContractToEndNotFoundError());
+          // Nếu tìm thấy hợp đồng thì xử lý, không thì vẫn approve đơn
+          if (userEndJobContract.isOk()) {
+            const userContractProps = userEndJobContract.unwrap().getProps();
+
+            try {
+              await this.commandBus.execute(
+                new UpdateUserContractCommand({
+                  userContractId: userContractProps.id,
+                  status: 'INACTIVE',
+                  updatedBy: command.updatedBy,
+                }),
+              );
+
+              // Cập nhật toàn bộ trạng thái workingSchedule của người nộp đơn
+              const currentDate = new Date();
+              const futureWorkingSchedules: FindWorkingScheduleArrayByParamsQueryResult =
+                await this.queryBus.execute(
+                  new FindWorkingScheduleArrayByParamsQuery({
+                    userCode: userContractProps.userCode!,
+                    status: 'NOTSTARTED',
+                  }),
+                );
+
+              if (futureWorkingSchedules.isOk()) {
+                const workingScheduleProps = futureWorkingSchedules.unwrap();
+
+                // Cập nhật trạng thái của tất cả lịch làm việc tương lai
+                for (const schedule of workingScheduleProps) {
+                  try {
+                    await this.commandBus.execute(
+                      new UpdateWorkingScheduleCommand({
+                        workingScheduleId: schedule.id,
+                        status: 'NOTWORK',
+                        note: `${userSubmit} đã thôi việc vào ngày ${currentDate.toISOString()}`,
+                        updatedBy: 'system',
+                      }),
+                    );
+                  } catch (error) {
+                    console.warn(
+                      `Không thể cập nhật working schedule ${schedule.id}:`,
+                      error,
+                    );
+                  }
+                }
+              }
+
+              // Cập nhật bảng lương của nguời nộp đơn (nếu tìm thấy)
+              const currentMonth = `${currentDate.getMonth() + 1}/${currentDate.getFullYear().toString().slice(-2)}`;
+              const timeKeepingOfUser: FindPayrollByParamsQueryResult =
+                await this.queryBus.execute(
+                  new FindPayrollByParamsQuery({
+                    where: {
+                      userCode: userContractProps.userCode!,
+                      month: currentMonth,
+                    },
+                  }),
+                );
+
+              if (timeKeepingOfUser.isOk()) {
+                try {
+                  await this.commandBus.execute(
+                    new UpdatePayrollCommand({
+                      payrollId: timeKeepingOfUser.unwrap().getProps().id,
+                      status: 'STOP',
+                      updatedBy: 'system',
+                    }),
+                  );
+                } catch (error) {
+                  console.warn(`Không thể cập nhật payroll:`, error);
+                }
+              }
+            } catch (error) {
+              console.warn(`Không thể xử lý đơn thôi việc:`, error);
+            }
           }
-
-          const userContractProps = userEndJobContract.unwrap().getProps();
-          await this.commandBus.execute(
-            new UpdateUserContractCommand({
-              userContractId: userContractProps.id,
-              status: 'INACTIVE',
-              updatedBy: command.updatedBy,
-            }),
-          );
-
-          // Cập nhật toàn bộ trạng thái workingSchedule của người nộp đơn
-          const currentDate = new Date();
-          const futureWorkingSchedules: FindWorkingScheduleArrayByParamsQueryResult =
-            await this.queryBus.execute(
-              new FindWorkingScheduleArrayByParamsQuery({
-                userCode: userContractProps.userCode!,
-                status: 'NOTSTARTED',
-              }),
-            );
-          if (futureWorkingSchedules.isErr()) {
-            return Err(new WorkingScheduleFutureNotFoundError());
-          }
-          const workingScheduleProps = futureWorkingSchedules.unwrap();
-
-          // Cập nhật trạng thái của tất cả lịch làm việc tương lai
-          for (const schedule of workingScheduleProps) {
-            await this.commandBus.execute(
-              new UpdateWorkingScheduleCommand({
-                workingScheduleId: schedule.id,
-                status: 'NOTWORK',
-                note: `${userSubmit} đã thôi việc vào ngày ${currentDate.toISOString()}`,
-                updatedBy: 'system',
-              }),
-            );
-          }
-
-          // Cập nhật bảng lương của nguời nộp đơn
-          const currentMonth = `${currentDate.getMonth() + 1}/${currentDate.getFullYear().toString().slice(-2)}`;
-          // Tìm user trong bảng lương để cập nhật trạng thái
-          const timeKeepingOfUser: FindPayrollByParamsQueryResult =
-            await this.queryBus.execute(
-              new FindPayrollByParamsQuery({
-                where: {
-                  userCode: userContractProps.userCode!,
-                  month: currentMonth,
-                },
-              }),
-            );
-          if (timeKeepingOfUser.isErr()) {
-            return Err(new PayrollNotFoundError());
-          }
-
-          await this.commandBus.execute(
-            new UpdatePayrollCommand({
-              payrollId: timeKeepingOfUser.unwrap().getProps().id,
-              status: 'STOP',
-              updatedBy: 'system',
-            }),
-          );
 
           const updatedResult = formDescription.update({
             ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
