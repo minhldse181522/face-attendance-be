@@ -6,6 +6,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -30,6 +31,12 @@ export class FindAllUserByManagementHttpController {
     status: HttpStatus.OK,
     type: BsUserPaginatedResponseDto,
   })
+  @ApiQuery({
+    type: String,
+    required: false,
+    description: 'Quick search term for filtering users',
+    name: 'quickSearch',
+  })
   @AuthPermission(resourcesV1.BS_USER.name, resourceScopes.VIEW)
   @UseGuards(JwtAuthGuard)
   @Get(routesV1.businessLogic.user.allUserByManagement)
@@ -37,9 +44,12 @@ export class FindAllUserByManagementHttpController {
     @Query(new DirectFilterPipe<any, Prisma.WorkingScheduleWhereInput>([]))
     queryParams: FindAllUserByManagementRequestDto,
   ): Promise<BsUserPaginatedResponseDto> {
+    console.log('Controller received quickSearch:', queryParams.quickSearch);
+
     const result = await this.queryBus.execute(
       new FindAllUserByManagementQuery({
         ...queryParams.findOptions,
+        quickSearch: queryParams.quickSearch,
         userCode: queryParams.userCode,
         isActive: queryParams.isActive,
         branch: queryParams.branch,
