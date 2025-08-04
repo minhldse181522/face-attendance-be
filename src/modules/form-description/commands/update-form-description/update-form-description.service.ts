@@ -205,7 +205,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -308,7 +308,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -402,7 +402,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -530,7 +530,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -600,8 +600,8 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
-            data: safePayload,
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
+            data: { ...safePayload, formId: '5' },
           });
 
           const updatedResult = formDescription.update({
@@ -658,7 +658,7 @@ export class UpdateFormDescriptionService
           );
 
           await this.websocketService.publish({
-            event: 'NOTIFICATION_CREATED',
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
             data: safePayload,
           });
 
@@ -714,7 +714,7 @@ export class UpdateFormDescriptionService
       );
 
       await this.websocketService.publish({
-        event: 'NOTIFICATION_CREATED',
+        event: `NOTIFICATION_CREATED_${userSubmit}`,
         data: safePayload,
       });
 
