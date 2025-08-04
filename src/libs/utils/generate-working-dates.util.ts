@@ -281,10 +281,12 @@ export class GenerateWorkingDate {
             dateToAdd.toISOString(),
           );
         } else {
-          // Nếu không phải hôm nay, sử dụng ngày bình thường
-          const normalizedDateStr = normalizeDate(d);
-          dateToAdd = createDateInUTC(normalizedDateStr);
-          console.log('>>> Using normal UTC date:', dateToAdd.toISOString());
+          // Nếu không phải hôm nay, giữ nguyên thời gian từ FE
+          dateToAdd = d;
+          console.log(
+            '>>> Using original date from FE:',
+            dateToAdd.toISOString(),
+          );
         }
 
         dates.push(dateToAdd);

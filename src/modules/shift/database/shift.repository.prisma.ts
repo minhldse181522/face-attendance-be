@@ -38,6 +38,16 @@ export class PrismaShiftRepository
     super(manager, mapper);
   }
 
+  async checkExist(shiftCode: string): Promise<boolean> {
+    const client = await this._getClient();
+
+    const count = await client.shift.count({
+      where: { code: shiftCode },
+    });
+
+    return count > 0;
+  }
+
   async findShiftByParams(
     params: PrismaQueryBase<Prisma.ShiftWhereInput>,
   ): Promise<Option<ShiftEntity>> {

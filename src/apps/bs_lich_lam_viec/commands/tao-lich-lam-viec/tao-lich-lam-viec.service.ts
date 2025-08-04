@@ -216,6 +216,7 @@ export class CreateLichLamViecService
         for (const date of workingDates) {
           let generatedCode: string;
           let retryCount = 0;
+          const maxRetries = 10;
           do {
             generatedCode = await this.generateCode.generateCode('WS', 4);
             const exists =
@@ -223,9 +224,9 @@ export class CreateLichLamViecService
             if (!exists) break;
 
             retryCount++;
-            if (retryCount > 5) {
+            if (retryCount > maxRetries) {
               throw new Error(
-                `Cannot generate unique code after ${retryCount} tries`,
+                `Cannot generate unique code after ${maxRetries} tries`,
               );
             }
           } while (true);

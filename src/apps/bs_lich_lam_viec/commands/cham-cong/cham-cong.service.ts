@@ -177,6 +177,7 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
       // insert vào bảng time keeping
       let code: string;
       let retryCount = 0;
+      const maxRetries = 10;
 
       do {
         code = await this.generateCode.generateCode('FORMDES', 4);
@@ -184,9 +185,9 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
         if (!isExisted) break;
 
         retryCount++;
-        if (retryCount > 5) {
+        if (retryCount > maxRetries) {
           throw new Error(
-            `Cannot generate unique code after ${retryCount} tries`,
+            `Cannot generate unique code after ${maxRetries} tries`,
           );
         }
       } while (true);

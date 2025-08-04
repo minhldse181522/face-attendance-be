@@ -59,6 +59,16 @@ export class PrismaFormDescriptionRepository
     return !!result;
   }
 
+  async checkExist(formDescriptionCode: string): Promise<boolean> {
+    const client = await this._getClient();
+
+    const count = await client.formDescription.count({
+      where: { code: formDescriptionCode },
+    });
+
+    return count > 0;
+  }
+
   async findAllPaginatedQuickSearch(
     params: PrismaPaginatedQueryParams<Prisma.FormDescriptionWhereInput> & {
       fromDate?: string;

@@ -25,8 +25,6 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
   async execute(
     command: CreateShiftCommand,
   ): Promise<CreateShiftServiceResult> {
-    const code = await this.generateCode.generateCode('SHIFT', 4);
-
     let workingHours: number | null = null;
     let start: Date | null = null;
     let end: Date | null = null;
@@ -58,6 +56,23 @@ export class CreateShiftService implements ICommandHandler<CreateShiftCommand> {
       workingHours = (durationMs - lunchMs) / (1000 * 60 * 60);
       workingHours = Math.round(workingHours * 100) / 100;
     }
+    let code: string;
+    let retryCount = 0;
+    const maxRetries = 10;
+
+    do {
+      code = await this.generateCode.generateCode('SHIFT', 4);
+      const isExisted = await this.shiftRepo.checkExist(code);
+      if (!isExisted) break;
+
+      retryCount++;
+      if (retryCount > maxRetries) {
+        throw new Error(
+          `Cannot generate unique code after ${maxRetries} tries`,
+        );
+      }
+    } while (true);
+
     const shift = ShiftEntity.create({
       code: code,
       name: command.name ?? null,

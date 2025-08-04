@@ -33,7 +33,23 @@ export class RegisterService implements ICommandHandler<RegisterCommand> {
 
     const hashedPassword = await bcrypt.hash(command.password, 10);
     const props = command.getExtendedProps<RegisterCommand>();
-    const code = await this.generateCode.generateCode('USER', 4);
+    let code: string;
+    let retryCount = 0;
+    const maxRetries = 10;
+
+    do {
+      code = await this.generateCode.generateCode('USER', 4);
+      const isExisted = await this.userRepo.existsByCode(code);
+      if (!isExisted) break;
+
+      retryCount++;
+      if (retryCount > maxRetries) {
+        throw new ConflictException(
+          `Cannot generate unique code after ${maxRetries} attempts`,
+        );
+      }
+    } while (true);
+
     const newUser = UserEntity.create({
       ...props,
       code: code,
@@ -41,14 +57,51 @@ export class RegisterService implements ICommandHandler<RegisterCommand> {
       isActive: true,
     });
 
-    try {
-      const createdUser = await this.userRepo.insert(newUser);
-      return Ok(createdUser);
-    } catch (error: any) {
-      if (error instanceof ConflictException) {
-        return Err(new RegisterError(error));
+    // Retry mechanism for insert in case of race condition
+    let insertRetryCount = 0;
+    const maxInsertRetries = 3;
+
+    while (insertRetryCount < maxInsertRetries) {
+      try {
+        const createdUser = await this.userRepo.insert(newUser);
+        return Ok(createdUser);
+      } catch (error: any) {
+        if (
+          error instanceof ConflictException &&
+          insertRetryCount < maxInsertRetries - 1
+        ) {
+          // Race condition detected, generate new code and retry
+          insertRetryCount++;
+
+          let newRetryCount = 0;
+          do {
+            code = await this.generateCode.generateCode('USER', 4);
+            const isExisted = await this.userRepo.existsByCode(code);
+            if (!isExisted) break;
+
+            newRetryCount++;
+            if (newRetryCount > 5) {
+              throw new ConflictException(
+                'Cannot generate unique code after race condition retry',
+              );
+            }
+          } while (true);
+
+          // Update the user entity with new code
+          newUser.getProps().code = code;
+          continue;
+        }
+
+        if (error instanceof ConflictException) {
+          return Err(new RegisterError(error));
+        }
+        throw error;
       }
-      throw error;
     }
+
+    // If we reach here, all retries failed
+    throw new ConflictException(
+      `Failed to create user after ${maxInsertRetries} attempts due to code conflicts`,
+    );
   }
 }

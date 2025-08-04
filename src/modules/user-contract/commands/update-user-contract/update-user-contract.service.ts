@@ -83,7 +83,7 @@ export class UpdateUserContractService
         await this.queryBus.execute(
           new FindWorkingScheduleArrayStopByParamsQuery({
             userCode: userContractProps.userCode!,
-            status: 'NOTSTARTED',
+            status: ['NOTSTARTED', 'ACTIVE'],
             fromDate: currentDate,
           }),
         );

@@ -30,14 +30,19 @@ import {
   FormDescriptionNotFoundError,
   FormDescriptionUpdateNotAllowedError,
   InvalidFormStatusError,
+  TimeKeepingAlreadyOverlap,
   UserContractToEndNotFoundError,
   UserToUpdateFaceNotFoundError,
+  WorkingScheduleForOverTimeNotFoundError,
 } from '../../domain/form-description.error';
 import { FormDescriptionResponseDto } from '../../dtos/form-description.response.dto';
 import { FormDescriptionMapper } from '../../mappers/form-description.mapper';
 import { UpdateFormDescriptionCommand } from './update-form-description.command';
 import { UpdateFormDescriptionRequestDto } from './update-form-description.request.dto';
 import { UpdateFormDescriptionServiceResult } from './update-form-description.service';
+import { WorkingScheduleFutureNotFoundError } from '@src/modules/user-contract/domain/user-contract.error';
+import { PayrollNotFoundError } from '@src/modules/payroll/domain/payroll.error';
+import { FormAlreadyExistsError } from '@src/modules/form/domain/form.error';
 
 @Controller(routesV1.version)
 export class UpdateFormDescriptionHttpController {
@@ -96,14 +101,21 @@ export class UpdateFormDescriptionHttpController {
           error instanceof FormDescriptionNotFoundError ||
           error instanceof UserToUpdateFaceNotFoundError ||
           error instanceof UserContractToEndNotFoundError ||
-          error instanceof InvalidFormStatusError
+          error instanceof InvalidFormStatusError ||
+          error instanceof WorkingScheduleFutureNotFoundError ||
+          error instanceof PayrollNotFoundError ||
+          error instanceof WorkingScheduleForOverTimeNotFoundError ||
+          error instanceof TimeKeepingAlreadyOverlap
         ) {
           throw new NotFoundHttpException({
             message: error.message,
             errorCode: error.code,
           });
         }
-        if (error instanceof FormDescriptionAlreadyExistsError) {
+        if (
+          error instanceof FormDescriptionAlreadyExistsError ||
+          error instanceof FormAlreadyExistsError
+        ) {
           throw new ConflictException({
             message: error.message,
             errorCode: error.code,
