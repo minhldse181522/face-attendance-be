@@ -55,6 +55,10 @@ import { FormAlreadyExistsError } from '@src/modules/form/domain/form.error';
 import { CreateNotificationCommand } from '@src/modules/notification/commands/create-notification/create-notification.command';
 import { WebsocketService } from '@src/libs/websocket/websocket.service';
 import { RequestContextService } from '@src/libs/application/context/AppRequestContext';
+import {
+  FindWorkingScheduleArrayStatusByParamsQuery,
+  FindWorkingScheduleArrayStatusByParamsQueryResult,
+} from '@src/modules/working-schedule/queries/find-working-schedule-array-status-by-params/find-working-schedule-array-status-by-params.query-handler';
 
 export type UpdateFormDescriptionServiceResult = Result<
   FormDescriptionEntity,
@@ -139,11 +143,11 @@ export class UpdateFormDescriptionService
           }
 
           // Cập nhật lịch làm việc của người nộp đơn
-          const futureWorkingSchedules: FindWorkingScheduleArrayByParamsQueryResult =
+          const futureWorkingSchedules: FindWorkingScheduleArrayStatusByParamsQueryResult =
             await this.queryBus.execute(
-              new FindWorkingScheduleArrayByParamsQuery({
+              new FindWorkingScheduleArrayStatusByParamsQuery({
                 userCode: userProps.code,
-                status: 'NOTSTARTED',
+                status: ['NOTSTARTED', 'STARTED'],
                 startDate: new Date(command.startTime),
                 endDate: new Date(command.endTime),
               }),
@@ -608,6 +612,138 @@ export class UpdateFormDescriptionService
             ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
             approvedBy: currentUserCode,
             approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
+        }
+        break;
+      case '6':
+        // Đơn khác
+        if (command.status === 'APPROVED') {
+          // Tạo ra Notification
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn khác',
+              message: 'Đơn của bạn đã được phê duyệt thành công.',
+              type: 'SUCCESS',
+              isRead: false,
+              userCode: userSubmit,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
+          await this.websocketService.publish({
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
+            data: safePayload,
+          });
+
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
+        }
+
+        if (command.status === 'REJECTED') {
+          // Tạo ra Notification cho trường hợp từ chối
+          const result = await this.commandBus.execute(
+            new CreateNotificationCommand({
+              title: 'Đơn khác',
+              message: 'Đơn của bạn đã bị từ chối.',
+              type: 'NOTSUCCESS',
+              isRead: false,
+              userCode: userSubmit,
+              createdBy: 'system',
+            }),
+          );
+          if (result.isErr()) {
+            throw result.unwrapErr();
+          }
+
+          // Lấy NotificationEntity
+          const createdNotification = result.unwrap();
+
+          // Lấy plain object để gửi socket
+          const { isRead, ...notificationPayload } =
+            createdNotification.getProps();
+
+          const safePayload = JSON.parse(
+            JSON.stringify(notificationPayload, (_, val) =>
+              typeof val === 'bigint' ? val.toString() : val,
+            ),
+          );
+
+          await this.websocketService.publish({
+            event: `NOTIFICATION_CREATED_${userSubmit}`,
+            data: safePayload,
+          });
+
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            approvedBy: currentUserCode,
+            approvedTime: new Date(),
+          });
+          if (updatedResult.isErr()) {
+            return updatedResult;
+          }
+
+          try {
+            const updatedForm =
+              await this.formDescriptionRepo.update(formDescription);
+            return Ok(updatedForm);
+          } catch (error: any) {
+            if (error instanceof ConflictException) {
+              return Err(new FormAlreadyExistsError());
+            }
+            throw error;
+          }
+        }
+
+        if (command.status === 'CANCELED') {
+          const updatedResult = formDescription.update({
+            ...command.getExtendedProps<UpdateFormDescriptionCommand>(),
+            status: 'CANCELED',
           });
           if (updatedResult.isErr()) {
             return updatedResult;

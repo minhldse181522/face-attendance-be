@@ -4,27 +4,27 @@ import {
   ShiftCreatedConflictError,
 } from '@src/apps/bs_lich_lam_viec/domain/lich-lam-viec.error';
 import { addDays, endOfMonth, endOfWeek, format } from 'date-fns';
-import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
 
 function normalizeDate(date: Date | string): string {
-  // Always format in Vietnam timezone to ensure consistency
-  return formatInTimeZone(new Date(date), 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+  // Format date in UTC timezone
+  const d = new Date(date);
+  return (
+    d.getUTCFullYear() +
+    '-' +
+    String(d.getUTCMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(d.getUTCDate()).padStart(2, '0')
+  );
 }
 
-function createDateInVietnamTimezone(dateStr: string): Date {
-  // Create a date that represents the correct day in Vietnam timezone
-  // by parsing the date string and setting it to noon Vietnam time
-  const vnDate = new Date(dateStr + 'T12:00:00.000+07:00');
-  console.log('>>> createDateInVietnamTimezone:', {
+function createDateInUTC(dateStr: string): Date {
+  // Create a date in UTC timezone
+  const utcDate = new Date(dateStr + 'T00:00:00.000Z');
+  console.log('>>> createDateInUTC:', {
     input: dateStr,
-    output: vnDate.toISOString(),
-    vnTime: formatInTimeZone(
-      vnDate,
-      'Asia/Ho_Chi_Minh',
-      'yyyy-MM-dd HH:mm:ss zzz',
-    ),
+    output: utcDate.toISOString(),
   });
-  return vnDate;
+  return utcDate;
 }
 
 function isOverlappingWithExistingShift(
@@ -73,42 +73,34 @@ function isOverlappingWithExistingShift(
 }
 
 function isToday(date: Date): boolean {
-  const now = toZonedTime(new Date(), 'Asia/Ho_Chi_Minh');
-  const targetDate = toZonedTime(date, 'Asia/Ho_Chi_Minh');
+  const now = new Date();
+  const targetDate = new Date(date);
 
-  // Compare date strings to avoid time component issues
-  const nowDateStr = formatInTimeZone(now, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
-  const targetDateStr = formatInTimeZone(
-    targetDate,
-    'Asia/Ho_Chi_Minh',
-    'yyyy-MM-dd',
-  );
+  // Compare date strings in UTC to avoid time component issues
+  const nowDateStr = normalizeDate(now);
+  const targetDateStr = normalizeDate(targetDate);
 
   return nowDateStr === targetDateStr;
 }
 
 function isAfterShiftStartOnDate(date: Date, startTimeStr: string): boolean {
-  const timeZone = 'Asia/Ho_Chi_Minh';
-  const now = toZonedTime(new Date(), timeZone);
-  const targetZoned = toZonedTime(date, timeZone);
+  const now = new Date();
+  const targetDate = new Date(date);
 
-  // Tạo thời gian bắt đầu shift trong ngày đó
+  // Create shift start time for the target date in UTC
   const [startHour, startMinute] = startTimeStr.split(':').map(Number);
-  const shiftStart = new Date(targetZoned);
-  shiftStart.setHours(startHour, startMinute, 0, 0);
-
-  // Convert về VN timezone
-  const shiftStartVN = toZonedTime(shiftStart, timeZone);
+  const shiftStart = new Date(targetDate);
+  shiftStart.setUTCHours(startHour, startMinute, 0, 0);
 
   console.log('[Check Late]', {
-    now: now.toString(),
-    nowTime: `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`,
-    shiftStart: shiftStartVN.toString(),
+    now: now.toISOString(),
+    nowTime: `${now.getUTCHours()}:${now.getUTCMinutes().toString().padStart(2, '0')}`,
+    shiftStart: shiftStart.toISOString(),
     shiftTime: startTimeStr,
-    isAfter: now.getTime() > shiftStartVN.getTime(),
+    isAfter: now.getTime() > shiftStart.getTime(),
   });
 
-  return now.getTime() > shiftStartVN.getTime();
+  return now.getTime() > shiftStart.getTime();
 }
 
 @Injectable()
@@ -138,9 +130,16 @@ export class GenerateWorkingDate {
     console.log('Generated shifts', alreadyGeneratedShifts);
 
     const dates: Date[] = [];
-    // Ensure the start date is properly normalized to Vietnam timezone
-    const startDateStr = normalizeDate(startDate);
-    const realStartDate = createDateInVietnamTimezone(startDateStr);
+    console.log(dates);
+
+    // Ensure the start date is properly normalized to UTC
+    console.log('Input startDate:', startDate);
+    console.log('Type of startDate:', typeof startDate);
+    console.log('Is startDate a Date?', startDate instanceof Date);
+    
+    const realStartDate = new Date(startDate);
+    console.log('>>> realStartDate:', realStartDate);
+    console.log('>>> realStartDate valid?', !isNaN(realStartDate.getTime()));
 
     let overlapCount = 0;
     let lateStartCount = 0;
@@ -149,6 +148,7 @@ export class GenerateWorkingDate {
     const createdSet = new Set(
       alreadyGeneratedDates.map((d) => normalizeDate(d)),
     );
+    console.log(createdSet);
 
     // Danh sách các weekday cần loại trừ (nếu holidayMode có)
     const holidayWeekdays = holidayMode
@@ -157,10 +157,28 @@ export class GenerateWorkingDate {
 
     const addValidDate = (d: Date) => {
       const key = normalizeDate(d);
+      console.log('Input date d:', d);
+      console.log('Type of d:', typeof d);
+      console.log('Is d a Date?', d instanceof Date);
+      console.log('Is d valid?', d && !isNaN(d.getTime()));
+      console.log(key);
+
+      // Kiểm tra xem d có phải là Date object hợp lệ không
+      if (!d || !(d instanceof Date) || isNaN(d.getTime())) {
+        console.error('Invalid date object:', d);
+        return;
+      }
+
       const weekday = d.getDay();
+      console.log('weekday', weekday);
 
       const isHoliday = holidayWeekdays.includes(weekday);
+      console.log('ABC');
+
       const isTodayDate = isToday(d);
+      console.log(isTodayDate);
+
+      console.log(isToday);
 
       console.log('--- Check date ---');
       console.log('Date:', d);
@@ -222,8 +240,8 @@ export class GenerateWorkingDate {
         // Nếu pass tất cả kiểm tra thì thêm vào danh sách
         console.log('>>> Successfully passed all checks, adding date');
         const normalizedDateStr = normalizeDate(d);
-        const vnDate = createDateInVietnamTimezone(normalizedDateStr);
-        dates.push(vnDate);
+        const utcDate = createDateInUTC(normalizedDateStr);
+        dates.push(d);
         // Không cần add vào createdSet nữa vì cho phép nhiều shift/ngày
       }
     };
@@ -235,7 +253,7 @@ export class GenerateWorkingDate {
     if (option === 'TUAN') {
       // Work with normalized date strings to avoid timezone issues
       const startDateStr = normalizeDate(realStartDate);
-      const startDateForCalc = createDateInVietnamTimezone(startDateStr);
+      const startDateForCalc = createDateInUTC(startDateStr);
       const endOfWeekDate = endOfWeek(startDateForCalc, {
         weekStartsOn: 1,
       });
@@ -250,7 +268,7 @@ export class GenerateWorkingDate {
     if (option === 'THANG') {
       // Work with normalized date strings to avoid timezone issues
       const startDateStr = normalizeDate(realStartDate);
-      const startDateForCalc = createDateInVietnamTimezone(startDateStr);
+      const startDateForCalc = createDateInUTC(startDateStr);
       const end = endOfMonth(startDateForCalc);
 
       let current = startDateForCalc;

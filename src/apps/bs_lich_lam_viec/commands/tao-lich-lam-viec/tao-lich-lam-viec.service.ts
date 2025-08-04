@@ -22,7 +22,6 @@ import { WorkingScheduleEntity } from '@src/modules/working-schedule/domain/work
 import { WorkingScheduleNotFoundError } from '@src/modules/working-schedule/domain/working-schedule.error';
 import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
 import { addDays, endOfMonth } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
 import { Err, Ok, Result } from 'oxide.ts';
 import {
   BranchNotBelongToContractError,
@@ -123,16 +122,14 @@ export class CreateLichLamViecService
       const shiftProps = checkExistShift.unwrap().getProps();
       const start = shiftProps.startTime;
 
-      // Convert UTC time to VN timezone before formatting
-      const startVN = toZonedTime(start!, 'Asia/Ho_Chi_Minh');
-      const shiftStartTimeStr = `${startVN.getHours().toString().padStart(2, '0')}:${startVN.getMinutes().toString().padStart(2, '0')}`;
+      // Use UTC time directly
+      const shiftStartTimeStr = `${start!.getUTCHours().toString().padStart(2, '0')}:${start!.getUTCMinutes().toString().padStart(2, '0')}`;
       console.log('>>> Raw shift startTime:', shiftProps.startTime);
-      console.log('>>> VN shift startTime:', shiftStartTimeStr);
+      console.log('>>> UTC shift startTime:', shiftStartTimeStr);
 
       const end = shiftProps.endTime;
-      const endVN = toZonedTime(end!, 'Asia/Ho_Chi_Minh');
-      const shiftEndTimeStr = `${endVN.getHours().toString().padStart(2, '0')}:${endVN.getMinutes().toString().padStart(2, '0')}`;
-      console.log('>>> VN shift endTime:', shiftEndTimeStr);
+      const shiftEndTimeStr = `${end!.getUTCHours().toString().padStart(2, '0')}:${end!.getUTCMinutes().toString().padStart(2, '0')}`;
+      console.log('>>> UTC shift endTime:', shiftEndTimeStr);
 
       //#region Tao Lich lam viec
       const fromDate = createWorkingDate;
@@ -171,21 +168,18 @@ export class CreateLichLamViecService
 
           if (!date || !startTime || !endTime) return null; // bỏ ca không đầy đủ thông tin
 
-          // Convert UTC time to VN timezone before formatting
+          // Use UTC time directly
           console.log('>>> Debug existing shift:', {
             originalStartTime: startTime,
             originalEndTime: endTime,
           });
 
-          const startVN = toZonedTime(startTime, 'Asia/Ho_Chi_Minh');
-          const endVN = toZonedTime(endTime, 'Asia/Ho_Chi_Minh');
-
-          const startTimeStr = `${startVN.getHours().toString().padStart(2, '0')}:${startVN.getMinutes().toString().padStart(2, '0')}`;
-          const endTimeStr = `${endVN.getHours().toString().padStart(2, '0')}:${endVN.getMinutes().toString().padStart(2, '0')}`;
+          const startTimeStr = `${startTime.getUTCHours().toString().padStart(2, '0')}:${startTime.getUTCMinutes().toString().padStart(2, '0')}`;
+          const endTimeStr = `${endTime.getUTCHours().toString().padStart(2, '0')}:${endTime.getUTCMinutes().toString().padStart(2, '0')}`;
 
           console.log('>>> Debug converted time:', {
-            startVN: startVN.toString(),
-            endVN: endVN.toString(),
+            startUTC: startTime.toISOString(),
+            endUTC: endTime.toISOString(),
             startTimeStr,
             endTimeStr,
           });
@@ -202,7 +196,7 @@ export class CreateLichLamViecService
         ); // lọc null
 
       console.log(
-        '>>> Already generated shifts (VN time):',
+        '>>> Already generated shifts (UTC time):',
         alreadyGeneratedShifts,
       );
 
