@@ -22,6 +22,8 @@ import {
 import { Err, Ok, Result } from 'oxide.ts';
 import { WorkingScheduleUserNotFound } from '../../domain/bang-luong.error';
 import { ThanhToanLuongCommand } from './thanh-toan-luong.command';
+import { CreateNotificationCommand } from '@src/modules/notification/commands/create-notification/create-notification.command';
+import { WebsocketService } from '@src/libs/websocket/websocket.service';
 
 export type ThanhToanLuongServiceResult = Result<
   PayrollEntity,
@@ -40,6 +42,7 @@ export class ThanhToanLuongService
     private readonly payrollRepo: PayrollRepositoryPort,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly websocketService: WebsocketService,
   ) {}
 
   async execute(
@@ -69,6 +72,37 @@ export class ThanhToanLuongService
     const workingScheduleProps = workingScheduleResults.unwrap();
 
     if (command.status === 'ACCEPT') {
+      // Tạo ra Notification
+      const result = await this.commandBus.execute(
+        new CreateNotificationCommand({
+          title: 'Đã thanh toán lương',
+          message: 'Lương của bạn đã được thanh toán',
+          type: command.status === 'ACCEPT' ? 'SUCCESS' : 'NOTSUCCESS',
+          isRead: false,
+          userCode: userCode,
+          createdBy: 'system',
+        }),
+      );
+      if (result.isErr()) {
+        throw result.unwrapErr();
+      }
+
+      // Lấy NotificationEntity
+      const createdNotification = result.unwrap();
+
+      // Lấy plain object để gửi socket
+      const { isRead, ...notificationPayload } = createdNotification.getProps();
+
+      const safePayload = JSON.parse(
+        JSON.stringify(notificationPayload, (_, val) =>
+          typeof val === 'bigint' ? val.toString() : val,
+        ),
+      );
+
+      await this.websocketService.publish({
+        event: `NOTIFICATION_CREATED_${userCode}`,
+        data: safePayload,
+      });
       await this.commandBus.execute(
         new UpdatePayrollCommand({
           payrollId: luong.id,
@@ -87,6 +121,38 @@ export class ThanhToanLuongService
           }),
         );
       }
+      // Tạo ra Notification
+      const result = await this.commandBus.execute(
+        new CreateNotificationCommand({
+          title: 'Đã tất toán lương',
+          message:
+            'Đã tất toán lương của bạn và chuyển sang trạng thái không làm việc',
+          type: command.status === 'STOP' ? 'SUCCESS' : 'NOTSUCCESS',
+          isRead: false,
+          userCode: userCode,
+          createdBy: 'system',
+        }),
+      );
+      if (result.isErr()) {
+        throw result.unwrapErr();
+      }
+
+      // Lấy NotificationEntity
+      const createdNotification = result.unwrap();
+
+      // Lấy plain object để gửi socket
+      const { isRead, ...notificationPayload } = createdNotification.getProps();
+
+      const safePayload = JSON.parse(
+        JSON.stringify(notificationPayload, (_, val) =>
+          typeof val === 'bigint' ? val.toString() : val,
+        ),
+      );
+
+      await this.websocketService.publish({
+        event: `NOTIFICATION_CREATED_${userCode}`,
+        data: safePayload,
+      });
       await this.commandBus.execute(
         new UpdatePayrollCommand({
           payrollId: luong.id,

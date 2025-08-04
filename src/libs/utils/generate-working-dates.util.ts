@@ -77,8 +77,8 @@ function isToday(date: Date): boolean {
   const targetDate = new Date(date);
 
   // Compare date strings in UTC to avoid time component issues
-  const nowDateStr = normalizeDate(now);
-  const targetDateStr = normalizeDate(targetDate);
+  const nowDateStr = now;
+  const targetDateStr = targetDate;
 
   return nowDateStr === targetDateStr;
 }

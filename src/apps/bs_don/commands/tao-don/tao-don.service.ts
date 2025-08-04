@@ -48,25 +48,25 @@ export class TaoDonService implements ICommandHandler<TaoDonCommand> {
   async execute(command: TaoDonCommand): Promise<TaoDonCommandResult> {
     const formDescription = command.getExtendedProps<TaoDonCommand>();
 
-    if (
-      formDescription.status &&
-      formDescription.submittedBy &&
-      formDescription.formId
-    ) {
-      const formDescriptionFound: FindFormDescriptionByParamsQueryResult =
-        await this.queryBus.execute(
-          new FindFormDescriptionByParamsQuery({
-            where: {
-              formId: BigInt(formDescription.formId),
-              status: 'PENDING',
-              submittedBy: formDescription.submittedBy,
-            },
-          }),
-        );
-      if (formDescriptionFound.isOk()) {
-        return Err(new FormDescriptionInvalidStatusError());
-      }
-    }
+    // if (
+    //   formDescription.status &&
+    //   formDescription.submittedBy &&
+    //   formDescription.formId
+    // ) {
+    //   const formDescriptionFound: FindFormDescriptionByParamsQueryResult =
+    //     await this.queryBus.execute(
+    //       new FindFormDescriptionByParamsQuery({
+    //         where: {
+    //           formId: BigInt(formDescription.formId),
+    //           status: 'PENDING',
+    //           submittedBy: formDescription.submittedBy,
+    //         },
+    //       }),
+    //     );
+    //   if (formDescriptionFound.isOk()) {
+    //     return Err(new FormDescriptionInvalidStatusError());
+    //   }
+    // }
 
     // if (
     //   formDescription.status &&
