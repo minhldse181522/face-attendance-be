@@ -13,6 +13,7 @@ import { UpdateNotificationService } from './commands/update-notification/update
 import { DeleteNotificationService } from './commands/delete-notification/delete-notification.service';
 import { MarkAllReadHttpController } from './commands/mark-all-read/mark-all-read.http.controller';
 import { MarkAllReadService } from './commands/mark-all-read/mark-all-read.service';
+import { FindNotificationByParamsQueryHandler } from './queries/find-notification-by-params/find-notification-by-params.query-handler';
 
 const httpControllers = [
   FindNotificationsHttpController,
@@ -35,7 +36,10 @@ const commandHandlers: Provider[] = [
   MarkAllReadService,
 ];
 
-const queryHandlers: Provider[] = [FindNotificationsQueryHandler];
+const queryHandlers: Provider[] = [
+  FindNotificationsQueryHandler,
+  FindNotificationByParamsQueryHandler,
+];
 
 const mappers: Provider[] = [NotificationMapper];
 
@@ -61,6 +65,6 @@ const repositories: Provider[] = [
     ...mappers,
     ...utils,
   ],
-  exports: [...repositories, ...mappers],
+  exports: [...repositories, ...mappers, ...queryHandlers],
 })
 export class NotificationModule {}

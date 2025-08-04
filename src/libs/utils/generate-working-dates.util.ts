@@ -27,6 +27,23 @@ function createDateInUTC(dateStr: string): Date {
   return utcDate;
 }
 
+function convertTodayDateToUTCMinus7(date: Date): Date {
+  // Chuyển ngày về đầu ngày UTC, sau đó trừ đi 7 tiếng
+  // Ví dụ: 2025-08-04 09:27:03+00 → 2025-08-03 17:00:00+00
+  const dateStr = normalizeDate(date); // Get YYYY-MM-DD format
+  const startOfDayUTC = new Date(dateStr + 'T00:00:00.000Z'); // Start of day in UTC
+  const utcMinus7 = new Date(startOfDayUTC.getTime() - 7 * 60 * 60 * 1000); // Subtract 7 hours
+
+  console.log('>>> convertTodayDateToUTCMinus7:', {
+    input: date.toISOString(),
+    dateStr: dateStr,
+    startOfDayUTC: startOfDayUTC.toISOString(),
+    utcMinus7: utcMinus7.toISOString(),
+  });
+
+  return utcMinus7;
+}
+
 function isOverlappingWithExistingShift(
   date: Date,
   startTime: string,
@@ -38,8 +55,9 @@ function isOverlappingWithExistingShift(
   const [endHour, endMinute] = endTime.split(':').map(Number);
   const newStart = new Date(date);
   const newEnd = new Date(date);
-  newStart.setHours(startHour, startMinute, 0, 0);
-  newEnd.setHours(endHour, endMinute, 0, 0);
+  // Use UTC methods to be consistent
+  newStart.setUTCHours(startHour, startMinute, 0, 0);
+  newEnd.setUTCHours(endHour, endMinute, 0, 0);
 
   for (const shift of existingShifts) {
     const shiftDay = normalizeDate(shift.date);
@@ -52,17 +70,18 @@ function isOverlappingWithExistingShift(
 
     const existStart = new Date(shift.date);
     const existEnd = new Date(shift.date);
-    existStart.setHours(existStartHour, existStartMinute, 0, 0);
-    existEnd.setHours(existEndHour, existEndMinute, 0, 0);
+    // Use UTC methods to be consistent
+    existStart.setUTCHours(existStartHour, existStartMinute, 0, 0);
+    existEnd.setUTCHours(existEndHour, existEndMinute, 0, 0);
 
     const isOverlap = newStart < existEnd && existStart < newEnd;
 
     if (isOverlap) {
       console.log('[Overlap Detected]', {
-        newStart,
-        newEnd,
-        existStart,
-        existEnd,
+        newStart: newStart.toISOString(),
+        newEnd: newEnd.toISOString(),
+        existStart: existStart.toISOString(),
+        existEnd: existEnd.toISOString(),
         isOverlap,
       });
       return true;
@@ -77,8 +96,18 @@ function isToday(date: Date): boolean {
   const targetDate = new Date(date);
 
   // Compare date strings in UTC to avoid time component issues
-  const nowDateStr = normalizeDate(now);
-  const targetDateStr = normalizeDate(targetDate);
+  const nowDateStr =
+    now.getUTCFullYear() +
+    '-' +
+    String(now.getUTCMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(now.getUTCDate()).padStart(2, '0');
+  const targetDateStr =
+    targetDate.getUTCFullYear() +
+    '-' +
+    String(targetDate.getUTCMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(targetDate.getUTCDate()).padStart(2, '0');
 
   return nowDateStr === targetDateStr;
 }
@@ -126,6 +155,7 @@ export class GenerateWorkingDate {
       startTime: string;
       endTime: string;
     }[] = [],
+    isToday?: boolean,
   ): Promise<Date[]> {
     console.log('Generated shifts', alreadyGeneratedShifts);
 
@@ -136,7 +166,7 @@ export class GenerateWorkingDate {
     console.log('Input startDate:', startDate);
     console.log('Type of startDate:', typeof startDate);
     console.log('Is startDate a Date?', startDate instanceof Date);
-    
+
     const realStartDate = new Date(startDate);
     console.log('>>> realStartDate:', realStartDate);
     console.log('>>> realStartDate valid?', !isNaN(realStartDate.getTime()));
@@ -175,14 +205,13 @@ export class GenerateWorkingDate {
       const isHoliday = holidayWeekdays.includes(weekday);
       console.log('ABC');
 
-      const isTodayDate = isToday(d);
-      console.log(isTodayDate);
-
-      console.log(isToday);
+      // Sử dụng giá trị isToday từ FE thay vì tự động kiểm tra
+      const isTodayDate = isToday === true;
+      console.log('isTodayDate from FE:', isTodayDate);
 
       console.log('--- Check date ---');
       console.log('Date:', d);
-      console.log('Is today:', isTodayDate);
+      console.log('Is today (from FE):', isTodayDate);
       console.log('Shift start time:', shiftStartTime);
       console.log('Is holiday:', isHoliday);
       console.log('Already exists in createdSet:', createdSet.has(key));
@@ -192,9 +221,10 @@ export class GenerateWorkingDate {
       // Vì có thể tạo nhiều shift trong 1 ngày, chỉ cần không overlap
       if (!isHoliday) {
         console.log('>>> Passed initial checks, proceeding...');
-        // Case 1: Nếu tạo lịch trong ngày hôm nay
+
+        // Case 1: Nếu isToday = true (hôm nay)
         if (isTodayDate) {
-          console.log('>>> Processing today case');
+          console.log('>>> Processing today case (isToday = true)');
           const isLate =
             shiftStartTime && isAfterShiftStartOnDate(d, shiftStartTime);
           console.log('isLate (today):', isLate);
@@ -221,17 +251,19 @@ export class GenerateWorkingDate {
             return;
           }
         }
-        // Case 2: Nếu tạo lịch tương lai - chỉ kiểm tra overlap
+        // Case 2: Nếu isToday = false (tương lai hoặc quá khứ) - chỉ kiểm tra overlap
         else {
+          console.log('>>> Processing non-today case (isToday = false)');
           const isOverlap = isOverlappingWithExistingShift(
             d,
             shiftStartTime!,
             shiftEndTimeStr,
             alreadyGeneratedShifts,
           );
-          console.log('isOverlap (future):', isOverlap);
+          console.log('isOverlap (future/past):', isOverlap);
 
           if (isOverlap) {
+            console.log('>>> Rejected due to overlap');
             overlapCount++;
             return;
           }
@@ -239,9 +271,23 @@ export class GenerateWorkingDate {
 
         // Nếu pass tất cả kiểm tra thì thêm vào danh sách
         console.log('>>> Successfully passed all checks, adding date');
-        const normalizedDateStr = normalizeDate(d);
-        const utcDate = createDateInUTC(normalizedDateStr);
-        dates.push(d);
+
+        let dateToAdd: Date;
+        if (isTodayDate) {
+          // Nếu là hôm nay, convert về UTC-7 (đầu ngày UTC trừ 7 tiếng)
+          dateToAdd = convertTodayDateToUTCMinus7(d);
+          console.log(
+            '>>> Using UTC-7 converted date for today:',
+            dateToAdd.toISOString(),
+          );
+        } else {
+          // Nếu không phải hôm nay, sử dụng ngày bình thường
+          const normalizedDateStr = normalizeDate(d);
+          dateToAdd = createDateInUTC(normalizedDateStr);
+          console.log('>>> Using normal UTC date:', dateToAdd.toISOString());
+        }
+
+        dates.push(dateToAdd);
         // Không cần add vào createdSet nữa vì cho phép nhiều shift/ngày
       }
     };

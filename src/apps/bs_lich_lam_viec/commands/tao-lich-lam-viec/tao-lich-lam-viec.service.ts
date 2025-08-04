@@ -209,6 +209,7 @@ export class CreateLichLamViecService
           shiftEndTimeStr,
           shiftStartTimeStr,
           alreadyGeneratedShifts,
+          command.isToday,
         );
         const results: WorkingScheduleEntity[] = [];
 

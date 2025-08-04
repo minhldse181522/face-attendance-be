@@ -42,46 +42,18 @@ export class CreateFormDescriptionService
   async execute(
     command: CreateFormDescriptionCommand,
   ): Promise<CreateFormDescriptionCommandResult> {
-    const formDescription =
-      command.getExtendedProps<CreateFormDescriptionCommand>();
     const code = await this.generateCode.generateCode('FORMDES', 4);
-
-    // Validate status if it exists
-    if (
-      formDescription.status &&
-      !Object.values(FormDescriptionStatus).includes(
-        formDescription.status as FormDescriptionStatus,
-      )
-    ) {
-      return Err(
-        new FormDescriptionInvalidStatusError(undefined, {
-          providedStatus: formDescription.status,
-        }),
-      );
-    }
-
-    // Check if the referenced formId exists
-    const formId = BigInt(formDescription.formId);
-    const formExists = await this.formRepository.checkExist(formId);
-
-    if (!formExists) {
-      return Err(
-        new FormNotFoundError(undefined, {
-          formId: formDescription.formId,
-        }),
-      );
-    }
-
-    // Provide default values for optional properties
-    const newFormDescription = FormDescriptionEntity.create({
-      ...formDescription,
+    const extendedProps =
+      command.getExtendedProps<CreateFormDescriptionCommand>();
+    const formDescription = FormDescriptionEntity.create({
       code: code,
-      formId: formId,
-      submittedBy: formDescription.submittedBy,
-      status: formDescription.status || FormDescriptionStatus.PENDING,
+      ...extendedProps,
+      formId: BigInt(extendedProps.formId),
+      status: extendedProps.status ?? FormDescriptionStatus.PENDING,
     });
+
     try {
-      const createdForm = await this.repository.insert(newFormDescription);
+      const createdForm = await this.repository.insert(formDescription);
       return Ok(createdForm);
     } catch (error: any) {
       if (error instanceof ConflictException) {

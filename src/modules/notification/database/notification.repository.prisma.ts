@@ -2,12 +2,16 @@ import { PrismaMultiTenantRepositoryBase } from '@libs/db/prisma-multi-tenant-re
 import { Injectable } from '@nestjs/common';
 import { Notification as NotificationModel, Prisma } from '@prisma/client';
 import { Paginated } from '@src/libs/ddd';
-import { PrismaPaginatedQueryBase } from '@src/libs/ddd/prisma-query.base';
+import {
+  PrismaPaginatedQueryBase,
+  PrismaQueryBase,
+} from '@src/libs/ddd/prisma-query.base';
 import { PrismaClientManager } from '@src/libs/prisma/prisma-client-manager';
 import { IField } from '@src/libs/utils';
 import { NotificationEntity } from '../domain/notification.entity';
 import { NotificationMapper } from '../mappers/notification.mapper';
 import { NotificationRepositoryPort } from './notification.repository.port';
+import { None, Option, Some } from 'oxide.ts';
 
 export const NotificationScalarFieldEnum = Prisma.NotificationScalarFieldEnum;
 
@@ -112,5 +116,16 @@ export class PrismaNotificationRepository
     });
 
     return result.count;
+  }
+  async findNotificationByParams(
+    params: PrismaQueryBase<Prisma.NotificationWhereInput>,
+  ): Promise<Option<NotificationEntity>> {
+    const client = await this._getClient();
+    const { where = {}, orderBy } = params;
+    const result = await client.notification.findFirst({
+      where: { ...where },
+      orderBy,
+    });
+    return result ? Some(this.mapper.toDomain(result)) : None;
   }
 }
