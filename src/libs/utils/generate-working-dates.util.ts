@@ -38,8 +38,9 @@ function isOverlappingWithExistingShift(
   const [endHour, endMinute] = endTime.split(':').map(Number);
   const newStart = new Date(date);
   const newEnd = new Date(date);
-  newStart.setHours(startHour, startMinute, 0, 0);
-  newEnd.setHours(endHour, endMinute, 0, 0);
+  // Use UTC methods to be consistent
+  newStart.setUTCHours(startHour, startMinute, 0, 0);
+  newEnd.setUTCHours(endHour, endMinute, 0, 0);
 
   for (const shift of existingShifts) {
     const shiftDay = normalizeDate(shift.date);
@@ -52,17 +53,18 @@ function isOverlappingWithExistingShift(
 
     const existStart = new Date(shift.date);
     const existEnd = new Date(shift.date);
-    existStart.setHours(existStartHour, existStartMinute, 0, 0);
-    existEnd.setHours(existEndHour, existEndMinute, 0, 0);
+    // Use UTC methods to be consistent
+    existStart.setUTCHours(existStartHour, existStartMinute, 0, 0);
+    existEnd.setUTCHours(existEndHour, existEndMinute, 0, 0);
 
     const isOverlap = newStart < existEnd && existStart < newEnd;
 
     if (isOverlap) {
       console.log('[Overlap Detected]', {
-        newStart,
-        newEnd,
-        existStart,
-        existEnd,
+        newStart: newStart.toISOString(),
+        newEnd: newEnd.toISOString(),
+        existStart: existStart.toISOString(),
+        existEnd: existEnd.toISOString(),
         isOverlap,
       });
       return true;
