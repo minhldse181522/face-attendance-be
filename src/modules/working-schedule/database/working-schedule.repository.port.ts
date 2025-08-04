@@ -60,6 +60,12 @@ export interface WorkingScheduleRepositoryPort
     startDate?: Date,
     endDate?: Date,
   ): Promise<WorkingScheduleEntity[]>;
+  findWorkingScheduleArrayStatusByParams(
+    userCode: string,
+    status: string[],
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<WorkingScheduleEntity[]>;
   findWorkingScheduleArrayStopByParams(
     userCode: string,
     status: string,

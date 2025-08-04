@@ -10,12 +10,13 @@ import { UpdateWorkingScheduleHttpController } from './commands/update-working-s
 import { UpdateWorkingScheduleService } from './commands/update-working-schedule/update-working-schedule.service';
 import { PrismaWorkingScheduleRepository } from './database/working-schedule.repository.prisma';
 import { WorkingScheduleMapper } from './mappers/working-schedule.mapper';
+import { FindWorkingScheduleArrayByParamsQueryHandler } from './queries/find-working-schedule-array-by-params/find-working-schedule-array-by-params.query-handler';
+import { FindWorkingScheduleArrayStatusByParamsQueryHandler } from './queries/find-working-schedule-array-status-by-params/find-working-schedule-array-status-by-params.query-handler';
+import { FindWorkingScheduleArrayStopByParamsQueryHandler } from './queries/find-working-schedule-array-stop-by-params/find-working-schedule-array-stop-by-params.query-handler';
+import { FindWorkingScheduleByParamsQueryHandler } from './queries/find-working-schedule-by-params/find-working-schedule-by-params.query-handler';
 import { FindWorkingScheduleHttpController } from './queries/find-working-schedules/find-working-schedules.http.controller';
 import { FindWorkingScheduleQueryHandler } from './queries/find-working-schedules/find-wroking-schedules.query-handler';
 import { WORKING_SCHEDULE_REPOSITORY } from './working-schedule.di-tokens';
-import { FindWorkingScheduleByParamsQueryHandler } from './queries/find-working-schedule-by-params/find-working-schedule-by-params.query-handler';
-import { FindWorkingScheduleArrayByParamsQueryHandler } from './queries/find-working-schedule-array-by-params/find-working-schedule-array-by-params.query-handler';
-import { FindWorkingScheduleArrayStopByParamsQueryHandler } from './queries/find-working-schedule-array-stop-by-params/find-working-schedule-array-stop-by-params.query-handler';
 
 const httpControllers = [
   FindWorkingScheduleHttpController,
@@ -41,6 +42,7 @@ const queryHandlers: Provider[] = [
   FindWorkingScheduleByParamsQueryHandler,
   FindWorkingScheduleArrayByParamsQueryHandler,
   FindWorkingScheduleArrayStopByParamsQueryHandler,
+  FindWorkingScheduleArrayStatusByParamsQueryHandler,
 ];
 
 const mappers: Provider[] = [WorkingScheduleMapper];
