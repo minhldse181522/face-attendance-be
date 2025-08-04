@@ -22,7 +22,9 @@ export interface BsUserRepositoryPort extends RepositoryPort<UserEntity> {
     },
   ): Promise<Paginated<DropDownResponseDto>>;
   findAllUserByManagement(
-    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput>,
+    params: PrismaPaginatedQueryBase<Prisma.UserWhereInput> & {
+      quickSearch?: string | number | Date;
+    },
     userCode?: string,
     isActive?: boolean,
     position?: string,

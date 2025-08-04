@@ -1,9 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { FilterDto } from '@src/libs/application/validators/prisma-filter.validator';
-import { IsOptional } from 'class-validator';
+import {
+  FilterDto,
+  FilterDtoWithQuickSearch,
+} from '@src/libs/application/validators/prisma-filter.validator';
+import { IsOptional, IsString } from 'class-validator';
 
-export class FindAllUserByManagementRequestDto extends FilterDto<Prisma.UserWhereInput> {
+export class FindAllUserByManagementRequestDto extends FilterDtoWithQuickSearch<Prisma.UserWhereInput> {
   @ApiPropertyOptional({
     example: '',
     description: 'Mã nhân viên',
@@ -31,4 +34,12 @@ export class FindAllUserByManagementRequestDto extends FilterDto<Prisma.UserWher
   })
   @IsOptional()
   branch?: string;
+
+  @ApiPropertyOptional({
+    description: 'Quick search term for filtering users',
+    example: 'john',
+  })
+  @IsOptional()
+  @IsString()
+  quickSearch?: string;
 }
