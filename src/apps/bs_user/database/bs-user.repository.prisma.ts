@@ -241,25 +241,50 @@ export class PrismaBsUserRepository
       };
     } else if (role === 'R3') {
       // Lấy danh sách user theo chi nhánh của manager
-      const currentUser = await client.user.findUnique({
-        where: { code: currentUserCode },
-        select: { addressCode: true },
+      const currentUserContract = await client.userContract.findFirst({
+        where: {
+          userCode: currentUserCode,
+          status: 'ACTIVE',
+        },
+        include: {
+          userBranches: true,
+        },
       });
 
-      if (!currentUser?.addressCode) {
-        throw new Error('Không tìm thấy địa chỉ chi nhánh của người dùng');
+      if (!currentUserContract || !currentUserContract.userBranches.length) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
       }
 
-      const usersInSameBranch = await client.user.findMany({
+      // Lấy branch codes từ user contract của manager
+      const managerBranchCodes = currentUserContract.userBranches.map(
+        (ub) => ub.branchCode,
+      );
+
+      // Tìm tất cả user contracts thuộc cùng branch
+      const contractsInSameBranch = await client.userContract.findMany({
         where: {
-          addressCode: currentUser.addressCode,
+          status: 'ACTIVE',
+          userBranches: {
+            some: {
+              branchCode: {
+                in: managerBranchCodes,
+              },
+            },
+          },
         },
         select: {
-          code: true,
+          userCode: true,
         },
       });
 
-      const userCodes = usersInSameBranch.map((u) => u.code);
+      const userCodes = contractsInSameBranch
+        .map((c) => c.userCode)
+        .filter((code): code is string => code !== null);
 
       finalWhere.code = {
         in: userCodes,
@@ -446,25 +471,50 @@ export class PrismaBsUserRepository
       };
     } else if (role === 'R3') {
       // Lấy danh sách user theo chi nhánh của manager
-      const currentUser = await client.user.findUnique({
-        where: { code: currentUserCode },
-        select: { addressCode: true },
+      const currentUserContract = await client.userContract.findFirst({
+        where: {
+          userCode: currentUserCode,
+          status: 'ACTIVE',
+        },
+        include: {
+          userBranches: true,
+        },
       });
 
-      if (!currentUser?.addressCode) {
-        throw new Error('Không tìm thấy địa chỉ chi nhánh của người dùng');
+      if (!currentUserContract || !currentUserContract.userBranches.length) {
+        return new Paginated({
+          data: [],
+          count: 0,
+          limit,
+          page,
+        });
       }
 
-      const usersInSameBranch = await client.user.findMany({
+      // Lấy branch codes từ user contract của manager
+      const managerBranchCodes = currentUserContract.userBranches.map(
+        (ub) => ub.branchCode,
+      );
+
+      // Tìm tất cả user contracts thuộc cùng branch
+      const contractsInSameBranch = await client.userContract.findMany({
         where: {
-          addressCode: currentUser.addressCode,
+          status: 'ACTIVE',
+          userBranches: {
+            some: {
+              branchCode: {
+                in: managerBranchCodes,
+              },
+            },
+          },
         },
         select: {
-          code: true,
+          userCode: true,
         },
       });
 
-      const userCodes = usersInSameBranch.map((u) => u.code);
+      const userCodes = contractsInSameBranch
+        .map((c) => c.userCode)
+        .filter((code): code is string => code !== null);
 
       finalWhere.code = {
         in: userCodes,
@@ -598,22 +648,48 @@ export class PrismaBsUserRepository
         allowedUserCodes = staffUsers.map((u) => u.code);
       } else if (role === 'R3') {
         // Manager chỉ lấy user có role HR (R2) hoặc STAFF (R4) trong cùng chi nhánh
-        const currentUser = await client.user.findUnique({
-          where: { code: currentUserCode },
-          select: { addressCode: true },
+        const currentUserContract = await client.userContract.findFirst({
+          where: {
+            userCode: currentUserCode,
+            status: 'ACTIVE',
+          },
+          include: {
+            userBranches: true,
+          },
         });
 
-        if (currentUser?.addressCode) {
-          const usersInSameBranch = await client.user.findMany({
+        if (currentUserContract?.userBranches.length) {
+          const managerBranchCodes = currentUserContract.userBranches.map(
+            (ub) => ub.branchCode,
+          );
+
+          // Tìm tất cả user contracts thuộc cùng branch
+          const contractsInSameBranch = await client.userContract.findMany({
             where: {
-              addressCode: currentUser.addressCode,
-              roleCode: { in: ['R2', 'R4'] }, // Chỉ lấy user có role HR hoặc STAFF
+              status: 'ACTIVE',
+              userBranches: {
+                some: {
+                  branchCode: {
+                    in: managerBranchCodes,
+                  },
+                },
+              },
             },
-            select: {
-              code: true,
+            include: {
+              user: {
+                select: {
+                  code: true,
+                  roleCode: true,
+                },
+              },
             },
           });
-          allowedUserCodes = usersInSameBranch.map((u) => u.code);
+
+          const usersInSameBranch = contractsInSameBranch
+            .filter((c) => c.user && ['R2', 'R4'].includes(c.user.roleCode))
+            .map((c) => c.user!.code);
+
+          allowedUserCodes = usersInSameBranch;
         }
       }
 
