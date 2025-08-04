@@ -160,20 +160,22 @@ export class MinioService {
   }
 
   async publicUrl(): Promise<void> {
-    // return this._client.setBucketPolicy(
-    //   this._bucketName,
-    //   JSON.stringify({
-    //     Version: '2012-10-17',
-    //     Statement: [
-    //       {
-    //         Action: ['s3:GetObject'],
-    //         Effect: 'Allow',
-    //         Principal: '*',
-    //         Resource: [`arn:aws:s3:::${this._bucketName.toLowerCase()}/*`],
-    //       },
-    //     ],
-    //   }),
-    // );
+    const policy = {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: { AWS: ['*'] },
+          Action: ['s3:GetObject'],
+          Resource: [`arn:aws:s3:::${this._bucketName}/*`],
+        },
+      ],
+    };
+
+    await this._client.setBucketPolicy(
+      this._bucketName,
+      JSON.stringify(policy),
+    );
   }
 
   async putObject(
