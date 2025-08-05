@@ -347,7 +347,7 @@ export class PrismaBsUserRepository
     ];
     const client = await this._getClient();
     const { page, limit, offset, orderBy, where = {}, quickSearch } = params;
-    console.log('QuickSearch', quickSearch);
+    // console.log('QuickSearch', quickSearch);
 
     // Nếu có userCode, ưu tiên lấy user theo userCode
     if (userCode) {
@@ -732,6 +732,23 @@ export class PrismaBsUserRepository
       usersWithoutContract = allowedUserCodes.filter(
         (userCode) => !existingCodes.includes(userCode),
       );
+
+      // Luôn luôn cộng usersWithoutContract vào finalWhere.code
+      let currentUserCodes: string[] = [];
+
+      if (finalWhere.code) {
+        if (typeof finalWhere.code === 'string') {
+          currentUserCodes = [finalWhere.code];
+        } else if (finalWhere.code.in && Array.isArray(finalWhere.code.in)) {
+          currentUserCodes = finalWhere.code.in;
+        }
+      }
+
+      // Kết hợp user chưa có contract vào danh sách kết quả
+      const combinedUserCodes = [
+        ...new Set([...currentUserCodes, ...usersWithoutContract]),
+      ];
+      finalWhere.code = { in: combinedUserCodes };
     }
 
     // Kết hợp user đã có trong kết quả filter với user chưa có contract

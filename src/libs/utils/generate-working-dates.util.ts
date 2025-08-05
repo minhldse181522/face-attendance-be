@@ -155,7 +155,7 @@ export class GenerateWorkingDate {
       startTime: string;
       endTime: string;
     }[] = [],
-    isTodayFromFE?: boolean,
+    isToday?: boolean,
   ): Promise<Date[]> {
     console.log('Generated shifts', alreadyGeneratedShifts);
 
@@ -205,19 +205,13 @@ export class GenerateWorkingDate {
       const isHoliday = holidayWeekdays.includes(weekday);
       console.log('ABC');
 
-      // Cho option NGAY: sử dụng isTodayFromFE
-      // Cho option TUAN/THANG: kiểm tra từng ngày xem có phải hôm nay thực tế không
-      let isTodayDate: boolean;
-      if (option === 'NGAY') {
-        isTodayDate = isTodayFromFE === true;
-        console.log('isTodayDate from FE (NGAY):', isTodayDate);
-      } else {
-        isTodayDate = isToday(d);
-        console.log('isTodayDate calculated (TUAN/THANG):', isTodayDate);
-      }
+      // Sử dụng giá trị isToday từ FE thay vì tự động kiểm tra
+      const isTodayDate = isToday === true;
+      console.log('isTodayDate from FE:', isTodayDate);
 
       console.log('--- Check date ---');
       console.log('Date:', d);
+      console.log('Is today (from FE):', isTodayDate);
       console.log('Is today:', isTodayDate);
       console.log('Shift start time:', shiftStartTime);
       console.log('Is holiday:', isHoliday);
@@ -229,9 +223,9 @@ export class GenerateWorkingDate {
       if (!isHoliday) {
         console.log('>>> Passed initial checks, proceeding...');
 
-        // Case 1: Nếu isTodayDate = true (hôm nay)
+        // Case 1: Nếu isToday = true (hôm nay)
         if (isTodayDate) {
-          console.log('>>> Processing today case (isTodayDate = true)');
+          console.log('>>> Processing today case (isToday = true)');
           const isLate =
             shiftStartTime && isAfterShiftStartOnDate(d, shiftStartTime);
           console.log('isLate (today):', isLate);
@@ -258,9 +252,9 @@ export class GenerateWorkingDate {
             return;
           }
         }
-        // Case 2: Nếu isTodayDate = false (tương lai hoặc quá khứ) - chỉ kiểm tra overlap
+        // Case 2: Nếu isToday = false (tương lai hoặc quá khứ) - chỉ kiểm tra overlap
         else {
-          console.log('>>> Processing non-today case (isTodayDate = false)');
+          console.log('>>> Processing non-today case (isToday = false)');
           const isOverlap = isOverlappingWithExistingShift(
             d,
             shiftStartTime!,
@@ -280,28 +274,18 @@ export class GenerateWorkingDate {
         console.log('>>> Successfully passed all checks, adding date');
 
         let dateToAdd: Date;
-        if (option === 'NGAY') {
-          // Option NGAY: xử lý như cũ
-          if (isTodayDate) {
-            // Nếu là hôm nay, convert về UTC-7
-            dateToAdd = convertTodayDateToUTCMinus7(d);
-            console.log(
-              '>>> Using UTC-7 converted date for today (NGAY):',
-              dateToAdd.toISOString(),
-            );
-          } else {
-            // Nếu không phải hôm nay, giữ nguyên thời gian từ FE
-            dateToAdd = d;
-            console.log(
-              '>>> Using original date from FE (NGAY):',
-              dateToAdd.toISOString(),
-            );
-          }
-        } else {
-          // Option TUAN/THANG: tất cả ngày đều convert về UTC-7
+        if (isTodayDate) {
+          // Nếu là hôm nay, convert về UTC-7 (đầu ngày UTC trừ 7 tiếng)
           dateToAdd = convertTodayDateToUTCMinus7(d);
           console.log(
-            '>>> Using UTC-7 converted date for TUAN/THANG:',
+            '>>> Using UTC-7 converted date for today:',
+            dateToAdd.toISOString(),
+          );
+        } else {
+          // Nếu không phải hôm nay, giữ nguyên thời gian từ FE
+          dateToAdd = d;
+          console.log(
+            '>>> Using original date from FE:',
             dateToAdd.toISOString(),
           );
         }
