@@ -132,13 +132,13 @@ export class CreateLichLamViecService
       console.log('>>> UTC shift endTime:', shiftEndTimeStr);
 
       //#region Tao Lich lam viec
-      const fromDate = createWorkingDate;
+      const fromDate = new Date(createWorkingDate); // Đảm bảo là Date object
       const toDate =
         command.optionCreate === 'THANG'
-          ? endOfMonth(createWorkingDate)
+          ? endOfMonth(fromDate)
           : command.optionCreate === 'TUAN'
-            ? addDays(createWorkingDate, 6)
-            : createWorkingDate;
+            ? addDays(fromDate, 6)
+            : fromDate;
       console.log('fromDate', fromDate);
       console.log('toDate', toDate);
 
@@ -171,6 +171,17 @@ export class CreateLichLamViecService
           searchFromDate: searchFromDate.toISOString(),
           searchToDate: searchToDate.toISOString(),
         });
+      }
+
+      // Validation: đảm bảo searchFromDate và searchToDate là Date object hợp lệ
+      if (!searchFromDate || !(searchFromDate instanceof Date) || isNaN(searchFromDate.getTime())) {
+        console.error('Invalid searchFromDate:', searchFromDate);
+        throw new Error('Invalid searchFromDate');
+      }
+      
+      if (!searchToDate || !(searchToDate instanceof Date) || isNaN(searchToDate.getTime())) {
+        console.error('Invalid searchToDate:', searchToDate);
+        throw new Error('Invalid searchToDate');
       }
 
       // Gọi truy vấn để lấy các ngày đã có
