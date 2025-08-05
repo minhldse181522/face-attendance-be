@@ -172,40 +172,6 @@ export class PrismaWorkingScheduleRepository
     });
   }
 
-  async findWorkingSchedulesByUserAndDateRange(
-    userCode: string,
-    fromDate: Date,
-    toDate: Date,
-  ): Promise<WorkingScheduleEntity[]> {
-    const client = await this._getClient();
-
-    const result = await client.workingSchedule.findMany({
-      where: {
-        userCode,
-        date: {
-          gte: startOfDay(fromDate), // 00:00:00
-          lte: endOfDay(toDate), // 23:59:59.999
-        },
-      },
-    });
-    return result.map(
-      (item) =>
-        new WorkingScheduleEntity({
-          props: {
-            code: item.code!,
-            userCode: item.userCode!,
-            userContractCode: item.userContractCode!,
-            date: item.date!,
-            shiftCode: item.shiftCode!,
-            status: item.status!,
-            branchCode: item.branchCode!,
-            createdBy: item.createdBy,
-          },
-          id: item.id,
-        }),
-    );
-  }
-
   async existsByCode(code: string): Promise<boolean> {
     const client = await this._getClient();
     const result = await client.workingSchedule.findUnique({
@@ -294,12 +260,60 @@ export class PrismaWorkingScheduleRepository
     return result.map((record) => this.mapper.toDomain(record));
   }
 
+  async findWorkingSchedulesByUserAndDateRange(
+    userCode: string,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<WorkingScheduleEntity[]> {
+    const client = await this._getClient();
+
+    console.log('>>> Repository search range:', {
+      fromDate: fromDate.toISOString(),
+      toDate: toDate.toISOString(),
+      startOfDay: startOfDay(fromDate).toISOString(),
+      endOfDay: endOfDay(toDate).toISOString(),
+    });
+
+    const result = await client.workingSchedule.findMany({
+      where: {
+        userCode,
+        date: {
+          gte: startOfDay(fromDate), // 00:00:00
+          lte: endOfDay(toDate), // 23:59:59.999
+        },
+      },
+    });
+    return result.map(
+      (item) =>
+        new WorkingScheduleEntity({
+          props: {
+            code: item.code!,
+            userCode: item.userCode!,
+            userContractCode: item.userContractCode!,
+            date: item.date!,
+            shiftCode: item.shiftCode!,
+            status: item.status!,
+            branchCode: item.branchCode!,
+            createdBy: item.createdBy,
+          },
+          id: item.id,
+        }),
+    );
+  }
+
   async findWorkingSchedulesByUserAndDateRangeWithShift(
     userCode: string,
     fromDate: Date,
     toDate: Date,
   ): Promise<WorkingScheduleEntity[]> {
     const client = await this._getClient();
+
+    console.log('>>> Repository search range (with shift):', {
+      fromDate: fromDate.toISOString(),
+      toDate: toDate.toISOString(),
+      startOfDay: startOfDay(fromDate).toISOString(),
+      endOfDay: endOfDay(toDate).toISOString(),
+    });
 
     const result = await client.workingSchedule.findMany({
       where: {

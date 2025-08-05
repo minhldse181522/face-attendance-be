@@ -315,14 +315,27 @@ export class GenerateWorkingDate {
       if (!isHoliday) {
         console.log('>>> Passed initial checks, proceeding...');
 
-        // Với isTodayFromFE = true, không cần chuẩn hóa ngày vì chỉ check overlap giữa các ca
-        const normalizedDate = d;
-        console.log(
-          '>>> Using original date (no normalization needed for isTodayFromFE):',
-          normalizedDate.toISOString(),
-        );
+        // Với isTodayFromFE = true, cần chuẩn hóa ngày để check overlap đúng
+        let normalizedDate: Date;
+        if (isTodayDate) {
+          // Với isTodayFromFE = true, lấy ngày hiện tại và convert về UTC-7 để check overlap
+          const now = new Date();
+          const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+          const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
+          normalizedDate = todayUTCMinus7;
+          console.log(
+            '>>> Using today UTC-7 for overlap check:',
+            normalizedDate.toISOString(),
+          );
+        } else {
+          normalizedDate = d;
+          console.log(
+            '>>> Using original date for overlap check:',
+            normalizedDate.toISOString(),
+          );
+        }
 
-        // Case 1: Nếu isTodayDate = true (hôm nay) - chỉ kiểm tra overlap giữa các ca, không kiểm tra ngày
+        // Case 1: Nếu isTodayDate = true (hôm nay) - kiểm tra overlap với ca cùng ngày UTC-7
         if (isTodayDate) {
           console.log('>>> Processing today case (isTodayDate = true)');
           const isLate =
@@ -335,14 +348,15 @@ export class GenerateWorkingDate {
             return;
           }
 
-          // Với isTodayFromFE = true, chỉ kiểm tra overlap giữa các ca, không quan tâm ngày
-          console.log('>>> Checking shift overlap only (ignoring date)');
-          const isOverlap = this.isOverlappingShiftsOnly(
+          // Với isTodayFromFE = true, kiểm tra overlap với ca cùng ngày UTC-7
+          console.log('>>> Checking overlap for today UTC-7 date');
+          const isOverlap = isOverlappingWithExistingShift(
+            normalizedDate, // Sử dụng ngày UTC-7 để check overlap
             shiftStartTime!,
             shiftEndTimeStr,
             alreadyGeneratedShifts,
           );
-          console.log('isOverlap (today, shift only):', isOverlap);
+          console.log('isOverlap (today, UTC-7):', isOverlap);
 
           if (isOverlap) {
             console.log('>>> Rejected due to shift overlap');
@@ -375,9 +389,11 @@ export class GenerateWorkingDate {
         if (option === 'NGAY') {
           // Option NGAY: xử lý như cũ
           if (isTodayDate) {
-            // Với isTodayFromFE = true, convert về UTC-7 để lưu vào DB
+            // Với isTodayFromFE = true, lấy ngày hiện tại và convert về UTC-7 để lưu vào DB
             const now = new Date();
+            // Lấy đầu ngày hiện tại theo UTC
             const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+            // Convert về UTC-7 (giờ VN)
             const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
             dateToAdd = todayUTCMinus7;
             console.log(
