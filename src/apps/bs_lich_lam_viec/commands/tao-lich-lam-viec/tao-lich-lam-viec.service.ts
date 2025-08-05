@@ -139,6 +139,8 @@ export class CreateLichLamViecService
           : command.optionCreate === 'TUAN'
             ? addDays(createWorkingDate, 6)
             : createWorkingDate;
+      console.log('fromDate', fromDate);
+      console.log('toDate', toDate);
 
       // Gọi truy vấn để lấy các ngày đã có
       const existingSchedules =
@@ -147,6 +149,7 @@ export class CreateLichLamViecService
           fromDate,
           toDate,
         );
+      console.log('existingSchedules', existingSchedules);
 
       const existingSchedulesWithShift =
         await this.workingScheduleRepo.findWorkingSchedulesByUserAndDateRangeWithShift(
@@ -154,6 +157,7 @@ export class CreateLichLamViecService
           fromDate,
           toDate,
         );
+      console.log('existingSchedulesWithShift', existingSchedulesWithShift);
 
       const existingDates: Date[] = existingSchedules
         .map((ws) => ws.getProps().date)
@@ -166,7 +170,7 @@ export class CreateLichLamViecService
           const startTime = props.shift?.getProps().startTime;
           const endTime = props.shift?.getProps().endTime;
 
-          if (!date || !startTime || !endTime) return null;
+          if (!date || !startTime || !endTime) return null; // bỏ ca không đầy đủ thông tin
 
           // Use UTC time directly
           console.log('>>> Debug existing shift:', {
