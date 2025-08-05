@@ -181,23 +181,24 @@ export class GenerateWorkingDate {
     T7: 6,
   };
 
-  // Kiểm tra overlap chỉ giữa các ca của ngày hiện tại
+  // Kiểm tra overlap chỉ giữa các ca của ngày hiện tại (DB lưu UTC-7)
   private isOverlappingShiftsOnly(
     startTime: string,
     endTime: string,
     existingShifts: { date: Date; startTime: string; endTime: string }[],
   ): boolean {
-    console.log('>>> Checking shift overlap for today only');
+    console.log('>>> Checking shift overlap for today only (DB stores UTC-7)');
     console.log('>>> New shift time:', { startTime, endTime });
     console.log('>>> Existing shifts to check:', existingShifts.length);
 
-    // Lấy ngày hiện tại ở local timezone, chuyển về UTC để so sánh với DB
+    // Lấy ngày hiện tại và chuyển về UTC-7 để so sánh với DB
     const now = new Date();
-    const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Đầu ngày local
-    const todayUTC = new Date(todayLocal.getTime() - (now.getTimezoneOffset() * 60000)); // Chuyển về UTC
+    const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000); // Trừ 7 tiếng
     
-    console.log('>>> Today local:', todayLocal.toISOString());
-    console.log('>>> Today UTC:', todayUTC.toISOString());
+    console.log('>>> Current time (UTC):', now.toISOString());
+    console.log('>>> Today UTC (start of day):', todayUTC.toISOString());
+    console.log('>>> Today UTC-7 (DB format):', todayUTCMinus7.toISOString());
 
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -210,17 +211,17 @@ export class GenerateWorkingDate {
     newEnd.setUTCHours(endHour, endMinute, 0, 0);
 
     for (const shift of existingShifts) {
-      // Chỉ kiểm tra các ca của ngày hiện tại
+      // Chỉ kiểm tra các ca của ngày hiện tại (so sánh với UTC-7)
       const shiftDateStr = normalizeDate(shift.date);
-      const todayUTCStr = normalizeDate(todayUTC);
-      
+      const todayUTCMinus7Str = normalizeDate(todayUTCMinus7);
+
       console.log('>>> Comparing dates:', {
         shiftDate: shiftDateStr,
-        todayUTC: todayUTCStr,
-        isSameDay: shiftDateStr === todayUTCStr
+        todayUTCMinus7: todayUTCMinus7Str,
+        isSameDay: shiftDateStr === todayUTCMinus7Str,
       });
 
-      if (shiftDateStr !== todayUTCStr) {
+      if (shiftDateStr !== todayUTCMinus7Str) {
         console.log('>>> Skipping shift - different day');
         continue;
       }
@@ -362,6 +363,7 @@ export class GenerateWorkingDate {
           const isLate =
             shiftStartTime && isAfterShiftStartOnDate(d, shiftStartTime);
           console.log('isLate (today):', isLate);
+          console.log('anhtu');
 
           if (isLate) {
             console.log('>>> Rejected due to late start');
@@ -409,10 +411,13 @@ export class GenerateWorkingDate {
         if (option === 'NGAY') {
           // Option NGAY: xử lý như cũ
           if (isTodayDate) {
-            // Với isTodayFromFE = true, giữ nguyên ngày từ FE, không convert về UTC-7
-            dateToAdd = d;
+            // Với isTodayFromFE = true, chuyển về UTC-7 để phù hợp với DB
+            const now = new Date();
+            const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+            const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
+            dateToAdd = todayUTCMinus7;
             console.log(
-              '>>> Using original date from FE for today (NGAY):',
+              '>>> Using today UTC-7 for DB format (NGAY):',
               dateToAdd.toISOString(),
             );
           } else {
