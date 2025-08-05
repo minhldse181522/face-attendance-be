@@ -55,6 +55,20 @@ function isOverlappingWithExistingShift(
   console.log('>>> New shift time:', { startTime, endTime });
   console.log('>>> Existing shifts to check:', existingShifts.length);
 
+  // Lọc ra các ca cùng ngày với ngày mới
+  const shiftsOnSameDay = existingShifts.filter(shift => {
+    const shiftDateStr = normalizeDate(shift.date);
+    const isSameDay = dateStr === shiftDateStr;
+    console.log('>>> Comparing dates:', {
+      newDate: dateStr,
+      shiftDate: shiftDateStr,
+      isSameDay,
+    });
+    return isSameDay;
+  });
+
+  console.log('>>> Shifts on same day:', shiftsOnSameDay.length);
+
   const [startHour, startMinute] = startTime.split(':').map(Number);
   const [endHour, endMinute] = endTime.split(':').map(Number);
   const newStart = new Date(date);
@@ -63,33 +77,7 @@ function isOverlappingWithExistingShift(
   newStart.setUTCHours(startHour, startMinute, 0, 0);
   newEnd.setUTCHours(endHour, endMinute, 0, 0);
 
-  for (const shift of existingShifts) {
-    // Check if both dates represent the same logical day in the deployment timezone
-    // For deployment environment, we need to compare the actual date regardless of timezone conversion
-    const existingShiftDateStr = normalizeDate(shift.date);
-    console.log('>>> Existing shift original date:', shift.date.toISOString());
-    console.log('>>> Existing shift dateStr:', existingShiftDateStr);
-
-    // For deployment environment, check if the dates are the same logical day
-    // This handles cases where UTC conversion might change the date
-    const isSameLogicalDay =
-      dateStr === existingShiftDateStr ||
-      normalizeDate(convertTodayDateToUTCMinus7(shift.date)) === dateStr;
-
-    console.log('>>> Date comparison:', {
-      newDate: dateStr,
-      existingDate: existingShiftDateStr,
-      existingDateUTCMinus7: normalizeDate(
-        convertTodayDateToUTCMinus7(shift.date),
-      ),
-      isSameLogicalDay,
-    });
-
-    if (!isSameLogicalDay) {
-      console.log('>>> Skipping shift - different date');
-      continue;
-    }
-
+  for (const shift of shiftsOnSameDay) {
     const [existStartHour, existStartMinute] = shift.startTime
       .split(':')
       .map(Number);
@@ -402,10 +390,10 @@ export class GenerateWorkingDate {
             );
           }
         } else {
-          // Option TUAN/THANG: tất cả ngày đều convert về UTC-7
-          dateToAdd = convertTodayDateToUTCMinus7(d);
+          // Option TUAN/THANG: giữ nguyên ngày từ FE (đã là UTC-7)
+          dateToAdd = d;
           console.log(
-            '>>> Using UTC-7 converted date for TUAN/THANG:',
+            '>>> Using original date from FE for TUAN/THANG:',
             dateToAdd.toISOString(),
           );
         }
@@ -420,14 +408,12 @@ export class GenerateWorkingDate {
     }
 
     if (option === 'TUAN') {
-      // Work with normalized date strings to avoid timezone issues
-      const startDateStr = normalizeDate(realStartDate);
-      const startDateForCalc = createDateInUTC(startDateStr);
-      const endOfWeekDate = endOfWeek(startDateForCalc, {
+      // FE đã truyền ngày UTC-7, giữ nguyên để tính toán
+      const endOfWeekDate = endOfWeek(realStartDate, {
         weekStartsOn: 1,
       });
 
-      let current = startDateForCalc;
+      let current = new Date(realStartDate);
       while (current <= endOfWeekDate) {
         console.log('>>> TUAN - Checking date:', current.toISOString());
         addValidDate(current);
@@ -436,12 +422,10 @@ export class GenerateWorkingDate {
     }
 
     if (option === 'THANG') {
-      // Work with normalized date strings to avoid timezone issues
-      const startDateStr = normalizeDate(realStartDate);
-      const startDateForCalc = createDateInUTC(startDateStr);
-      const end = endOfMonth(startDateForCalc);
+      // FE đã truyền ngày UTC-7, giữ nguyên để tính toán
+      const end = endOfMonth(realStartDate);
 
-      let current = startDateForCalc;
+      let current = new Date(realStartDate);
       while (current <= end) {
         addValidDate(current);
         current = addDays(current, 1);
