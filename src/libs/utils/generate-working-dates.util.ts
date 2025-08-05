@@ -375,10 +375,13 @@ export class GenerateWorkingDate {
         if (option === 'NGAY') {
           // Option NGAY: xử lý như cũ
           if (isTodayDate) {
-            // Với isTodayFromFE = true, giữ nguyên ngày từ FE
-            dateToAdd = d;
+            // Với isTodayFromFE = true, convert về UTC-7 để lưu vào DB
+            const now = new Date();
+            const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+            const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
+            dateToAdd = todayUTCMinus7;
             console.log(
-              '>>> Using original date from FE for today (NGAY):',
+              '>>> Using today UTC-7 for DB format (NGAY):',
               dateToAdd.toISOString(),
             );
           } else {
