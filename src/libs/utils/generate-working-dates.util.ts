@@ -193,7 +193,7 @@ export class GenerateWorkingDate {
 
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
-    
+
     // Tạo thời gian cho ca mới (sử dụng ngày tham chiếu)
     const referenceDate = new Date('2024-01-01T00:00:00.000Z');
     const newStart = new Date(referenceDate);
@@ -205,7 +205,9 @@ export class GenerateWorkingDate {
       const [existStartHour, existStartMinute] = shift.startTime
         .split(':')
         .map(Number);
-      const [existEndHour, existEndMinute] = shift.endTime.split(':').map(Number);
+      const [existEndHour, existEndMinute] = shift.endTime
+        .split(':')
+        .map(Number);
 
       // Tạo thời gian cho ca đã tồn tại (sử dụng cùng ngày tham chiếu)
       const existStart = new Date(referenceDate);
@@ -324,11 +326,10 @@ export class GenerateWorkingDate {
       if (!isHoliday) {
         console.log('>>> Passed initial checks, proceeding...');
 
-        // Chuẩn hóa ngày sang UTC-7 trước khi kiểm tra
-        const normalizedDate =
-          option === 'NGAY' && isTodayDate ? convertTodayDateToUTCMinus7(d) : d;
+        // Với isTodayFromFE = true, không cần chuẩn hóa ngày vì chỉ check overlap giữa các ca
+        const normalizedDate = d;
         console.log(
-          '>>> Normalized date for overlap check:',
+          '>>> Using original date (no normalization needed for isTodayFromFE):',
           normalizedDate.toISOString(),
         );
 
@@ -385,10 +386,10 @@ export class GenerateWorkingDate {
         if (option === 'NGAY') {
           // Option NGAY: xử lý như cũ
           if (isTodayDate) {
-            // Nếu là hôm nay, convert về UTC-7
-            dateToAdd = convertTodayDateToUTCMinus7(d);
+            // Với isTodayFromFE = true, giữ nguyên ngày từ FE, không convert về UTC-7
+            dateToAdd = d;
             console.log(
-              '>>> Using UTC-7 converted date for today (NGAY):',
+              '>>> Using original date from FE for today (NGAY):',
               dateToAdd.toISOString(),
             );
           } else {
