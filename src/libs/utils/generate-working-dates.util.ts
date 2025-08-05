@@ -234,6 +234,14 @@ export class GenerateWorkingDate {
       if (!isHoliday) {
         console.log('>>> Passed initial checks, proceeding...');
 
+        // Chuẩn hóa ngày sang UTC-7 trước khi kiểm tra
+        const normalizedDate =
+          option === 'NGAY' && isTodayDate ? convertTodayDateToUTCMinus7(d) : d;
+        console.log(
+          '>>> Normalized date for overlap check:',
+          normalizedDate.toISOString(),
+        );
+
         // Case 1: Nếu isTodayDate = true (hôm nay)
         if (isTodayDate) {
           console.log('>>> Processing today case (isTodayDate = true)');
@@ -247,10 +255,10 @@ export class GenerateWorkingDate {
             return;
           }
 
-          // Nếu hôm nay nhưng chưa quá giờ, vẫn cần kiểm tra overlap
+          // Kiểm tra overlap với ngày chuẩn hóa
           console.log('>>> Checking overlap for today');
           const isOverlap = isOverlappingWithExistingShift(
-            d,
+            normalizedDate, // Sử dụng ngày chuẩn hóa
             shiftStartTime!,
             shiftEndTimeStr,
             alreadyGeneratedShifts,
@@ -267,7 +275,7 @@ export class GenerateWorkingDate {
         else {
           console.log('>>> Processing non-today case (isTodayDate = false)');
           const isOverlap = isOverlappingWithExistingShift(
-            d,
+            normalizedDate, // Sử dụng ngày chuẩn hóa
             shiftStartTime!,
             shiftEndTimeStr,
             alreadyGeneratedShifts,
