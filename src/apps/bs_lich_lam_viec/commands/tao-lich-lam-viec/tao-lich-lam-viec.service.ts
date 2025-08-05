@@ -142,20 +142,51 @@ export class CreateLichLamViecService
       console.log('fromDate', fromDate);
       console.log('toDate', toDate);
 
+      // Tính toán ngày tìm kiếm dựa trên isTodayFromFE
+      let searchFromDate: Date;
+      let searchToDate: Date;
+
+      if (command.isToday === true && command.optionCreate === 'NGAY') {
+        // Với isTodayFromFE = true và option NGAY: lấy ngày hiện tại server và convert về UTC-7
+        const now = new Date();
+        const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
+        
+        searchFromDate = todayUTCMinus7;
+        searchToDate = todayUTCMinus7;
+        
+        console.log('>>> Using server today UTC-7 for search:', {
+          serverNow: now.toISOString(),
+          todayUTC: todayUTC.toISOString(),
+          todayUTCMinus7: todayUTCMinus7.toISOString(),
+          searchFromDate: searchFromDate.toISOString(),
+          searchToDate: searchToDate.toISOString(),
+        });
+      } else {
+        // Với isTodayFromFE = false hoặc option TUAN/THANG: giữ nguyên ngày từ FE
+        searchFromDate = fromDate;
+        searchToDate = toDate;
+        
+        console.log('>>> Using original FE dates for search:', {
+          searchFromDate: searchFromDate.toISOString(),
+          searchToDate: searchToDate.toISOString(),
+        });
+      }
+
       // Gọi truy vấn để lấy các ngày đã có
       const existingSchedules =
         await this.workingScheduleRepo.findWorkingSchedulesByUserAndDateRange(
           command.userCode,
-          fromDate,
-          toDate,
+          searchFromDate,
+          searchToDate,
         );
       console.log('existingSchedules', existingSchedules);
 
       const existingSchedulesWithShift =
         await this.workingScheduleRepo.findWorkingSchedulesByUserAndDateRangeWithShift(
           command.userCode,
-          fromDate,
-          toDate,
+          searchFromDate,
+          searchToDate,
         );
       console.log('existingSchedulesWithShift', existingSchedulesWithShift);
 
