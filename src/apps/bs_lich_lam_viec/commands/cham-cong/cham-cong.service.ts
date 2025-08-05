@@ -86,27 +86,39 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
       return Err(new ShiftNotFoundError());
     }
     const workingDate = new Date(workingScheduleProps.date!);
+    console.log('workingDate', workingDate);
+
     const shiftStartTime = shiftFound.unwrap().getProps().startTime;
     const checkinTime = new Date(command.checkInTime!);
+    console.log('checkinTime', checkinTime);
 
     // Kiểm tra checkin ko trễ quá 1 tiếng
     const shiftStartDateTime = getShiftStartDateTime(
       workingDate,
       shiftStartTime!,
+      checkinTime,
     );
+    console.log('shiftStartDateTime', shiftStartDateTime);
 
     const checkInTooEarlyLimit = new Date(
       shiftStartDateTime.getTime() - 2 * 60 * 60 * 1000,
     ); // trước 2 tiếng
+    console.log('checkInTooEarlyLimit', checkInTooEarlyLimit);
+
     const checkInValidStart = new Date(
       shiftStartDateTime.getTime() - 60 * 60 * 1000,
     ); // Trước 1 tiếng
+    console.log('checkInValidStart', checkInValidStart);
+
     const checkInValidEnd = new Date(
       shiftStartDateTime.getTime() + 5 * 60 * 1000,
     ); // Sau 5p
+    console.log('checkInValidEnd', checkInValidEnd);
+
     const allowedCheckInDeadline = new Date(
       shiftStartDateTime.getTime() + 60 * 60 * 1000,
     ); // Sau 1 tiếng
+    console.log('allowedCheckInDeadline', allowedCheckInDeadline);
 
     // Checkin quá sớm
     if (checkinTime < checkInTooEarlyLimit) {
@@ -117,6 +129,7 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
     }
 
     const isLate = checkinTime > checkInValidEnd;
+    console.log('isLate', isLate);
 
     // Checkin trễ 1 tiếng
     if (checkinTime > allowedCheckInDeadline) {

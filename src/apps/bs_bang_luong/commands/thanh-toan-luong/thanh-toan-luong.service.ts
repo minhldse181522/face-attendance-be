@@ -107,6 +107,7 @@ export class ThanhToanLuongService
         new UpdatePayrollCommand({
           payrollId: luong.id,
           status: 'ACCEPT',
+          paidDate: new Date(),
           updatedBy: command.updatedBy,
         }),
       );
@@ -157,6 +158,7 @@ export class ThanhToanLuongService
         new UpdatePayrollCommand({
           payrollId: luong.id,
           status: 'STOP',
+          paidDate: new Date(),
           updatedBy: command.updatedBy,
         }),
       );
