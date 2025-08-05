@@ -409,16 +409,32 @@ export class GenerateWorkingDate {
             );
           }
         } else {
-          // Option TUAN/THANG: giữ nguyên ngày từ FE (đã là UTC-7)
-          dateToAdd = d;
-          console.log(
-            '>>> Using original date from FE for TUAN/THANG:',
-            dateToAdd.toISOString(),
-          );
+          // Option TUAN/THANG: xử lý dựa trên isTodayDate
+          if (isTodayDate) {
+            // Nếu là ngày hôm nay, convert về UTC-7 để lưu vào DB
+            const now = new Date();
+            const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+            const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
+            dateToAdd = todayUTCMinus7;
+            console.log(
+              '>>> Using today UTC-7 for DB format (TUAN/THANG):',
+              dateToAdd.toISOString(),
+            );
+          } else {
+            // Nếu không phải hôm nay, giữ nguyên ngày từ FE
+            dateToAdd = d;
+            console.log(
+              '>>> Using original date from FE for TUAN/THANG:',
+              dateToAdd.toISOString(),
+            );
+          }
         }
 
         dates.push(dateToAdd);
         // Không cần add vào createdSet nữa vì cho phép nhiều shift/ngày
+      } else {
+        // Ngày là holiday, không tạo ca
+        console.log('>>> Skipping holiday date:', d.toISOString());
       }
     };
 
