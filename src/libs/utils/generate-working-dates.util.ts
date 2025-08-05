@@ -64,21 +64,53 @@ function isOverlappingWithExistingShift(
   newEnd.setUTCHours(endHour, endMinute, 0, 0);
 
   for (const shift of existingShifts) {
-    const shiftDay = normalizeDate(shift.date);
-    if (shiftDay !== dateStr) continue;
+    // Check if both dates represent the same logical day in the deployment timezone
+    // For deployment environment, we need to compare the actual date regardless of timezone conversion
+    const existingShiftDateStr = normalizeDate(shift.date);
+    console.log('>>> Existing shift original date:', shift.date.toISOString());
+    console.log('>>> Existing shift dateStr:', existingShiftDateStr);
+
+    // For deployment environment, check if the dates are the same logical day
+    // This handles cases where UTC conversion might change the date
+    const isSameLogicalDay =
+      dateStr === existingShiftDateStr ||
+      normalizeDate(convertTodayDateToUTCMinus7(shift.date)) === dateStr;
+
+    console.log('>>> Date comparison:', {
+      newDate: dateStr,
+      existingDate: existingShiftDateStr,
+      existingDateUTCMinus7: normalizeDate(
+        convertTodayDateToUTCMinus7(shift.date),
+      ),
+      isSameLogicalDay,
+    });
+
+    if (!isSameLogicalDay) {
+      console.log('>>> Skipping shift - different date');
+      continue;
+    }
 
     const [existStartHour, existStartMinute] = shift.startTime
       .split(':')
       .map(Number);
     const [existEndHour, existEndMinute] = shift.endTime.split(':').map(Number);
 
-    const existStart = new Date(shift.date);
-    const existEnd = new Date(shift.date);
+    // Use the same base date for time comparison
+    const existStart = new Date(date);
+    const existEnd = new Date(date);
     // Use UTC methods to be consistent
     existStart.setUTCHours(existStartHour, existStartMinute, 0, 0);
     existEnd.setUTCHours(existEndHour, existEndMinute, 0, 0);
 
     const isOverlap = newStart < existEnd && existStart < newEnd;
+
+    console.log('>>> Overlap check details:', {
+      newStart: newStart.toISOString(),
+      newEnd: newEnd.toISOString(),
+      existStart: existStart.toISOString(),
+      existEnd: existEnd.toISOString(),
+      isOverlap,
+    });
 
     if (isOverlap) {
       console.log('[Overlap Detected]', {
