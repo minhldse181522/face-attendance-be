@@ -285,8 +285,7 @@ export class GenerateWorkingDate {
         return;
       }
 
-      const weekday = d.getDay();
-      console.log('weekday', weekday);
+      const weekday = d.getUTCDay();
 
       const isHoliday = holidayWeekdays.includes(weekday);
       console.log('ABC');
