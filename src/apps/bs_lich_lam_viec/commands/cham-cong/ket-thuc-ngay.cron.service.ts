@@ -10,6 +10,7 @@ import {
 import { UpdateWorkingScheduleCommand } from '@src/modules/working-schedule/commands/update-working-schedule/update-working-schedule.command';
 import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
 import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
+import { getTodayUTC7, getTomorrowUTC7 } from '@src/libs/utils/generate-working-dates.util';
 
 @Injectable()
 export class EndOfDayWorkingScheduleCronService {
@@ -22,15 +23,18 @@ export class EndOfDayWorkingScheduleCronService {
     private readonly queryBus: QueryBus,
   ) {}
 
+
+
   @Cron('59 23 * * *') // Chạy mỗi ngày lúc 23:59
   async handleEndOfDayCron() {
     await RequestContextService.runWithContext(
       { tenantId: 'default', user: { username: 'system' } },
       async () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
+        // Sử dụng múi giờ UTC-7 thay vì múi giờ local
+        const today = getTodayUTC7();
+        const tomorrow = getTomorrowUTC7();
+
+        this.logger.log(`Processing end of day for UTC-7 date: ${today.toISOString()}`);
 
         const schedules = await this.workingScheduleRepo.findAll({
           status: { in: ['NOTSTARTED', 'ACTIVE'] },
