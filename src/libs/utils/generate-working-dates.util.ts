@@ -65,12 +65,7 @@ function isOverlappingWithExistingShift(
 
   for (const shift of existingShifts) {
     const shiftDay = normalizeDate(shift.date);
-    console.log('>>> Comparing dates:', { dateStr, shiftDay });
-
-    if (shiftDay !== dateStr) {
-      console.log('>>> Different date, skipping');
-      continue;
-    }
+    if (shiftDay !== dateStr) continue;
 
     const [existStartHour, existStartMinute] = shift.startTime
       .split(':')
@@ -85,20 +80,18 @@ function isOverlappingWithExistingShift(
 
     const isOverlap = newStart < existEnd && existStart < newEnd;
 
-    console.log('[Overlap Check]', {
-      newStart: newStart.toISOString(),
-      newEnd: newEnd.toISOString(),
-      existStart: existStart.toISOString(),
-      existEnd: existEnd.toISOString(),
-      isOverlap,
-    });
-
     if (isOverlap) {
+      console.log('[Overlap Detected]', {
+        newStart: newStart.toISOString(),
+        newEnd: newEnd.toISOString(),
+        existStart: existStart.toISOString(),
+        existEnd: existEnd.toISOString(),
+        isOverlap,
+      });
       console.log('[Overlap Detected - BLOCKING CREATION]');
       return true;
     }
   }
-
   console.log('>>> No overlap found');
   return false;
 }

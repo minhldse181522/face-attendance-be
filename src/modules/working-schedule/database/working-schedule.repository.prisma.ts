@@ -179,32 +179,12 @@ export class PrismaWorkingScheduleRepository
   ): Promise<WorkingScheduleEntity[]> {
     const client = await this._getClient();
 
-    // Sử dụng UTC để tránh vấn đề timezone khi query database
-    const fromDateUTC = new Date(
-      fromDate.getUTCFullYear(),
-      fromDate.getUTCMonth(),
-      fromDate.getUTCDate(),
-      0,
-      0,
-      0,
-      0,
-    );
-    const toDateUTC = new Date(
-      toDate.getUTCFullYear(),
-      toDate.getUTCMonth(),
-      toDate.getUTCDate(),
-      23,
-      59,
-      59,
-      999,
-    );
-
     const result = await client.workingSchedule.findMany({
       where: {
         userCode,
         date: {
-          gte: fromDateUTC,
-          lte: toDateUTC,
+          gte: startOfDay(fromDate), // 00:00:00
+          lte: endOfDay(toDate), // 23:59:59.999
         },
       },
     });
@@ -321,59 +301,17 @@ export class PrismaWorkingScheduleRepository
   ): Promise<WorkingScheduleEntity[]> {
     const client = await this._getClient();
 
-    // Sử dụng UTC để tránh vấn đề timezone khi query database
-    const fromDateUTC = new Date(
-      fromDate.getUTCFullYear(),
-      fromDate.getUTCMonth(),
-      fromDate.getUTCDate(),
-      0,
-      0,
-      0,
-      0,
-    );
-    const toDateUTC = new Date(
-      toDate.getUTCFullYear(),
-      toDate.getUTCMonth(),
-      toDate.getUTCDate(),
-      23,
-      59,
-      59,
-      999,
-    );
-
-    console.log(
-      '>>> findWorkingSchedulesByUserAndDateRangeWithShift query params:',
-      {
-        userCode,
-        fromDate: fromDate.toISOString(),
-        toDate: toDate.toISOString(),
-        fromDateUTC: fromDateUTC.toISOString(),
-        toDateUTC: toDateUTC.toISOString(),
-      },
-    );
-
     const result = await client.workingSchedule.findMany({
       where: {
         userCode,
         date: {
-          gte: fromDateUTC,
-          lte: toDateUTC,
+          gte: startOfDay(fromDate), // 00:00:00
+          lte: endOfDay(toDate), // 23:59:59.999
         },
       },
       include: {
         shift: true,
       },
-    });
-
-    console.log('>>> Found working schedules:', result.length);
-    result.forEach((record, index) => {
-      console.log(`>>> Schedule ${index + 1}:`, {
-        code: record.code,
-        date: record.date?.toISOString(),
-        shiftCode: record.shiftCode,
-        shiftStartTime: record.shift?.startTime?.toISOString(),
-        shiftEndTime: record.shift?.endTime?.toISOString(),
-      });
     });
 
     return result.map((record) => this.mapper.toDomain(record));
