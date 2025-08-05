@@ -181,24 +181,15 @@ export class GenerateWorkingDate {
     T7: 6,
   };
 
-  // Kiểm tra overlap chỉ giữa các ca của ngày hiện tại (DB lưu UTC-7)
+  // Kiểm tra overlap chỉ giữa các ca, không quan tâm ngày (cho isTodayFromFE = true)
   private isOverlappingShiftsOnly(
     startTime: string,
     endTime: string,
     existingShifts: { date: Date; startTime: string; endTime: string }[],
   ): boolean {
-    console.log('>>> Checking shift overlap for today only (DB stores UTC-7)');
+    console.log('>>> Checking shift overlap only (ignoring date)');
     console.log('>>> New shift time:', { startTime, endTime });
     console.log('>>> Existing shifts to check:', existingShifts.length);
-
-    // Lấy ngày hiện tại và chuyển về UTC-7 để so sánh với DB
-    const now = new Date();
-    const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-    const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000); // Trừ 7 tiếng
-    
-    console.log('>>> Current time (UTC):', now.toISOString());
-    console.log('>>> Today UTC (start of day):', todayUTC.toISOString());
-    console.log('>>> Today UTC-7 (DB format):', todayUTCMinus7.toISOString());
 
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -211,21 +202,7 @@ export class GenerateWorkingDate {
     newEnd.setUTCHours(endHour, endMinute, 0, 0);
 
     for (const shift of existingShifts) {
-      // Chỉ kiểm tra các ca của ngày hiện tại (so sánh với UTC-7)
-      const shiftDateStr = normalizeDate(shift.date);
-      const todayUTCMinus7Str = normalizeDate(todayUTCMinus7);
-
-      console.log('>>> Comparing dates:', {
-        shiftDate: shiftDateStr,
-        todayUTCMinus7: todayUTCMinus7Str,
-        isSameDay: shiftDateStr === todayUTCMinus7Str,
-      });
-
-      if (shiftDateStr !== todayUTCMinus7Str) {
-        console.log('>>> Skipping shift - different day');
-        continue;
-      }
-
+      // Không kiểm tra ngày, chỉ kiểm tra overlap giữa các ca
       const [existStartHour, existStartMinute] = shift.startTime
         .split(':')
         .map(Number);
@@ -261,7 +238,7 @@ export class GenerateWorkingDate {
         return true;
       }
     }
-    console.log('>>> No shift overlap found for today');
+    console.log('>>> No shift overlap found');
     return false;
   }
   async generateWorkingDate(
@@ -357,13 +334,12 @@ export class GenerateWorkingDate {
           normalizedDate.toISOString(),
         );
 
-        // Case 1: Nếu isTodayDate = true (hôm nay) - chỉ kiểm tra ca với ca, không kiểm tra ngày
+        // Case 1: Nếu isTodayDate = true (hôm nay) - chỉ kiểm tra overlap giữa các ca, không kiểm tra ngày
         if (isTodayDate) {
           console.log('>>> Processing today case (isTodayDate = true)');
           const isLate =
             shiftStartTime && isAfterShiftStartOnDate(d, shiftStartTime);
           console.log('isLate (today):', isLate);
-          console.log('anhtu');
 
           if (isLate) {
             console.log('>>> Rejected due to late start');
@@ -386,7 +362,7 @@ export class GenerateWorkingDate {
             return;
           }
         }
-        // Case 2: Nếu isTodayDate = false (tương lai hoặc quá khứ) - kiểm tra cả ngày và ca
+        // Case 2: Nếu isTodayDate = false (tương lai hoặc quá khứ) - kiểm tra overlap cả ngày và ca
         else {
           console.log('>>> Processing non-today case (isTodayDate = false)');
           const isOverlap = isOverlappingWithExistingShift(
@@ -411,13 +387,10 @@ export class GenerateWorkingDate {
         if (option === 'NGAY') {
           // Option NGAY: xử lý như cũ
           if (isTodayDate) {
-            // Với isTodayFromFE = true, chuyển về UTC-7 để phù hợp với DB
-            const now = new Date();
-            const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-            const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
-            dateToAdd = todayUTCMinus7;
+            // Với isTodayFromFE = true, giữ nguyên ngày từ FE
+            dateToAdd = d;
             console.log(
-              '>>> Using today UTC-7 for DB format (NGAY):',
+              '>>> Using original date from FE for today (NGAY):',
               dateToAdd.toISOString(),
             );
           } else {
