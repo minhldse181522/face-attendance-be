@@ -166,21 +166,12 @@ export class CreateLichLamViecService
           const startTime = props.shift?.getProps().startTime;
           const endTime = props.shift?.getProps().endTime;
 
-          if (!date || !startTime || !endTime) {
-            console.log('>>> Skipping incomplete shift:', {
-              date: date?.toISOString(),
-              hasShift: !!props.shift,
-              startTime: startTime?.toISOString(),
-              endTime: endTime?.toISOString(),
-            });
-            return null; // bỏ ca không đầy đủ thông tin
-          }
+          if (!date || !startTime || !endTime) return null;
 
           // Use UTC time directly
           console.log('>>> Debug existing shift:', {
-            date: date.toISOString(),
-            originalStartTime: startTime.toISOString(),
-            originalEndTime: endTime.toISOString(),
+            originalStartTime: startTime,
+            originalEndTime: endTime,
           });
 
           const startTimeStr = `${startTime.getUTCHours().toString().padStart(2, '0')}:${startTime.getUTCMinutes().toString().padStart(2, '0')}`;
