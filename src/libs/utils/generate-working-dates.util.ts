@@ -180,6 +180,64 @@ export class GenerateWorkingDate {
     T6: 5,
     T7: 6,
   };
+
+  // Kiểm tra overlap chỉ giữa các ca, không quan tâm đến ngày
+  private isOverlappingShiftsOnly(
+    startTime: string,
+    endTime: string,
+    existingShifts: { date: Date; startTime: string; endTime: string }[],
+  ): boolean {
+    console.log('>>> Checking shift overlap only (ignoring date)');
+    console.log('>>> New shift time:', { startTime, endTime });
+    console.log('>>> Existing shifts to check:', existingShifts.length);
+
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    
+    // Tạo thời gian cho ca mới (sử dụng ngày tham chiếu)
+    const referenceDate = new Date('2024-01-01T00:00:00.000Z');
+    const newStart = new Date(referenceDate);
+    const newEnd = new Date(referenceDate);
+    newStart.setUTCHours(startHour, startMinute, 0, 0);
+    newEnd.setUTCHours(endHour, endMinute, 0, 0);
+
+    for (const shift of existingShifts) {
+      const [existStartHour, existStartMinute] = shift.startTime
+        .split(':')
+        .map(Number);
+      const [existEndHour, existEndMinute] = shift.endTime.split(':').map(Number);
+
+      // Tạo thời gian cho ca đã tồn tại (sử dụng cùng ngày tham chiếu)
+      const existStart = new Date(referenceDate);
+      const existEnd = new Date(referenceDate);
+      existStart.setUTCHours(existStartHour, existStartMinute, 0, 0);
+      existEnd.setUTCHours(existEndHour, existEndMinute, 0, 0);
+
+      const isOverlap = newStart < existEnd && existStart < newEnd;
+
+      console.log('>>> Shift overlap check details:', {
+        newStart: `${startHour}:${startMinute.toString().padStart(2, '0')}`,
+        newEnd: `${endHour}:${endMinute.toString().padStart(2, '0')}`,
+        existStart: `${existStartHour}:${existStartMinute.toString().padStart(2, '0')}`,
+        existEnd: `${existEndHour}:${existEndMinute.toString().padStart(2, '0')}`,
+        isOverlap,
+      });
+
+      if (isOverlap) {
+        console.log('[Shift Overlap Detected]', {
+          newStart: `${startHour}:${startMinute.toString().padStart(2, '0')}`,
+          newEnd: `${endHour}:${endMinute.toString().padStart(2, '0')}`,
+          existStart: `${existStartHour}:${existStartMinute.toString().padStart(2, '0')}`,
+          existEnd: `${existEndHour}:${existEndMinute.toString().padStart(2, '0')}`,
+          isOverlap,
+        });
+        console.log('[Shift Overlap Detected - BLOCKING CREATION]');
+        return true;
+      }
+    }
+    console.log('>>> No shift overlap found');
+    return false;
+  }
   async generateWorkingDate(
     startDate: Date,
     option: 'NGAY' | 'TUAN' | 'THANG',
@@ -274,7 +332,7 @@ export class GenerateWorkingDate {
           normalizedDate.toISOString(),
         );
 
-        // Case 1: Nếu isTodayDate = true (hôm nay)
+        // Case 1: Nếu isTodayDate = true (hôm nay) - chỉ kiểm tra ca với ca, không kiểm tra ngày
         if (isTodayDate) {
           console.log('>>> Processing today case (isTodayDate = true)');
           const isLate =
@@ -287,23 +345,22 @@ export class GenerateWorkingDate {
             return;
           }
 
-          // Kiểm tra overlap với ngày chuẩn hóa
-          console.log('>>> Checking overlap for today');
-          const isOverlap = isOverlappingWithExistingShift(
-            normalizedDate, // Sử dụng ngày chuẩn hóa
+          // Với isTodayFromFE = true, chỉ kiểm tra overlap giữa các ca, không quan tâm ngày
+          console.log('>>> Checking shift overlap only (ignoring date)');
+          const isOverlap = this.isOverlappingShiftsOnly(
             shiftStartTime!,
             shiftEndTimeStr,
             alreadyGeneratedShifts,
           );
-          console.log('isOverlap (today but not late):', isOverlap);
+          console.log('isOverlap (today, shift only):', isOverlap);
 
           if (isOverlap) {
-            console.log('>>> Rejected due to overlap');
+            console.log('>>> Rejected due to shift overlap');
             overlapCount++;
             return;
           }
         }
-        // Case 2: Nếu isTodayDate = false (tương lai hoặc quá khứ) - chỉ kiểm tra overlap
+        // Case 2: Nếu isTodayDate = false (tương lai hoặc quá khứ) - kiểm tra cả ngày và ca
         else {
           console.log('>>> Processing non-today case (isTodayDate = false)');
           const isOverlap = isOverlappingWithExistingShift(
