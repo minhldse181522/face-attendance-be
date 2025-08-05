@@ -181,15 +181,23 @@ export class GenerateWorkingDate {
     T7: 6,
   };
 
-  // Kiểm tra overlap chỉ giữa các ca, không quan tâm đến ngày
+  // Kiểm tra overlap chỉ giữa các ca của ngày hiện tại
   private isOverlappingShiftsOnly(
     startTime: string,
     endTime: string,
     existingShifts: { date: Date; startTime: string; endTime: string }[],
   ): boolean {
-    console.log('>>> Checking shift overlap only (ignoring date)');
+    console.log('>>> Checking shift overlap for today only');
     console.log('>>> New shift time:', { startTime, endTime });
     console.log('>>> Existing shifts to check:', existingShifts.length);
+
+    // Lấy ngày hiện tại ở local timezone, chuyển về UTC để so sánh với DB
+    const now = new Date();
+    const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Đầu ngày local
+    const todayUTC = new Date(todayLocal.getTime() - (now.getTimezoneOffset() * 60000)); // Chuyển về UTC
+    
+    console.log('>>> Today local:', todayLocal.toISOString());
+    console.log('>>> Today UTC:', todayUTC.toISOString());
 
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -202,6 +210,21 @@ export class GenerateWorkingDate {
     newEnd.setUTCHours(endHour, endMinute, 0, 0);
 
     for (const shift of existingShifts) {
+      // Chỉ kiểm tra các ca của ngày hiện tại
+      const shiftDateStr = normalizeDate(shift.date);
+      const todayUTCStr = normalizeDate(todayUTC);
+      
+      console.log('>>> Comparing dates:', {
+        shiftDate: shiftDateStr,
+        todayUTC: todayUTCStr,
+        isSameDay: shiftDateStr === todayUTCStr
+      });
+
+      if (shiftDateStr !== todayUTCStr) {
+        console.log('>>> Skipping shift - different day');
+        continue;
+      }
+
       const [existStartHour, existStartMinute] = shift.startTime
         .split(':')
         .map(Number);
@@ -237,7 +260,7 @@ export class GenerateWorkingDate {
         return true;
       }
     }
-    console.log('>>> No shift overlap found');
+    console.log('>>> No shift overlap found for today');
     return false;
   }
   async generateWorkingDate(
