@@ -5,6 +5,45 @@ import {
 } from '@src/apps/bs_lich_lam_viec/domain/lich-lam-viec.error';
 import { addDays, endOfMonth, endOfWeek, format } from 'date-fns';
 
+/**
+ * Lấy ngày hôm nay theo múi giờ UTC-7 (Việt Nam)
+ * Trả về Date object với thời gian là 00:00:00 UTC-7
+ * Ví dụ: Nếu hôm nay là 6/8/2025, sẽ trả về 2025-08-05 17:00:00+00 (UTC)
+ */
+export function getTodayUTC7(): Date {
+  const now = new Date();
+  // Lấy đầu ngày hiện tại theo UTC
+  const todayUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  // Convert về UTC-7 (giờ Việt Nam) - trừ đi 7 tiếng
+  const todayUTCMinus7 = new Date(todayUTC.getTime() - 7 * 60 * 60 * 1000);
+  
+  console.log('>>> getTodayUTC7:', {
+    now: now.toISOString(),
+    todayUTC: todayUTC.toISOString(),
+    todayUTCMinus7: todayUTCMinus7.toISOString(),
+  });
+  
+  return todayUTCMinus7;
+}
+
+/**
+ * Lấy ngày mai theo múi giờ UTC-7 (Việt Nam)
+ * Trả về Date object với thời gian là 00:00:00 UTC-7
+ * Ví dụ: Nếu mai là 7/8/2025, sẽ trả về 2025-08-06 17:00:00+00 (UTC)
+ */
+export function getTomorrowUTC7(): Date {
+  const todayUTC7 = getTodayUTC7();
+  // Thêm 1 ngày (24 tiếng)
+  const tomorrowUTC7 = new Date(todayUTC7.getTime() + 24 * 60 * 60 * 1000);
+  
+  console.log('>>> getTomorrowUTC7:', {
+    todayUTC7: todayUTC7.toISOString(),
+    tomorrowUTC7: tomorrowUTC7.toISOString(),
+  });
+  
+  return tomorrowUTC7;
+}
+
 function normalizeDate(date: Date | string): string {
   // Format date in UTC timezone
   const d = new Date(date);

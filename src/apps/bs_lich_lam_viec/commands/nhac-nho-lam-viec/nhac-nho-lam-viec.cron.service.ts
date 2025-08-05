@@ -11,6 +11,10 @@ import {
 } from '@src/modules/notification/queries/find-notification-by-params/find-notification-by-params.query-handler';
 import { WorkingScheduleRepositoryPort } from '@src/modules/working-schedule/database/working-schedule.repository.port';
 import { WORKING_SCHEDULE_REPOSITORY } from '@src/modules/working-schedule/working-schedule.di-tokens';
+import {
+  getTodayUTC7,
+  getTomorrowUTC7,
+} from '@src/libs/utils/generate-working-dates.util';
 
 @Injectable()
 export class EndOfDayWorkingScheduleCronService {
@@ -55,11 +59,13 @@ export class EndOfDayWorkingScheduleCronService {
     await RequestContextService.runWithContext(
       { tenantId: 'default', user: { username: 'system' } },
       async () => {
-        const now = new Date();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
+        // Sử dụng múi giờ UTC-7 thay vì múi giờ local
+        const today = getTodayUTC7();
+        const tomorrow = getTomorrowUTC7();
+
+        this.logger.log(
+          `Processing notifications for UTC-7 date: ${today.toISOString()}`,
+        );
 
         // Lấy tất cả lịch làm việc NOTSTARTED trong ngày hôm nay
         const schedules = await this.workingScheduleRepo.findAll({
@@ -103,10 +109,12 @@ export class EndOfDayWorkingScheduleCronService {
 
           // Tạo datetime cho shift start time dựa trên ngày của schedule
           const shiftStartDateTime = new Date(scheduleDate);
-          shiftStartDateTime.setUTCHours(shiftStartTime.getUTCHours());
-          shiftStartDateTime.setUTCMinutes(shiftStartTime.getUTCMinutes());
-          shiftStartDateTime.setUTCSeconds(0);
-          shiftStartDateTime.setUTCMilliseconds(0);
+          const startHour = shiftStartTime.getUTCHours();
+          const startMinute = shiftStartTime.getUTCMinutes();
+          shiftStartDateTime.setUTCHours(startHour, startMinute, 0, 0);
+
+          // Lấy thời gian hiện tại theo UTC
+          const now = new Date();
 
           // Tính thời gian còn lại đến khi bắt đầu shift
           const timeUntilStart = shiftStartDateTime.getTime() - now.getTime();
