@@ -17,8 +17,8 @@ import {
 } from '@src/libs/utils/generate-working-dates.util';
 
 @Injectable()
-export class EndOfDayWorkingScheduleCronService {
-  private readonly logger = new Logger(EndOfDayWorkingScheduleCronService.name);
+export class NotificationWorkingScheduleCronService {
+  private readonly logger = new Logger(NotificationWorkingScheduleCronService.name);
   private notifiedSchedules: Set<string> = new Set(); // Track đã thông báo
 
   constructor(
