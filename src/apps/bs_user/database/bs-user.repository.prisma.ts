@@ -450,45 +450,26 @@ export class PrismaBsUserRepository
     if (role === 'R1') {
       // Admin - không lọc
     } else if (role === 'R2') {
-      // Nếu là HR, lọc danh sách user được quản lý
+      // HR chỉ xem được user được quản lý bởi mình (có contract với managedBy = currentUsername) và có status ACTIVE
       const contracts = await client.userContract.findMany({
         where: {
           managedBy: currentUsername,
           status: 'ACTIVE',
         },
-        select: {
-          userCode: true,
+        include: {
+          user: {
+            select: {
+              code: true,
+              isActive: true,
+            },
+          },
         },
       });
 
       const managedUserCodes = contracts
-        .map((c) => c.userCode)
+        .filter((c) => c.user && c.user.isActive) // Chỉ lấy user có isActive = true
+        .map((c) => c.user!.code)
         .filter((code): code is string => code !== null);
-
-      // Kiểm tra từng user được quản lý xem có contract không
-      const usersWithoutContract: string[] = [];
-      for (const code of managedUserCodes) {
-        const existingContract = await client.userContract.findFirst({
-          where: { userCode: code },
-        });
-        if (!existingContract) {
-          usersWithoutContract.push(code);
-        }
-      }
-
-      // Kết hợp user được quản lý và user chưa có contract
-      const finalUserCodes = [
-        ...new Set([...managedUserCodes, ...usersWithoutContract]),
-      ];
-
-      if (finalUserCodes.length === 0) {
-        return new Paginated({
-          data: [],
-          count: 0,
-          limit,
-          page,
-        });
-      }
 
       finalWhere.code = {
         in: managedUserCodes,
@@ -531,13 +512,19 @@ export class PrismaBsUserRepository
             },
           },
         },
-        select: {
-          userCode: true,
+        include: {
+          user: {
+            select: {
+              code: true,
+              isActive: true,
+            },
+          },
         },
       });
 
       const userCodes = contractsInSameBranch
-        .map((c) => c.userCode)
+        .filter((c) => c.user && c.user.isActive) // Chỉ lấy user có isActive = true
+        .map((c) => c.user!.code)
         .filter((code): code is string => code !== null);
 
       finalWhere.code = {
@@ -660,10 +647,11 @@ export class PrismaBsUserRepository
       let allowedUserCodes: string[] = [];
 
       if (role === 'R2') {
-        // HR chỉ lấy user có role STAFF (R4) và chưa có contract
+        // HR chỉ xem được user có role STAFF (R4) chưa có contract và có status ACTIVE
         const staffUsers = await client.user.findMany({
           where: {
             roleCode: 'R4', // Chỉ lấy user có role STAFF
+            isActive: true, // Chỉ lấy user có status ACTIVE
           },
           select: {
             code: true,
@@ -717,21 +705,66 @@ export class PrismaBsUserRepository
         }
       }
 
-      // Lấy tất cả userCode đã tồn tại trong userContract
-      const existingUserCodes = await client.userContract.findMany({
-        select: {
-          userCode: true,
-        },
-      });
+      // Lấy tất cả user có role HR (R2) hoặc STAFF (R4) có status ACTIVE để kiểm tra user chưa có contract
+      if (role === 'R3') {
+        const allActiveUsers = await client.user.findMany({
+          where: {
+            roleCode: {
+              in: ['R2', 'R4'],
+            },
+            isActive: true, // Chỉ lấy user có status ACTIVE
+          },
+          select: {
+            code: true,
+          },
+        });
+        
+        // Kết hợp user có contract và user chưa có contract (cả hai đều phải có status ACTIVE)
+        const allActiveUserCodes = allActiveUsers.map((u) => u.code);
+        allowedUserCodes = [...new Set([...allowedUserCodes, ...allActiveUserCodes])];
+      }
 
-      const existingCodes = existingUserCodes
-        .map((contract) => contract.userCode)
-        .filter((code): code is string => code !== null);
+             if (role === 'R2') {
+         // R2: Chỉ lấy user chưa có contract nào đang ở trạng thái ACTIVE
+         // Lấy tất cả userCode đã có contract với status ACTIVE
+         const existingUserCodes = await client.userContract.findMany({
+           where: {
+             status: 'ACTIVE', // Chỉ lấy contract có status ACTIVE
+           },
+           select: {
+             userCode: true,
+           },
+         });
 
-      // Tìm user thuộc quyền quản lý nhưng chưa có trong userContract
-      usersWithoutContract = allowedUserCodes.filter(
-        (userCode) => !existingCodes.includes(userCode),
-      );
+         const existingCodes = existingUserCodes
+           .map((contract) => contract.userCode)
+           .filter((code): code is string => code !== null);
+
+         // Tìm user thuộc quyền quản lý nhưng chưa có contract nào đang ACTIVE
+         usersWithoutContract = allowedUserCodes.filter(
+           (userCode) => !existingCodes.includes(userCode),
+         );
+       } else {
+         // R3: Chỉ lấy user chưa có contract nào đang ở trạng thái ACTIVE
+         // Lấy tất cả userCode đã có contract với status ACTIVE
+         const existingUserCodes = await client.userContract.findMany({
+           where: {
+             status: 'ACTIVE', // Chỉ lấy contract có status ACTIVE
+           },
+           select: {
+             userCode: true,
+           },
+         });
+
+         const existingCodes = existingUserCodes
+           .map((contract) => contract.userCode)
+           .filter((code): code is string => code !== null);
+
+         // Tìm user thuộc quyền quản lý nhưng chưa có contract nào đang ACTIVE
+         usersWithoutContract = allowedUserCodes.filter(
+           (userCode) => !existingCodes.includes(userCode),
+         );
+       }
 
       // Luôn luôn cộng usersWithoutContract vào finalWhere.code
       let currentUserCodes: string[] = [];
@@ -745,25 +778,6 @@ export class PrismaBsUserRepository
       }
 
       // Kết hợp user chưa có contract vào danh sách kết quả
-      const combinedUserCodes = [
-        ...new Set([...currentUserCodes, ...usersWithoutContract]),
-      ];
-      finalWhere.code = { in: combinedUserCodes };
-    }
-
-    // Kết hợp user đã có trong kết quả filter với user chưa có contract
-    if (usersWithoutContract.length > 0) {
-      let currentUserCodes: string[] = [];
-
-      if (finalWhere.code) {
-        if (typeof finalWhere.code === 'string') {
-          currentUserCodes = [finalWhere.code];
-        } else if (finalWhere.code.in && Array.isArray(finalWhere.code.in)) {
-          currentUserCodes = finalWhere.code.in;
-        }
-      }
-
-      // Cộng user chưa có contract vào danh sách kết quả
       const combinedUserCodes = [
         ...new Set([...currentUserCodes, ...usersWithoutContract]),
       ];
