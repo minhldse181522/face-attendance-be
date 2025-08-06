@@ -149,6 +149,7 @@ export class PrismaWorkingScheduleRepository
             },
           },
         },
+        orderBy: [{ date: 'asc' }],
       }),
 
       client.workingSchedule.count({
@@ -164,8 +165,33 @@ export class PrismaWorkingScheduleRepository
       }),
     ]);
 
+    // Sắp xếp theo thời gian trong ngày (chỉ lấy giờ:phút)
+    const sortedData = data.sort((a, b) => {
+      // So sánh ngày trước
+      const dateA = new Date(a.date!).getTime();
+      const dateB = new Date(b.date!).getTime();
+
+      if (dateA !== dateB) {
+        return dateA - dateB;
+      }
+
+      // Nếu cùng ngày, so sánh theo giờ:phút của startTime
+      if (a.shift?.startTime && b.shift?.startTime) {
+        const timeA = new Date(a.shift.startTime);
+        const timeB = new Date(b.shift.startTime);
+
+        // Chỉ so sánh giờ và phút
+        const hoursMinutesA = timeA.getHours() * 60 + timeA.getMinutes();
+        const hoursMinutesB = timeB.getHours() * 60 + timeB.getMinutes();
+
+        return hoursMinutesA - hoursMinutesB;
+      }
+
+      return 0;
+    });
+
     return new Paginated({
-      data: data.map(this.mapper.toDomain),
+      data: sortedData.map(this.mapper.toDomain),
       count,
       limit,
       page,
