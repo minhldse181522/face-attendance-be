@@ -132,16 +132,16 @@ export class UpdateChamCongService implements ICommandHandler<ChamCongCommand> {
     console.log('isLate', isLate);
 
     // Checkin trễ 1 tiếng
-    // if (checkinTime > allowedCheckInDeadline) {
-    //   await this.commandBus.execute(
-    //     new UpdateWorkingScheduleCommand({
-    //       workingScheduleId: workingScheduleProps.id,
-    //       status: 'NOTWORK',
-    //       updatedBy: 'system',
-    //     }),
-    //   );
-    //   return Err(new LateCheckInError());
-    // }
+    if (checkinTime > allowedCheckInDeadline) {
+      await this.commandBus.execute(
+        new UpdateWorkingScheduleCommand({
+          workingScheduleId: workingScheduleProps.id,
+          status: 'NOTWORK',
+          updatedBy: 'system',
+        }),
+      );
+      return Err(new LateCheckInError());
+    }
 
     // Kiếm tra 1 ngày không checkin 2 lần
     const alreadyCheckIn: FindTimeKeepingByParamsQueryResult =
