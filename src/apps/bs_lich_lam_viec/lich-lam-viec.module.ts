@@ -26,6 +26,8 @@ import { FindLichLamViecQueryHandler } from './queries/find-lich-lam-viec/find-l
 import { FindUserByManagementHttpController } from './queries/find-user-by-management/find-user-by-management.http.controller';
 import { FindUserByManagementQueryHandler } from './queries/find-user-by-management/find-user-by-management.query-handler';
 import { NotificationWorkingScheduleCronService } from './commands/nhac-nho-lam-viec/nhac-nho-lam-viec.cron.service';
+import { EndOfDayWorkingScheduleCronService } from './commands/cham-cong/ket-thuc-ngay.cron.service';
+import { WorkingScheduleCronService } from './commands/cham-cong/cham-cong-tre.cron.service';
 
 const httpControllers = [
   FindLichLamViecHttpController,
@@ -43,8 +45,8 @@ const graphqlResolvers: Provider[] = [];
 const commandHandlers: Provider[] = [
   CreateLichLamViecService,
   UpdateChamCongService,
-  // WorkingScheduleCronService,
-  // EndOfDayWorkingScheduleCronService,
+  WorkingScheduleCronService,
+  EndOfDayWorkingScheduleCronService,
   NotificationWorkingScheduleCronService,
 ];
 
