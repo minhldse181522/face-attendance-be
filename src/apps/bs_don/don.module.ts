@@ -6,6 +6,7 @@ import { PrismaFormDescriptionRepository } from '@src/modules/form-description/d
 import { FORM_DESCRIPTION_REPOSITORY } from '@src/modules/form-description/form-description.di-tokens';
 import { FormDescriptionModule } from '@src/modules/form-description/form-description.module';
 import { FormDescriptionMapper } from '@src/modules/form-description/mappers/form-description.mapper';
+import { BsUserContractModule } from '@src/apps/bs-user-contract/user-contract.module';
 import { XuLiDonHttpController } from './commands/tao-don/tao-don.http.controller';
 import { TaoDonService } from './commands/tao-don/tao-don.service';
 
@@ -33,7 +34,7 @@ const repositories: Provider[] = [
 const utilities: Provider[] = [GenerateCode];
 
 @Module({
-  imports: [CqrsModule, FormDescriptionModule],
+  imports: [CqrsModule, FormDescriptionModule, BsUserContractModule],
   controllers: [...httpControllers, ...messageControllers],
   providers: [
     Logger,
